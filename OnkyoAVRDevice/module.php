@@ -128,8 +128,8 @@ class OnkyoAVR extends IPSModule
     public function ReceiveData($JSONString)
     {
         $Data = json_decode($JSONString);
-IPS_LogMessage('ReceiveData',print_r($Data,true));
-        if ($Data->DataID <> '{A245A1A6-2618-47B2-AF49-0EDCAB93CCD0}')
+//IPS_LogMessage('ReceiveData',print_r($Data,true));
+        if ($Data->DataID <> '{43E4B48E-2345-4A9A-B506-3E8E7A964757}')
             return false;
         if ($this->GetZone() === false)
             return false;
