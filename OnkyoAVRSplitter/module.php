@@ -315,6 +315,7 @@ class ISCPGateway extends IPSModule
             }
             $header_len = ord($stream[6]) * 256 + ord($stream[7]);
             $frame_len = ord($stream[10]) * 256 + ord($stream[11]);
+             IPS_LogMessage('ISCP Gateway', 'LANFrame info ' . $header_len. '+'. $frame_len . ' Bytes.');            
             if (strlen($stream) < $header_len + $frame_len)
             {
                 IPS_LogMessage('ISCP Gateway', 'LANFrame must have ' . $header_len. '+'. $frame_len . ' Bytes. ' . strlen($stream) . ' Bytes given.');
@@ -324,7 +325,16 @@ class ISCPGateway extends IPSModule
             }
             $header = substr($stream, 0, $header_len);
             $frame = substr($stream, $header_len, $frame_len);
-
+                IPS_LogMessage('ISCP Gateway', 'LAN $header:' . $header);
+                IPS_LogMessage('ISCP Gateway', 'LAN $frame:' . $frame);
+            
+// 49 53 43 50  // ISCP
+// 00 00 00 10  // HEADERLEN
+// 00 00 00 0B  // DATALEN
+// 01 00 00 00  // Version
+// 21 31 4E 4C  // !1NL
+// 53 43 2D 50  // SC-P
+// 1A 0D 0A     // EOT CR LF
             $tail = substr($stream, $header_len + $frame_len);
             if ($this->eISCPVersion <> ord($header[12]))
             {
