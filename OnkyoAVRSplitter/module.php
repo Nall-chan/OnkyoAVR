@@ -176,7 +176,19 @@ class ISCPGateway extends IPSModule
                 return;
             }
             $header = substr($stream, 0, $header_len);
-            $frame = substr($stream, $header_len, $frame_len - 1); //EOT wegschneiden
+            $frame = substr($stream, $header_len, $frame_len);
+            //EOT wegschneiden von reschts, aber nur wenn es einer der letzten drei zeichen ist
+            $end = strrpos($frame, chr(0x1A));
+            if ($end >= $frame_len - 3)
+                $frame = substr($frame, 0, $end);
+            //EOT wegschneiden von reschts, aber nur wenn es einer der letzten drei zeichen ist
+            $end = strrpos($frame, chr(0x0D));
+            if ($end >= $frame_len - 3)
+                $frame = substr($frame, 0, $end);
+            //EOT wegschneiden von reschts, aber nur wenn es einer der letzten drei zeichen ist
+            $end = strrpos($frame, chr(0x0A));
+            if ($end >= $frame_len - 3)
+                $frame = substr($frame, 0, $end);
 //                IPS_LogMessage('ISCP Gateway', 'LAN $header:' . $header);
 //                IPS_LogMessage('ISCP Gateway', 'LAN $frame:' . $frame);
 // 49 53 43 50  // ISCP
