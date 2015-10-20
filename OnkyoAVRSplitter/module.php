@@ -9,7 +9,7 @@ class ISCPGateway extends IPSModule
     const COM = 2;
 
     private $Mode = self::LAN; // off // 1 = LAN // 2  = COM
-    private $eISCPVersion = "\x01";
+    private $eISCPVersion = 1;
 
     public function Create()
     {
