@@ -339,7 +339,7 @@ class ISCPGateway extends IPSModule
             if ($this->eISCPVersion <> ord($header[12]))
             {
                 $frame = false;
-                echo ord($header[12].PHP_EOL;
+                echo ord($header[12]).PHP_EOL;
                 echo $this->eISCPVersion.PHP_EOL;                
                 echo "Wrong eISCP Version";
             }
