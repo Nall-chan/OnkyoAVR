@@ -198,8 +198,10 @@ class ISCP_API_Command extends stdClass
         
     }
 
-    public function CmdAvaiable(ONKYO_Zone $Zone)
+    public function CmdAvaiable($ZoneNr)
     {
+        $Zone = new ONKYO_Zone();
+        $Zone->Zone = $ZoneNr;
         return (in_array($Zone->Zone, $this->ZoneCMDs));
     }
 

@@ -5,7 +5,7 @@ require_once(__DIR__ . "/../OnkyoAVRClass.php");  // diverse Klassen
 class OnkyoAVR extends IPSModule
 {
 
-    private $Zone = 0;
+     private $Zone = 0;
 
     public function Create()
     {
