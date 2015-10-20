@@ -63,168 +63,20 @@ class ISCPGateway extends IPSModule
 
     private function DecodeData($Frame)
     {
-//        IPS_LogMessage("Decode",)
-        var_dump($Frame);
-        return;
-        // OLD
-        $checksum = ord($Frame[strlen($Frame) - 1]);
-        //Checksum bilden
-//            IPS_LogMessage('Receive - Checksum must '.$checksum, bin2hex($Frame));
-        for ($x = 0; $x < (strlen($Frame) - 1); $x++)
+        if ($Frame[0] <> '!')
         {
-            $checksum = $checksum + ord($Frame[$x]);
-        }
-        //Auf Byte begrenzen
-        $checksum = $checksum & 0xff;
-        //Checksum NOK?
-        if ($checksum <> 0xff)
-        {
-            IPS_LogMessage('Receive - Checksum Error: ' . $checksum, bin2hex($Frame));
+            echo 'ISCP Frame without !';
             return;
         }
-        //API CmdID extrahieren
-        //  senddata('Receive',data);
-        $APIData = new TXB_API_Data();
-        $APIData->APICommand = ord($Frame[0]);
-        $Frame = substr($Frame, 1, -1);
-        IPS_LogMessage('XB_API_Command', $APIData->APICommand);
-
-        switch ($APIData->APICommand)
+        if ($Frame[1] <> '1')
         {
-            case TXB_API_Command::XB_API_AT_Command_Responde:
-//                IPS_LogMessage('XB_API_AT_Command_Responde',print_r($APIData,1));                                
-                // FERTIG
-                $ATData = new TXB_Command_Data();
-                $ATData->FrameID = ord($Frame[0]);
-                $ATData->ATCommand = substr($Frame, 1, 2);
-                $ATData->Status = ord($Frame[3]);
-                $ATData->Data = substr($Frame, 4);
-//                IPS_LogMessage('XB_Command_Data',print_r($ATData,1));                                
-                switch ($ATData->ATCommand)
-                {
-                    case TXB_AT_Command::XB_AT_ND:
-                        if ($ATData->Status == TXB_Command_Status::XB_Command_OK)
-                        {
-                            if ($ATData->Data <> '')
-                            {
-                                $Node = new TXB_Node();
-                                $Node->NodeAddr16 = substr($ATData->Data, 0, 2);
-                                $Node->NodeAddr64 = substr($ATData->Data, 2, 8);
-                                $ATData->Data = substr($ATData->Data, 10);
-                                $end = strpos($ATData->Data, chr(0));
-                                $Node->NodeName = substr($ATData->Data, 0, $end);
-                                //  SendData('AT_Command_Responde('+XB_ATCommandToString(ATData.ATCommand)+')',Node.NodeName+' ' + inttohex(Node.NodeAddr16,4) + ' '
-                                //  + inttohex(Int64Rec(Node.NodeAddr64).Hi,8) + inttohex(Int64Rec(Node.NodeAddr64).Lo,8));
-//                            IPS_LogMessage('AT_Command::XB_AT_ND',print_r($Node,1));                                
-                                $this->AddOrReplaceNode($Node);
-                            }
-                        } else
-                        {
-                            //  senddata('AT_Command_Responde('+XB_ATCommandToString(ATData.ATCommand)+')','Error: '+XB_Command_Status_To_String(ATData.Status));
-                        }
-                        break;
-                    case TXB_AT_Command::XB_AT_NI:
-                        if ($ATData->Status == TXB_Command_Status::XB_Command_OK)
-                        {
-                            $end = strpos($ATData->Data, chr(0));
-                            $this->SetSummary(substr($ATData->Data, 0, $end));
-                        } else
-                        {
-                            //  senddata('AT_Command_Responde('+XB_ATCommandToString(ATData.ATCommand)+')','Error: '+XB_Command_Status_To_String(ATData.Status));
-                        }
-                        break;
-                    default:
-                        //  SendData('AT_Command_Responde('+XB_ATCommandToString(ATData.ATCommand)+')',data);                        
-                        $this->SendDataToDevice($ATData);
-                        break;
-                }
-                break;
-            case TXB_API_Command::XB_API_Modem_Status:
-                //FERTIG
-                //senddata('Modem_Status('+inttohex(ord(APIData.APICommand),2)+')',XB_ModemStatusToString(TXB_Modem_Status(ord(data[1]))));
-                IPS_LogMessage('XBee ModemStatus(' . bin2hex(ord($APIData->APICommand)) . ')', $Frame[1]);
-                break;
-            case TXB_API_Command::XB_API_Transmit_Status:
-                //FERTIG
-                $Node = $this->GetNodeByAddr16(substr($Frame, 1, 2));
-                if ($Node === false) //unbekannter node
-                {
-                    // senddata('TX_Status('+inttohex(ord(APIData.APICommand),2)+') unknow Node',data);
-                } else
-                {
-                    $APIData->NodeName = $Node->NodeName;
-                    $APIData->FrameID = ord($Frame[0]);
-                    $APIData->Data = substr($Frame, 2);
-                    //  SendData('TX_Status('+inttohex(ord(APIData.APICommand),2)+')',data);
-                    $this->SendDataToSplitter($APIData);
-                }
-                break;
-            case TXB_API_Command::XB_API_Receive_Paket:
-                //FERTIG
-                $Node1 = $this->GetNodeByAddr64(substr($Frame, 0, 8));
-                $Node2 = $this->GetNodeByAddr16(substr($Frame, 8, 2));
-                if (($Node1 === false) or ( $Node2 === false) or ( $Node1 <> $Node2)) //unbekannter node
-                {
-                    //  senddata('TX_Status('+inttohex(ord(APIData.APICommand),2)+') unknow Node',data);
-                } else
-                {
-                    $APIData->NodeName = $Node1->NodeName;
-                    $APIData->FrameID = 0;
-                    $APIData->Data = substr($Frame, 10);
-                    $this->SendDataToSplitter($APIData);
-                    //  SendData('Receive_Paket('+inttohex(ord(APIData.APICommand),2)+')',data);
-                }
-                break;
-            case TXB_API_Command::XB_API_Node_Identification_Indicator:
-                $Node = new TXB_Node();
-                $Node->NodeAddr64 = substr($Frame, 0, 8);
-                $Node->NodeAddr16 = substr($Frame, 8, 2);
-                $Frame = substr($Frame, 21);
-                $end = strpos($Frame, chr(0));
-                $Node->NodeName = substr($Frame, 0, $end);
-                //  SendData('Node_Identification_Indicator('+inttohex(ord(APIData.APICommand),2)+')',Node.NodeName+' ' + inttohex(Node.NodeAddr16,4) + ' '
-                //  + inttohex(Int64Rec(Node.NodeAddr64).Hi,8) + inttohex(Int64Rec(Node.NodeAddr64).Lo,8));
-                IPS_LogMessage('Node_Identification_Indicator', print_r($Node, 1));
-                $this->AddOrReplaceNode($Node);
-
-                break;
-            case TXB_API_Command::XB_API_Remote_AT_Command_Responde:
-                //FERTIG        
-                $APIData->FrameID = $Frame[0];
-                $Node1 = $this->GetNodeByAddr64(substr($Frame, 1, 8));
-                $Node2 = $this->GetNodeByAddr16(substr($Frame, 9, 2));
-                if (($Node1 === false) or ( $Node2 === false) or ( $Node1 <> $Node2)) //unbekannter node
-                {
-                    //  senddata('Remote_AT_Command_Responde('+inttohex(ord(APIData.APICommand),2)+') unknow Node',data);
-                } else
-                {
-                    $APIData->NodeName = $Node1->NodeName;
-                    $APIData->Data = substr($Frame, 11);
-                    //  SendData('Remote_AT_Command_Responde('+inttohex(ord(APIData.APICommand),2)+')',data);
-                    $this->SendDataToSplitter($APIData);
-                }
-                break;
-            case TXB_API_Command::XB_API_IO_Data_Sample_Rx:
-                // FERTIG
-                $Node1 = $this->GetNodeByAddr64(substr($Frame, 0, 8));
-                $Node2 = $this->GetNodeByAddr16(substr($Frame, 8, 2));
-                if (($Node1 === false) or ( $Node2 === false) or ( $Node1 <> $Node2)) //unbekannter node
-                {
-                    //  senddata('Receive_IO_Sample('+inttohex(ord(APIData.APICommand),2)+') unknow Node',data);
-                } else
-                {
-                    $APIData->NodeName = $Node1->NodeName;
-                    $APIData->Data = substr($Frame, 10);
-                    $APIData->FrameID = 0;
-                    //  SendData('Receive_IO_Sample('+inttohex(ord(APIData.APICommand),2)+')',data);                            
-                    $this->SendDataToSplitter($APIData);
-                }
-
-                break;
-            default:
-                //  senddata('Ungültiger API Frame('+inttohex(ord(APIData.APICommand),2)+')',data);
-                break;
+            echo 'Device Typ ' . $Frame[1] . ' not implemented';
+            return;
         }
+        $APIData = new ISCP_API_Command();
+        $APIData->APICommand = substr($Frame, 2, 3);
+        $APIData->Data = substr($Frame, 5);
+        $this->SendDataToZone($APIData);
     }
 
 ################## PUBLIC
@@ -263,7 +115,7 @@ class ISCPGateway extends IPSModule
         $this->SendDataToParent($Frame);
     }
 
-    private function SendDataToDevice(ISCP_API_Command $APIData)
+    private function SendDataToZone(ISCP_API_Command $APIData)
     {
         $Data = $APIData->ToJSONString('{43E4B48E-2345-4A9A-B506-3E8E7A964757}');
         IPS_SendDataToChildren($this->InstanceID, $Data);
@@ -274,7 +126,7 @@ class ISCPGateway extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
+        //IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
         $this->CheckParents();
         if ($this->Mode === false)
             throw new Exception("Wrong IO-Parent");
@@ -298,7 +150,8 @@ class ISCPGateway extends IPSModule
             {
                 IPS_LogMessage('ISCP Gateway', 'LANFrame without ISCP');
                 $stream = '';
-            } elseif ($start > 0)
+            }
+            elseif ($start > 0)
             {
                 IPS_LogMessage('ISCP Gateway', 'LANFrame start not with ISCP');
                 $stream = substr($stream, $start);
@@ -307,27 +160,24 @@ class ISCPGateway extends IPSModule
             if (strlen($stream) < $minTail)
             {
                 IPS_LogMessage('ISCP Gateway', 'LANFrame to short');
-
-
                 SetValueString($bufferID, $stream);
                 $this->unlock("ReceiveLock");
                 return;
             }
             $header_len = ord($stream[6]) * 256 + ord($stream[7]);
             $frame_len = ord($stream[10]) * 256 + ord($stream[11]);
-             IPS_LogMessage('ISCP Gateway', 'LANFrame info ' . $header_len. '+'. $frame_len . ' Bytes.');            
+//             IPS_LogMessage('ISCP Gateway', 'LANFrame info ' . $header_len. '+'. $frame_len . ' Bytes.');            
             if (strlen($stream) < $header_len + $frame_len)
             {
-                IPS_LogMessage('ISCP Gateway', 'LANFrame must have ' . $header_len. '+'. $frame_len . ' Bytes. ' . strlen($stream) . ' Bytes given.');
+                IPS_LogMessage('ISCP Gateway', 'LANFrame must have ' . $header_len . '+' . $frame_len . ' Bytes. ' . strlen($stream) . ' Bytes given.');
                 SetValueString($bufferID, $stream);
                 $this->unlock("ReceiveLock");
                 return;
             }
             $header = substr($stream, 0, $header_len);
-            $frame = substr($stream, $header_len, $frame_len+1);
-                IPS_LogMessage('ISCP Gateway', 'LAN $header:' . $header);
-                IPS_LogMessage('ISCP Gateway', 'LAN $frame:' . $frame);
-            
+            $frame = substr($stream, $header_len, $frame_len - 1); //EOT wegschneiden
+//                IPS_LogMessage('ISCP Gateway', 'LAN $header:' . $header);
+//                IPS_LogMessage('ISCP Gateway', 'LAN $frame:' . $frame);
 // 49 53 43 50  // ISCP
 // 00 00 00 10  // HEADERLEN
 // 00 00 00 0B  // DATALEN
@@ -339,11 +189,10 @@ class ISCPGateway extends IPSModule
             if ($this->eISCPVersion <> ord($header[12]))
             {
                 $frame = false;
-                echo ord($header[12]).PHP_EOL;
-                echo $this->eISCPVersion.PHP_EOL;                
                 echo "Wrong eISCP Version";
             }
-        } else
+        }
+        else
         {
             $minTail = 6;
             $start = strpos($stream, '!');
@@ -351,7 +200,8 @@ class ISCPGateway extends IPSModule
             {
                 IPS_LogMessage('ISCP Gateway', 'eISCP Frame without !');
                 $stream = '';
-            } elseif ($start > 0)
+            }
+            elseif ($start > 0)
             {
                 IPS_LogMessage('ISCP Gateway', 'eISCP Frame do not start with !');
                 $stream = substr($stream, $start);
@@ -397,10 +247,12 @@ class ISCPGateway extends IPSModule
             $Len = strelen($Frame) + 8;
             $eISCPHeaderlen = chr(0x00) . chr(0x00) . chr(floor(strlen($Len) / 256)) . chr(strlen($Len) % 256);
             $Frame = "ISCP" . $eISCPHeaderlen . $Frame . $Data;
-        } elseif ($this->Mode == ISCPGateway::COM)
+        }
+        elseif ($this->Mode == ISCPGateway::COM)
         {
             $Frame = $Data;
-        } else
+        }
+        else
         {
             throw new Exception("Wrong IO-Parent.");
         }
@@ -415,7 +267,8 @@ class ISCPGateway extends IPSModule
         try
         {
             IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Frame))));
-        } catch (Exception $exc)
+        }
+        catch (Exception $exc)
         {
             // Senden fehlgeschlagen
             $this->unlock("ToParent");
@@ -469,7 +322,8 @@ class ISCPGateway extends IPSModule
         {
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
             IPS_SetEventActive($id, true);
-        } else
+        }
+        else
         {
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
             IPS_SetEventActive($id, false);
@@ -529,7 +383,8 @@ class ISCPGateway extends IPSModule
             if (IPS_SemaphoreEnter("ISCP_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            } else
+            }
+            else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }
