@@ -128,7 +128,7 @@ class OnkyoAVR extends IPSModule
     public function ReceiveData($JSONString)
     {
         $Data = json_decode($JSONString);
-
+IPS_LogMessage('ReceiveData',print_r($Data,true));
         if ($Data->DataID <> '{A245A1A6-2618-47B2-AF49-0EDCAB93CCD0}')
             return false;
         if ($this->GetZone() === false)
@@ -136,6 +136,7 @@ class OnkyoAVR extends IPSModule
         
         $APIData = new ISCP_API_Command();
         $APIData->GetDataFromJSONObject($Data);
+IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
         if ($APIData->CmdAvaiable($this->Zone) === false)
             return false;
         $this->ReceiveAPIData($APIData);
@@ -151,7 +152,7 @@ class OnkyoAVR extends IPSModule
           throw new Exception('ReplyAPIData is locked');
       SetValueString($ReplyAPIDataID, $ReplyAPIData);
       $this->unlock('ReplyAPIData');
-IPS_LogMessage('ReceiveAPIData',print_r($APIData,1));
+IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
 /*      switch ($ATData->ATCommand)
       {
       case TXB_AT_Command::XB_AT_D0:

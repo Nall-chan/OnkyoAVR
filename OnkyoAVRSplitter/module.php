@@ -117,6 +117,7 @@ class ISCPGateway extends IPSModule
 
     private function SendDataToZone(ISCP_API_Command $APIData)
     {
+        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
         $Data = $APIData->ToJSONString('{43E4B48E-2345-4A9A-B506-3E8E7A964757}');
         IPS_SendDataToChildren($this->InstanceID, $Data);
     }
