@@ -273,9 +273,8 @@ class ISCPGateway extends IPSModule
 
     public function ReceiveData($JSONString)
     {
-        //OLD
         $data = json_decode($JSONString);
-//        IPS_LogMessage('ReceiveDataFromSerialPort:'.$this->InstanceID,  print_r($data,1));
+        IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
         $this->CheckParents();
         if ($this->Mode === false)
             throw new Exception("Wrong IO-Parent");
@@ -297,17 +296,18 @@ class ISCPGateway extends IPSModule
             $start = strpos($stream, 'ISCP');
             if ($start === false)
             {
-//            IPS_LogMessage('XBeeZigBee Gateway', 'Frame without 0x7e');
+                IPS_LogMessage('ISCP Gateway', 'LANFrame without ISCP');
                 $stream = '';
             } elseif ($start > 0)
             {
-//            IPS_LogMessage('XBeeZigBee Gateway', 'Frame do not start with 0x7e');
+                IPS_LogMessage('ISCP Gateway', 'LANFrame start not with ISCP');
                 $stream = substr($stream, $start);
             }
             //Paket suchen
             if (strlen($stream) < $minTail)
             {
-//            IPS_LogMessage('XBeeZigBee Gateway', 'Frame to short');
+                IPS_LogMessage('ISCP Gateway', 'LANFrame to short');
+
 
                 SetValueString($bufferID, $stream);
                 $this->unlock("ReceiveLock");
@@ -317,7 +317,7 @@ class ISCPGateway extends IPSModule
             $frame_len = ord($stream[10]) * 256 + ord($stream[11]);
             if (strlen($stream) < $header_len + $frame_len)
             {
-//            IPS_LogMessage('XBeeZigBee Gateway', 'Frame must have ' . $len . ' Bytes. ' . strlen($stream) . ' Bytes given.');
+                IPS_LogMessage('ISCP Gateway', 'LANFrame must have ' . $header_len. '+'. $frame_len . ' Bytes. ' . strlen($stream) . ' Bytes given.');
                 SetValueString($bufferID, $stream);
                 $this->unlock("ReceiveLock");
                 return;
@@ -337,18 +337,18 @@ class ISCPGateway extends IPSModule
             $start = strpos($stream, '!');
             if ($start === false)
             {
-//            IPS_LogMessage('XBeeZigBee Gateway', 'Frame without 0x7e');
+                IPS_LogMessage('ISCP Gateway', 'eISCP Frame without !');
                 $stream = '';
             } elseif ($start > 0)
             {
-//            IPS_LogMessage('XBeeZigBee Gateway', 'Frame do not start with 0x7e');
+                IPS_LogMessage('ISCP Gateway', 'eISCP Frame do not start with !');
                 $stream = substr($stream, $start);
             }
             //Paket suchen
             $end = strpos($stream, chr(0x1A));
             if (($end === false) or ( strlen($stream) < $minTail)) // Kein EOT oder zu klein
             {
-//            IPS_LogMessage('XBeeZigBee Gateway', 'Frame to short');
+                IPS_LogMessage('ISCP Gateway', 'eISCP Frame to short');
                 SetValueString($bufferID, $stream);
                 $this->unlock("ReceiveLock");
                 return;
