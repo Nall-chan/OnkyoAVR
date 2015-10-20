@@ -324,7 +324,7 @@ class ISCPGateway extends IPSModule
                 return;
             }
             $header = substr($stream, 0, $header_len);
-            $frame = substr($stream, $header_len, $frame_len);
+            $frame = substr($stream, $header_len, $frame_len+1);
                 IPS_LogMessage('ISCP Gateway', 'LAN $header:' . $header);
                 IPS_LogMessage('ISCP Gateway', 'LAN $frame:' . $frame);
             
@@ -339,6 +339,8 @@ class ISCPGateway extends IPSModule
             if ($this->eISCPVersion <> ord($header[12]))
             {
                 $frame = false;
+                echo ord($header[12].PHP_EOL;
+                echo $this->eISCPVersion.PHP_EOL;                
                 echo "Wrong eISCP Version";
             }
         } else
