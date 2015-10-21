@@ -41,55 +41,55 @@ class ONKYO_Zone extends stdClass
     public $thisZone;
     private $ZoneCMDs = array(
         ONKYO_Zone::ZoneMain => array(
-            ISCP_API_Command::PWR,
-            ISCP_API_Command::AMT,
-            ISCP_API_Command::MVL,
-            ISCP_API_Command::SLI,
-            ISCP_API_Command::TUN,
-            ISCP_API_Command::PRS,
-            ISCP_API_Command::NTC,
-            ISCP_API_Command::NPR,
-            ISCP_API_Command::TFR,
-            ISCP_API_Command::TFW,
-            ISCP_API_Command::TFH,
-            ISCP_API_Command::TCT,
-            ISCP_API_Command::TSR,
-            ISCP_API_Command::TSB,
-            ISCP_API_Command::TSW
+            ISCP_API_Commands::PWR,
+            ISCP_API_Commands::AMT,
+            ISCP_API_Commands::MVL,
+            ISCP_API_Commands::SLI,
+            ISCP_API_Commands::TUN,
+            ISCP_API_Commands::PRS,
+            ISCP_API_Commands::NTC,
+            ISCP_API_Commands::NPR,
+            ISCP_API_Commands::TFR,
+            ISCP_API_Commands::TFW,
+            ISCP_API_Commands::TFH,
+            ISCP_API_Commands::TCT,
+            ISCP_API_Commands::TSR,
+            ISCP_API_Commands::TSB,
+            ISCP_API_Commands::TSW
         ),
         ONKYO_Zone::Zone2 => array(
-            ISCP_API_Command::ZPW,
-            ISCP_API_Command::ZMT,
-            ISCP_API_Command::ZVL,
-            ISCP_API_Command::ZTN,
-            ISCP_API_Command::ZBL,
-            ISCP_API_Command::SLZ,
-            ISCP_API_Command::TUZ,
-            ISCP_API_Command::PRZ,
-            ISCP_API_Command::NTZ,
-            ISCP_API_Command::NPZ
+            ISCP_API_Commands::ZPW,
+            ISCP_API_Commands::ZMT,
+            ISCP_API_Commands::ZVL,
+            ISCP_API_Commands::ZTN,
+            ISCP_API_Commands::ZBL,
+            ISCP_API_Commands::SLZ,
+            ISCP_API_Commands::TUZ,
+            ISCP_API_Commands::PRZ,
+            ISCP_API_Commands::NTZ,
+            ISCP_API_Commands::NPZ
         ),
         ONKYO_Zone::Zone3 => array(
-            ISCP_API_Command::PW3,
-            ISCP_API_Command::MT3,
-            ISCP_API_Command::VL3,
-            ISCP_API_Command::SL3,
-            ISCP_API_Command::TU3,
-            ISCP_API_Command::PR3,
-            ISCP_API_Command::NT3,
-            ISCP_API_Command::NP3,
-            ISCP_API_Command::BL3,
-            ISCP_API_Command::TN3
+            ISCP_API_Commands::PW3,
+            ISCP_API_Commands::MT3,
+            ISCP_API_Commands::VL3,
+            ISCP_API_Commands::SL3,
+            ISCP_API_Commands::TU3,
+            ISCP_API_Commands::PR3,
+            ISCP_API_Commands::NT3,
+            ISCP_API_Commands::NP3,
+            ISCP_API_Commands::BL3,
+            ISCP_API_Commands::TN3
         ),
         ONKYO_Zone::Zone4 => array(
-            ISCP_API_Command::PW4,
-            ISCP_API_Command::MT4,
-            ISCP_API_Command::VL4,
-            ISCP_API_Command::SL4,
-            ISCP_API_Command::TU4,
-            ISCP_API_Command::PR4,
-            ISCP_API_Command::NT4,
-            ISCP_API_Command::NP4
+            ISCP_API_Commands::PW4,
+            ISCP_API_Commands::MT4,
+            ISCP_API_Commands::VL4,
+            ISCP_API_Commands::SL4,
+            ISCP_API_Commands::TU4,
+            ISCP_API_Commands::PR4,
+            ISCP_API_Commands::NT4,
+            ISCP_API_Commands::NP4
         )
     );
 
@@ -227,62 +227,62 @@ class ISCP_API_Commands extends stdClass
     const Profile = 2;
 
     static $VarMapping = array(
-        ISCP_API_Command::PWR
+        ISCP_API_Commands::PWR
         => array(
             self::VarType => IPSVarType::vtBoolean,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptSwitch
         ),
-        ISCP_API_Command::AMT
+        ISCP_API_Commands::AMT
         => array(
             self::VarType => IPSVarType::vtBoolean,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptMute
         ),
-        ISCP_API_Command::MVL
+        ISCP_API_Commands::MVL
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptVolume
         ),
-        ISCP_API_Command::SLI
+        ISCP_API_Commands::SLI
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptSLI
         ),
-        ISCP_API_Command::TUN
+        ISCP_API_Commands::TUN
         => array(
             self::VarType => IPSVarType::vtFloat,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptTunerFrequenz
         ),
-        ISCP_API_Command::PRS
+        ISCP_API_Commands::PRS
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptRadioPreset
         ),
-        ISCP_API_Command::NTC
+        ISCP_API_Commands::NTC
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptNetTuneCommand
         ),
-        ISCP_API_Command::NPR
+        ISCP_API_Commands::NPR
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptNetRadioPreset
         )
             /*
-              ISCP_API_Command::TFR,
-              ISCP_API_Command::TFW,
-              ISCP_API_Command::TFH,
-              ISCP_API_Command::TCT,
-              ISCP_API_Command::TSR,
-              ISCP_API_Command::TSB,
-              ISCP_API_Command::TSW */
+              ISCP_API_Commands::TFR,
+              ISCP_API_Commands::TFW,
+              ISCP_API_Commands::TFH,
+              ISCP_API_Commands::TCT,
+              ISCP_API_Commands::TSR,
+              ISCP_API_Commands::TSB,
+              ISCP_API_Commands::TSW */
     );
 
 }
