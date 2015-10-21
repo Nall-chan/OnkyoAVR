@@ -139,11 +139,8 @@ class OnkyoAVR extends IPSModule
         $APIData->GetDataFromJSONObject($Data);
         IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
         if ($this->OnkyoZone->CmdAvaiable($APIData) === false)
-        {
-            $APIData->GetSubCommand();
             if ($this->OnkyoZone->SubCmdAvaiable($APIData) === false)
                 return false;
-        }
         $APIData->GetMapping();
         $this->ReceiveAPIData($APIData);
     }
@@ -158,11 +155,12 @@ class OnkyoAVR extends IPSModule
         SetValueString($ReplyAPIDataID, $ReplyAPIData);
         $this->unlock('ReplyAPIData');
         IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
-        
-if ($APIData->Mapping->IsVariable);
-    
-    
-        
+
+        if ($APIData->Mapping->IsVariable)
+            ;
+
+
+
         // TODO Prüfen ob Variable nachgeführt werden muss.
 
         /*      switch ($ATData->ATCommand)
@@ -320,7 +318,7 @@ if ($APIData->Mapping->IsVariable);
         $APIData->APICommand = ISCP_API_Commands::PWR;
         $APIData->Data = ISCP_API_Commands::Request;
         $result = $this->SendCommand($APIData);
-        IPS_LogMessage('RequestZoneStateResult',print_r($result,  true));
+        IPS_LogMessage('RequestZoneStateResult', print_r($result, true));
         // Schleife ende
 
         /*        $ATData = new TXB_Command_Data();

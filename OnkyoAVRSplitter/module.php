@@ -76,7 +76,7 @@ class ISCPGateway extends IPSModule
         $APIData = new ISCP_API_Data();
         $APIData->APICommand = substr($Frame, 2, 3);
         $APIData->Data = substr($Frame, 5);
-        $APIData->SetSubCommand();
+        $APIData->GetSubCommand();
         $this->SendDataToZone($APIData);
     }
 
