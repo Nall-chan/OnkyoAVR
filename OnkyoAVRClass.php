@@ -95,7 +95,7 @@ class ONKYO_Zone extends stdClass
 
     public function CmdAvaiable()
     {
-        return (in_array($this->Zone, $this->ZoneCMDs));
+        return (in_array($this->thisZone, $this->ZoneCMDs));
     }
 
 }
