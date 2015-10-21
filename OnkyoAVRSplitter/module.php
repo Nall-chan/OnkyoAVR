@@ -73,7 +73,7 @@ class ISCPGateway extends IPSModule
             echo 'Device Typ ' . $Frame[1] . ' not implemented';
             return;
         }
-        $APIData = new ISCP_API_Command();
+        $APIData = new ISCP_API_Data();
         $APIData->APICommand = substr($Frame, 2, 3);
         $APIData->Data = substr($Frame, 5);
         $this->SendDataToZone($APIData);
@@ -98,14 +98,14 @@ class ISCPGateway extends IPSModule
         $Data = json_decode($JSONString);
         if ($Data->DataID <> "{8F47273A-0B69-489E-AF36-F391AE5FBEC0}")
             return false;
-        $APIData = new ISCP_API_Command();
+        $APIData = new ISCP_API_Data();
         $APIData->GetDataFromJSONObject($Data);
         return $this->ForwardDataFromDevice($APIData);
     }
 
 ################## DATAPOINTS DEVICE
 
-    private function ForwardDataFromDevice(ISCP_API_Command $APIData)
+    private function ForwardDataFromDevice(ISCP_API_Data $APIData)
     {
         if (is_int($APIData->Data))
         {
@@ -115,7 +115,7 @@ class ISCPGateway extends IPSModule
         $this->SendDataToParent($Frame);
     }
 
-    private function SendDataToZone(ISCP_API_Command $APIData)
+    private function SendDataToZone(ISCP_API_Data $APIData)
     {
 //        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
         $Data = $APIData->ToJSONString('{43E4B48E-2345-4A9A-B506-3E8E7A964757}');

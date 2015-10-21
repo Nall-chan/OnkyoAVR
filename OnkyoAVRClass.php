@@ -1,6 +1,35 @@
 <?
 
 //  API Datentypen
+class IPSVarType extends stdClass
+{
+
+    const vtNone = -1;
+    const vtBoolean = 0;
+    const vtInteger = 1;
+    const vtFloat = 2;
+    const vtString = 3;
+
+}
+
+class IPSProfiles extends stdClass
+{
+
+    const ptSwitch = '~Switch';
+    const ptMute = 'Onkyo.Mute';
+    const ptSLI = 'Onkyo.SLI';
+    const ptLMD = 'Onkyo.LMD';
+    const ptVolume = '~Intensity.100';
+    const ptNetRadioPreset = 'Onkyo.NetRadioPreset';
+    const ptRadioPreset = 'Onkyo.RadioPreset';
+    const ptVideoResolution = 'Onkyo.VideoResolution';
+    const ptSLA = 'Onkyo.SLA';
+    const ptVWM = 'Onkyo.VWM';
+    const ptTunerFrequenz = 'Onkyo.TunerFrequenz';
+    const ptNetTuneCommand = 'Onkyo.NetTuneCommand';
+
+}
+
 class ONKYO_Zone extends stdClass
 {
 
@@ -9,11 +38,69 @@ class ONKYO_Zone extends stdClass
     const Zone3 = 3;
     const Zone4 = 4;
 
-    public $Zone;
+    public $thisZone;
+    private $ZoneCMDs = array(
+        ONKYO_Zone::ZoneMain => array(
+            ISCP_API_Command::PWR,
+            ISCP_API_Command::AMT,
+            ISCP_API_Command::MVL,
+            ISCP_API_Command::SLI,
+            ISCP_API_Command::TUN,
+            ISCP_API_Command::PRS,
+            ISCP_API_Command::NTC,
+            ISCP_API_Command::NPR,
+            ISCP_API_Command::TFR,
+            ISCP_API_Command::TFW,
+            ISCP_API_Command::TFH,
+            ISCP_API_Command::TCT,
+            ISCP_API_Command::TSR,
+            ISCP_API_Command::TSB,
+            ISCP_API_Command::TSW
+        ),
+        ONKYO_Zone::Zone2 => array(
+            ISCP_API_Command::ZPW,
+            ISCP_API_Command::ZMT,
+            ISCP_API_Command::ZVL,
+            ISCP_API_Command::ZTN,
+            ISCP_API_Command::ZBL,
+            ISCP_API_Command::SLZ,
+            ISCP_API_Command::TUZ,
+            ISCP_API_Command::PRZ,
+            ISCP_API_Command::NTZ,
+            ISCP_API_Command::NPZ
+        ),
+        ONKYO_Zone::Zone3 => array(
+            ISCP_API_Command::PW3,
+            ISCP_API_Command::MT3,
+            ISCP_API_Command::VL3,
+            ISCP_API_Command::SL3,
+            ISCP_API_Command::TU3,
+            ISCP_API_Command::PR3,
+            ISCP_API_Command::NT3,
+            ISCP_API_Command::NP3,
+            ISCP_API_Command::BL3,
+            ISCP_API_Command::TN3
+        ),
+        ONKYO_Zone::Zone4 => array(
+            ISCP_API_Command::PW4,
+            ISCP_API_Command::MT4,
+            ISCP_API_Command::VL4,
+            ISCP_API_Command::SL4,
+            ISCP_API_Command::TU4,
+            ISCP_API_Command::PR4,
+            ISCP_API_Command::NT4,
+            ISCP_API_Command::NP4
+        )
+    );
+
+    public function CmdAvaiable()
+    {
+        return (in_array($this->Zone, $this->ZoneCMDs));
+    }
 
 }
 
-class ISCP_API_Command extends stdClass
+class ISCP_API_Commands extends stdClass
 {
 
 //MAIN Zone
@@ -126,59 +213,83 @@ class ISCP_API_Command extends stdClass
     const PR4 = "PR4";  // Preset
     const NT4 = "NT4";  // Net-Tune
     const NP4 = "NP4";  // Net-Preset
+    const Request = "QSTN";
 
-    private $ZoneCMDs = array(
-        ONKYO_Zone::ZoneMain => array(
-            self::PWR,
-            self::AMT,
-            self::MVL,
-            self::SLI,
-            self::TUN,
-            self::PRS,
-            self::NTC,
-            self::NPR,
-            self::TFR,
-            self::TFW,
-            self::TFH,
-            self::TCT,
-            self::TSR,
-            self::TSB,
-            self::TSW
-        ),
-        ONKYO_Zone::Zone2 => array(
-            self::ZPW,
-            self::ZMT,
-            self::ZVL,
-            self::ZTN,
-            self::ZBL,
-            self::SLZ,
-            self::TUZ,
-            self::PRZ,
-            self::NTZ,
-            self::NPZ),
-        ONKYO_Zone::Zone3 => array(
-            self::PW3,
-            self::MT3,
-            self::VL3,
-            self::SL3,
-            self::TU3,
-            self::PR3,
-            self::NT3,
-            self::NP3,
-            self::BL3,
-            self::TN3
-        ),
-        ONKYO_Zone::Zone4 => array(
-            self::PW4,
-            self::MT4,
-            self::VL4,
-            self::SL4,
-            self::TU4,
-            self::PR4,
-            self::NT4,
-            self::NP4
-        )
+    static $BoolValueMapping = array(
+        FALSE => '00',
+        TRUE => '01',
+        '00' => FALSE,
+        '01' => TRUE
     );
+
+    const VarType = 0;
+    const EnableAction = 1;
+    const Profile = 2;
+
+    static $VarMapping = array(
+        ISCP_API_Command::PWR
+        => array(
+            self::VarType => IPSVarType::vtBoolean,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSwitch
+        ),
+        ISCP_API_Command::AMT
+        => array(
+            self::VarType => IPSVarType::vtBoolean,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptMute
+        ),
+        ISCP_API_Command::MVL
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptVolume
+        ),
+        ISCP_API_Command::SLI
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSLI
+        ),
+        ISCP_API_Command::TUN
+        => array(
+            self::VarType => IPSVarType::vtFloat,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptTunerFrequenz
+        ),
+        ISCP_API_Command::PRS
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptRadioPreset
+        ),
+        ISCP_API_Command::NTC
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetTuneCommand
+        ),
+        ISCP_API_Command::NPR
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetRadioPreset
+        )
+            /*
+              ISCP_API_Command::TFR,
+              ISCP_API_Command::TFW,
+              ISCP_API_Command::TFH,
+              ISCP_API_Command::TCT,
+              ISCP_API_Command::TSR,
+              ISCP_API_Command::TSB,
+              ISCP_API_Command::TSW */
+    );
+
+}
+
+class ISCP_API_Data extends stdClass
+{
+
     public $APICommand;
     public $Data;
 
@@ -195,51 +306,43 @@ class ISCP_API_Command extends stdClass
         $SendData->APICommand = utf8_encode($this->APICommand);
         $SendData->Data = utf8_encode($this->Data);
         return json_encode($SendData);
-        
-    }
-
-    public function CmdAvaiable($ZoneNr)
-    {
-        $Zone = new ONKYO_Zone();
-        $Zone->Zone = $ZoneNr;
-        return (in_array($Zone->Zone, $this->ZoneCMDs));
     }
 
 }
+
 /*
-class TXB_Node extends stdClass
-{
+  class TXB_Node extends stdClass
+  {
 
-    public $NodeAddr64;
-    public $NodeAddr16;
-    public $NodeName;
+  public $NodeAddr64;
+  public $NodeAddr16;
+  public $NodeName;
 
-    public function utf8_encode()
-    {
-        $this->NodeAddr16 = utf8_encode($this->NodeAddr16);
-        $this->NodeAddr64 = utf8_encode($this->NodeAddr64);
-        $this->NodeName = utf8_encode($this->NodeName);
-    }
+  public function utf8_encode()
+  {
+  $this->NodeAddr16 = utf8_encode($this->NodeAddr16);
+  $this->NodeAddr64 = utf8_encode($this->NodeAddr64);
+  $this->NodeName = utf8_encode($this->NodeName);
+  }
 
-    public function utf8_decode()
-    {
-        $this->NodeAddr16 = utf8_decode($this->NodeAddr16);
-        $this->NodeAddr64 = utf8_decode($this->NodeAddr64);
-        $this->NodeName = utf8_decode($this->NodeName);
-    }
+  public function utf8_decode()
+  {
+  $this->NodeAddr16 = utf8_decode($this->NodeAddr16);
+  $this->NodeAddr64 = utf8_decode($this->NodeAddr64);
+  $this->NodeName = utf8_decode($this->NodeName);
+  }
 
-}
+  }
 
-class TXB_NodeFromGeneric extends TXB_Node
-{
+  class TXB_NodeFromGeneric extends TXB_Node
+  {
 
-    public function __construct($object)
-    {
-        $this->NodeAddr16 = $object->NodeAddr16;
-        $this->NodeAddr64 = $object->NodeAddr64;
-        $this->NodeName = $object->NodeName;
-    }
-}
-*/
-
+  public function __construct($object)
+  {
+  $this->NodeAddr16 = $object->NodeAddr16;
+  $this->NodeAddr64 = $object->NodeAddr64;
+  $this->NodeName = $object->NodeName;
+  }
+  }
+ */
 ?>

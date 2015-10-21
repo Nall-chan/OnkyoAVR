@@ -5,7 +5,7 @@ require_once(__DIR__ . "/../OnkyoAVRClass.php");  // diverse Klassen
 class OnkyoAVR extends IPSModule
 {
 
-     private $Zone = 0;
+     private $OnkyoZone = null;
 
     public function Create()
     {
@@ -45,8 +45,9 @@ class OnkyoAVR extends IPSModule
 
     private function GetZone()
     {
-        $this->Zone = $this->ReadPropertyInteger("Zone");
-        if ($this->Zone == 0)
+        $this->OnkyoZone = new ONKYO_Zone();
+        $this->OnkyoZone->thisZone = $this->ReadPropertyInteger("Zone");
+        if ($this->OnkyoZone->thisZone == 0)
             return false;
         return true;
     }
@@ -134,16 +135,16 @@ class OnkyoAVR extends IPSModule
         if ($this->GetZone() === false)
             return false;
         
-        $APIData = new ISCP_API_Command();
+        $APIData = new ISCP_API_Data();
         $APIData->GetDataFromJSONObject($Data);
 IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
-        if ($APIData->CmdAvaiable($this->Zone) === false)
+        if ($this->OnkyoZone->CmdAvaiable() === false)
             return false;
         $this->ReceiveAPIData($APIData);
     }
 
     
-      private function ReceiveAPIData(ISCP_API_Command $APIData)
+      private function ReceiveAPIData(ISCP_API_Data $APIData)
       {
           $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
           $ReplyAPIData = $APIData->ToJSONString('');
@@ -302,12 +303,16 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
 //------------------------------------------------------------------------------
     private function RequestZoneState()
     {
+        $APIData = new ISCP_API_Data();
+        $APIData->APICommand = ISCP_API_Commands::PWR;
+        $APIData->Data=  ISCP_API_Commands::Request;
+        $this->SendCommand($APIData);
         /*        $ATData = new TXB_Command_Data();
           $ATData->ATCommand = TXB_AT_Command::XB_AT_IS;
           $this->SendCommand($ATData); */
     }
 
-    private function SendCommand(TXB_Command_Data $ATData)
+    private function SendCommand(ISCP_API_Commands $APIData)
     {
         if (!$this->HasActiveParent())
             throw new Exception("Instance has no active Parent.");
@@ -392,7 +397,7 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
                     SetValueString($ReplyAPIDataID, '');
                     $this->unlock('ReplyAPIData');
                     $JSON = json_decode($ret);
-                    $APIData = new ISCP_API_Command();
+                    $APIData = new ISCP_API_Data();
                     $APIData->GetDataFromJSONObject($JSON);
                     return $APIData;
                 }
