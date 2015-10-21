@@ -7,6 +7,10 @@
                     "caption": "Zone",
                     "options": [
                         {
+                            "label": "Keine",
+                            "value": 0
+                        },
+                        {
                             "label": "Main",
                             "value": 1
                         },

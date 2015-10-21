@@ -5,14 +5,14 @@ require_once(__DIR__ . "/../OnkyoAVRClass.php");  // diverse Klassen
 class OnkyoAVR extends IPSModule
 {
 
-     private $OnkyoZone = null;
+    private $OnkyoZone = null;
 
     public function Create()
     {
         parent::Create();
         $this->RequireParent("{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}");
 //        $this->RegisterPropertyBoolean("EmulateStatus", false);
-        $this->RegisterPropertyInteger("Zone", ONKYO_Zone::ZoneMain);
+        $this->RegisterPropertyInteger("Zone", ONKYO_Zone::None);
     }
 
     public function ApplyChanges()
@@ -23,7 +23,7 @@ class OnkyoAVR extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('ReplyAPIData'), true);
         if ($this->GetZone())
             $this->RequestZoneState();
-        
+
 //        if fKernelRunlevel = KR_READY then
 //        $this->RegisterTimer('RequestPinState', $this->ReadPropertyInteger('Interval'), 'XBee_RequestState($_IPS[\'TARGET\']);');
 //                                IDENT                 INTERVAL                                FUNKTION
@@ -47,7 +47,7 @@ class OnkyoAVR extends IPSModule
     {
         $this->OnkyoZone = new ONKYO_Zone();
         $this->OnkyoZone->thisZone = $this->ReadPropertyInteger("Zone");
-        if ($this->OnkyoZone->thisZone == 0)
+        if ($this->OnkyoZone->thisZone == ONKYO_Zone::None)
             return false;
         return true;
     }
@@ -134,92 +134,94 @@ class OnkyoAVR extends IPSModule
             return false;
         if ($this->GetZone() === false)
             return false;
-        
+
         $APIData = new ISCP_API_Data();
         $APIData->GetDataFromJSONObject($Data);
-IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
+        IPS_LogMessage('ReceiveAPIData', print_r($APIData, true));
         if ($this->OnkyoZone->CmdAvaiable() === false)
             return false;
         $this->ReceiveAPIData($APIData);
     }
 
-    
-      private function ReceiveAPIData(ISCP_API_Data $APIData)
-      {
-          $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
-          $ReplyAPIData = $APIData->ToJSONString('');
+    private function ReceiveAPIData(ISCP_API_Data $APIData)
+    {
+        $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
+        $ReplyAPIData = $APIData->ToJSONString('');
 
-      if (!$this->lock('ReplyAPIData'))
-          throw new Exception('ReplyAPIData is locked');
-      SetValueString($ReplyAPIDataID, $ReplyAPIData);
-      $this->unlock('ReplyAPIData');
-IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
-/*      switch ($ATData->ATCommand)
-      {
-      case TXB_AT_Command::XB_AT_D0:
-      case TXB_AT_Command::XB_AT_D1:
-      case TXB_AT_Command::XB_AT_D2:
-      case TXB_AT_Command::XB_AT_D3:
-      case TXB_AT_Command::XB_AT_D4:
-      case TXB_AT_Command::XB_AT_D5:
-      case TXB_AT_Command::XB_AT_D6:
-      case TXB_AT_Command::XB_AT_D7:
-      case TXB_AT_Command::XB_AT_P0:
-      case TXB_AT_Command::XB_AT_P1:
-      case TXB_AT_Command::XB_AT_P2:
-      // Neuen Wert darstellen und Variable anlegen und Schaltbar machen wenn Value 4 oder 5 sonst nicht schaltbar
-      if (strlen($ATData->Data) <> 1)
-      return;
-      switch (ord($ATData->Data))
-      {
-      case 0:
-      case 1:
-      $VarID = @$this->GetIDForIdent($ATData->ATCommand);
-      if ($VarID <> 0)
-      {
-      $this->DisableAction($ATData->ATCommand);
-      IPS_SetVariableCustomProfile($VarID, '');
-      }
-      break;
-      case 2:
+        if (!$this->lock('ReplyAPIData'))
+            throw new Exception('ReplyAPIData is locked');
+        SetValueString($ReplyAPIDataID, $ReplyAPIData);
+        $this->unlock('ReplyAPIData');
 
-      $VarID = $this->RegisterVariableInteger('A' . $ATData->ATCommand, 'A' . $ATData->ATCommand);
-      if ($VarID <> 0)
-      {
-      $this->DisableAction($ATData->ATCommand);
-      IPS_SetVariableCustomProfile($VarID, '');
-      }
-      break;
-      case 3:
-      $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
-      $this->DisableAction($ATData->ATCommand);
-      IPS_SetVariableCustomProfile($VarID, '');
-      break;
-      case 4:
-      $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
-      IPS_SetVariableCustomProfile($VarID, '~Switch');
-      $this->EnableAction($ATData->ATCommand);
-      SetValueBoolean($VarID, false);
-      break;
-      case 5:
-      $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
-      IPS_SetVariableCustomProfile($VarID, '~Switch');
-      $this->EnableAction($ATData->ATCommand);
-      SetValueBoolean($VarID, true);
-      break;
-      }
-      break;
-      case TXB_AT_Command::XB_AT_IS:
-      //                if not fDelayTimerActive then
-      $IOSample = new TXB_API_IO_Sample();
-      $IOSample->Status = TXB_Receive_Status::XB_Receive_Packet_Acknowledged;
-      $IOSample->Sample = $ATData->Data;
-      $this->DecodeIOSample($IOSample);
-      break;
-      }*/
-      }
+        IPS_LogMessage('ReceiveAPIData', print_r($APIData, true));
+        // TODO Prüfen ob Variable nachgeführt werden muss.
 
-      /*
+        /*      switch ($ATData->ATCommand)
+          {
+          case TXB_AT_Command::XB_AT_D0:
+          case TXB_AT_Command::XB_AT_D1:
+          case TXB_AT_Command::XB_AT_D2:
+          case TXB_AT_Command::XB_AT_D3:
+          case TXB_AT_Command::XB_AT_D4:
+          case TXB_AT_Command::XB_AT_D5:
+          case TXB_AT_Command::XB_AT_D6:
+          case TXB_AT_Command::XB_AT_D7:
+          case TXB_AT_Command::XB_AT_P0:
+          case TXB_AT_Command::XB_AT_P1:
+          case TXB_AT_Command::XB_AT_P2:
+          // Neuen Wert darstellen und Variable anlegen und Schaltbar machen wenn Value 4 oder 5 sonst nicht schaltbar
+          if (strlen($ATData->Data) <> 1)
+          return;
+          switch (ord($ATData->Data))
+          {
+          case 0:
+          case 1:
+          $VarID = @$this->GetIDForIdent($ATData->ATCommand);
+          if ($VarID <> 0)
+          {
+          $this->DisableAction($ATData->ATCommand);
+          IPS_SetVariableCustomProfile($VarID, '');
+          }
+          break;
+          case 2:
+
+          $VarID = $this->RegisterVariableInteger('A' . $ATData->ATCommand, 'A' . $ATData->ATCommand);
+          if ($VarID <> 0)
+          {
+          $this->DisableAction($ATData->ATCommand);
+          IPS_SetVariableCustomProfile($VarID, '');
+          }
+          break;
+          case 3:
+          $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
+          $this->DisableAction($ATData->ATCommand);
+          IPS_SetVariableCustomProfile($VarID, '');
+          break;
+          case 4:
+          $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
+          IPS_SetVariableCustomProfile($VarID, '~Switch');
+          $this->EnableAction($ATData->ATCommand);
+          SetValueBoolean($VarID, false);
+          break;
+          case 5:
+          $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
+          IPS_SetVariableCustomProfile($VarID, '~Switch');
+          $this->EnableAction($ATData->ATCommand);
+          SetValueBoolean($VarID, true);
+          break;
+          }
+          break;
+          case TXB_AT_Command::XB_AT_IS:
+          //                if not fDelayTimerActive then
+          $IOSample = new TXB_API_IO_Sample();
+          $IOSample->Status = TXB_Receive_Status::XB_Receive_Packet_Acknowledged;
+          $IOSample->Sample = $ATData->Data;
+          $this->DecodeIOSample($IOSample);
+          break;
+          } */
+    }
+
+    /*
       private function DecodeIOSample(TXB_API_IO_Sample $IOSample)
       {
       $ActiveDPins = unpack("n", substr($IOSample->Sample, 1, 2))[1];
@@ -298,15 +300,20 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
       $ATData->ATCommand = $Pin;
       $this->SendCommand($ATData);
       }
-      }*/
+      } */
 
 //------------------------------------------------------------------------------
     private function RequestZoneState()
     {
         $APIData = new ISCP_API_Data();
+
+        // Schleife von allen CMDs welche als Variable in dieser Zone sind.
         $APIData->APICommand = ISCP_API_Commands::PWR;
-        $APIData->Data=  ISCP_API_Commands::Request;
-        $this->SendCommand($APIData);
+        $APIData->Data = ISCP_API_Commands::Request;
+        $result = $this->SendCommand($APIData);
+        IPS_LogMessage('RequestZoneStateResult',print_r($result,  true));
+        // Schleife ende
+
         /*        $ATData = new TXB_Command_Data();
           $ATData->ATCommand = TXB_AT_Command::XB_AT_IS;
           $this->SendCommand($ATData); */
@@ -317,55 +324,39 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
         if (!$this->HasActiveParent())
             throw new Exception("Instance has no active Parent.");
 
-        /*        $FrameID = $this->GetIDForIdent('FrameID');
-          $ReplyATDataID = $this->GetIDForIdent('ReplyATData');
-          if (!$this->lock('RequestSendData'))
-          throw new Exception('RequestSendData is locked');
-          $Frame = GetValueInteger($FrameID);
-          if ($Frame == 255)
-          $Frame = 1;
-          else
-          $Frame++;
-          SetValueInteger($FrameID, $Frame);
-          if (!$this->lock('ReplyATData'))
-          {
-          $this->unlock('RequestSendData');
-          throw new Exception('ReplyATData is locked');
-          }
-          SetValueString($ReplyATDataID, '');
-          $this->unlock('ReplyATData');
-          $ATData->FrameID = $Frame;
-          try
-          {
-          $this->SendDataToParent($ATData);
-          }
-          catch (Exception $exc)
-          {
-          $this->unlock('RequestSendData');
-          throw new Exception($exc);
-          }
-          $ReplayATData = $this->WaitForResponse();
+        $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
+        if (!$this->lock('RequestSendData'))
+            throw new Exception('RequestSendData is locked');
 
-          //        IPS_LogMessage('ReplayATData:'.$this->InstanceID,print_r($ReplayATData,1));
+        if (!$this->lock('ReplyAPIData'))
+        {
+            $this->unlock('RequestSendData');
+            throw new Exception('ReplyAPIData is locked');
+        }
+        SetValueString($ReplyAPIDataID, '');
+        $this->unlock('ReplyAPIData');
+        try
+        {
+            $this->SendDataToParent($APIData);
+        }
+        catch (Exception $exc)
+        {
+            $this->unlock('RequestSendData');
+            throw new Exception($exc);
+        }
+        $ReplayAPIData = $this->WaitForResponse();
 
-          if ($ReplayATData === false)
-          {
-          //          Senddata('TX_Status','Timeout');
-          $this->unlock('RequestSendData');
-          throw new Exception('Send Data Timeout');
-          }
-          if ($ReplayATData->Status == TXB_Command_Status::XB_Command_OK)
-          {
-          //            Senddata('TX_Status','OK')
-          $this->unlock('RequestSendData');
-          return $ReplayATData;
-          }
-          //        Senddata('TX_Status','Error: '+ XB_Transmit_Status_to_String(fTransmitStatus));
-          $this->unlock('RequestSendData');
+        //        IPS_LogMessage('ReplayATData:'.$this->InstanceID,print_r($ReplayATData,1));
 
-          throw new Exception('Error on Transmit:' . ord($ReplayATData->Status));
-
-         */
+        if ($ReplayAPIData === false)
+        {
+            //          Senddata('TX_Status','Timeout');
+            $this->unlock('RequestSendData');
+            throw new Exception('Send Data Timeout');
+        }
+        //            Senddata('TX_Status','OK')
+        $this->unlock('RequestSendData');
+        return $ReplayAPIData;
     }
 
     protected function SendDataToParent($Data)
@@ -385,10 +376,8 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
         $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
         for ($i = 0; $i < 500; $i++)
         {
-            if
-            (GetValueString($ReplyAPIDataID) === '')
+            if (GetValueString($ReplyAPIDataID) === '')
                 IPS_Sleep(10);
-
             else
             {
                 if ($this->lock('ReplyAPIData'))
@@ -401,9 +390,14 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
                     $APIData->GetDataFromJSONObject($JSON);
                     return $APIData;
                 }
-                return false;
             }
         }
+        if ($this->lock('ReplyAPIData'))
+        {
+            SetValueString($ReplyAPIDataID, '');
+            $this->unlock('ReplyAPIData');
+        }
+
         return false;
     }
 
@@ -517,25 +511,22 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
     protected function SetSummary($data)
     {
 //        IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //                   
-
-        }
+    }
 
 ################## SEMAPHOREN Helper  - private  
 
-        private function lock ($ident)
+    private function lock($ident)
+    {
+        for ($i = 0; $i < 100; $i ++)
         {
-        for ($i = 0;
-        $i < 100;
-        $i ++)
-        {
-        if ( IPS_SemaphoreEnter("OAVR_" . (string) $this->InstanceID . (string) $ident, 1))
-        {
-        return true;
-        }
-        else
-        {
-            IPS_Sleep(mt_rand(1, 5));
-        }
+            if (IPS_SemaphoreEnter("OAVR_" . (string) $this->InstanceID . (string) $ident, 1))
+            {
+                return true;
+            }
+            else
+            {
+                IPS_Sleep(mt_rand(1, 5));
+            }
         }
         return false;
     }

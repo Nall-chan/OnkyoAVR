@@ -33,6 +33,7 @@ class IPSProfiles extends stdClass
 class ONKYO_Zone extends stdClass
 {
 
+    const None = 0;
     const ZoneMain = 1;
     const Zone2 = 2;
     const Zone3 = 3;
