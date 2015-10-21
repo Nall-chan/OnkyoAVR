@@ -115,7 +115,7 @@ class ISCPGateway extends IPSModule
         {
             $APIData->Data = strlen(dechex($APIData->Data)) == 1 ? "0" . dechex($APIData->Data) : dechex($APIData->Data);
         }
-        $Frame = "!1" . $APIData->APICommand . $APIData->Data . chr(0x1A). chr(0x0D) . chr(0x0A);
+        $Frame = "!1" . $APIData->APICommand . $APIData->Data . chr(0x0D) . chr(0x0A);
         $this->SendDataToParent($Frame);
     }
 
