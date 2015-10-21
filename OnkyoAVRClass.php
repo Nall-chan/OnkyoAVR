@@ -96,7 +96,17 @@ class ONKYO_Zone extends stdClass
 
     public function CmdAvaiable(ISCP_API_Data $API_Data)
     {
-        return (in_array($API_Data->APICommand,self::$ZoneCMDs[$this->thisZone]));
+        return (in_array($API_Data->APICommand, self::$ZoneCMDs[$this->thisZone]));
+    }
+
+    public function SubCmdAvaiable(ISCP_API_Data $API_Data)
+    {
+        foreach ($API_Data->APISubCommand as $APISubCommand)
+        {
+            if (in_array($APISubCommand, self::$ZoneCMDs[$this->thisZone]))
+                return true;
+        }
+        return false;
     }
 
 }
@@ -189,6 +199,9 @@ class ISCP_API_Commands extends stdClass
     const PRZ = "PRZ";
     const NTZ = "NTZ";
     const NPZ = "NPZ";
+    const LMZ = "LMZ";
+    const LTZ = "LTZ";
+    const RAZ = "RAZ";
     /*
       const LMZ ="LMZ";
       const LTZ="LTZ";
@@ -226,55 +239,80 @@ class ISCP_API_Commands extends stdClass
     const VarType = 0;
     const EnableAction = 1;
     const Profile = 2;
+    const IsVariable = 3;
+    const APIMainCommand = 4;
 
+    static $CMDMapping = array(
+        ISCP_API_Commands::TUN => array(ISCP_API_Commands::TUZ),
+        ISCP_API_Commands::PRS => array(ISCP_API_Commands::PRZ),
+        ISCP_API_Commands::NTC => array(ISCP_API_Commands::NTZ),
+        ISCP_API_Commands::NPR => array(ISCP_API_Commands::NPZ),
+        ISCP_API_Commands::LMD => array(ISCP_API_Commands::LMZ),
+        ISCP_API_Commands::LTN => array(ISCP_API_Commands::LTZ),
+        ISCP_API_Commands::RAS => array(ISCP_API_Commands::RAZ)
+    );
+    
     static $VarMapping = array(
         ISCP_API_Commands::PWR
         => array(
             self::VarType => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptSwitch
+            self::Profile => IPSProfiles::ptSwitch,
+            self::IsVariable => true
         ),
         ISCP_API_Commands::AMT
         => array(
             self::VarType => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptMute
+            self::Profile => IPSProfiles::ptMute,
+            self::IsVariable => true
         ),
         ISCP_API_Commands::MVL
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptVolume
+            self::Profile => IPSProfiles::ptVolume,
+            self::IsVariable => true
+            
         ),
         ISCP_API_Commands::SLI
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptSLI
+            self::Profile => IPSProfiles::ptSLI,
+            self::IsVariable => true
+            
         ),
         ISCP_API_Commands::TUN
         => array(
             self::VarType => IPSVarType::vtFloat,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptTunerFrequenz
+            self::Profile => IPSProfiles::ptTunerFrequenz,
+            self::IsVariable => true
         ),
         ISCP_API_Commands::PRS
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptRadioPreset
+            self::Profile => IPSProfiles::ptRadioPreset,
+            self::IsVariable => true
+            
         ),
         ISCP_API_Commands::NTC
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptNetTuneCommand
+            self::Profile => IPSProfiles::ptNetTuneCommand,
+            self::IsVariable => true
+            
         ),
         ISCP_API_Commands::NPR
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptNetRadioPreset
+            self::Profile => IPSProfiles::ptNetRadioPreset,
+            self::IsVariable => true
+            
         )
             /*
               ISCP_API_Commands::TFR,
@@ -286,6 +324,68 @@ class ISCP_API_Commands extends stdClass
               ISCP_API_Commands::TSW */
     );
 
+    static function GetMapping(ISCP_API_Data $APIData)
+    {
+        if (array_key_exists($APIData->APICommand, self::$VarMapping))
+        {
+//$APIData->APICommand            in_array(, self::$VarMapping);
+        }
+        else
+            return false;
+    }
+
+}
+
+class ISCP_API_Command_Mapping extends stdClass
+{
+
+    static public function GetMapping($Cmd) //__construct($Cmd)
+    {
+        if (array_key_exists($Cmd, ISCP_API_Commands::$CMDMapping))
+        {
+            return ISCP_API_Commands::$CMDMapping[$Cmd];
+            /*
+              $this->VarType = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::VarType];
+              $this->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
+              $this->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
+             */
+        }
+        else
+            return false;
+    }
+
+}
+
+class ISCP_API_Data_Mapping extends stdClass
+{
+
+//    public $VarType;
+//    public $EnableAction;
+//    public $Profile;
+
+    static public function GetMapping($Cmd) //__construct($Cmd)
+    {
+        if (array_key_exists($Cmd, ISCP_API_Commands::$VarMapping))
+        {
+            $result = new stdClass;
+            $result->VarType = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::VarType];
+            $result->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
+            $result->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
+            $result->IsVariable = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::IsVariable];
+            if (array_key_exists(ISCP_API_Commands::APIMainCommand, ISCP_API_Commands::$VarMapping[$Cmd]))
+                $result->APIMainCommand = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::APIMainCommand];
+
+            return $result;
+            /*
+              $this->VarType = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::VarType];
+              $this->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
+              $this->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
+             */
+        }
+        else
+            return false;
+    }
+
 }
 
 class ISCP_API_Data extends stdClass
@@ -293,20 +393,36 @@ class ISCP_API_Data extends stdClass
 
     public $APICommand;
     public $Data;
+    public $Mapping;
+    public $APISubCommand;
 
     public function GetDataFromJSONObject($Data)
     {
-        $this->APICommand = utf8_decode($Data->APICommand);
+        $this->APICommand = $Data->APICommand;
         $this->Data = utf8_decode($Data->Data);
+        if (property_exists($Data, 'APISubCommand'))
+            $this->APISubCommand = $Data->APISubCommand;
     }
 
     public function ToJSONString($GUID)
     {
         $SendData = new stdClass;
         $SendData->DataID = $GUID;
-        $SendData->APICommand = utf8_encode($this->APICommand);
+        $SendData->APICommand = $this->APICommand;
         $SendData->Data = utf8_encode($this->Data);
+        if (is_array($this->APISubCommand))
+            $SendData->APISubCommand = $this->APISubCommand;
         return json_encode($SendData);
+    }
+
+    public function GetMapping()
+    {
+        $this->Mapping = ISCP_API_Data_Mapping::GetMapping($this->APICommand);
+    }
+
+    public function GetSubCommand()
+    {
+        $this->APISubCommand = ISCP_API_Command_Mapping::GetMapping($this->APICommand);
     }
 
 }

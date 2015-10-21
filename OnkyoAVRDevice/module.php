@@ -139,7 +139,12 @@ class OnkyoAVR extends IPSModule
         $APIData->GetDataFromJSONObject($Data);
         IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
         if ($this->OnkyoZone->CmdAvaiable($APIData) === false)
-            return false;
+        {
+            $APIData->GetSubCommand();
+            if ($this->OnkyoZone->SubCmdAvaiable($APIData) === false)
+                return false;
+        }
+        $APIData->GetMapping();
         $this->ReceiveAPIData($APIData);
     }
 
@@ -152,8 +157,12 @@ class OnkyoAVR extends IPSModule
             throw new Exception('ReplyAPIData is locked');
         SetValueString($ReplyAPIDataID, $ReplyAPIData);
         $this->unlock('ReplyAPIData');
-
         IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
+        
+if ($APIData->Mapping->IsVariable);
+    
+    
+        
         // TODO Prüfen ob Variable nachgeführt werden muss.
 
         /*      switch ($ATData->ATCommand)
