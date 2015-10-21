@@ -107,11 +107,15 @@ class ISCPGateway extends IPSModule
 
     private function ForwardDataFromDevice(ISCP_API_Data $APIData)
     {
-        if (is_int($APIData->Data))
+        if (is_bool($APIData->Data))
+        {
+            $APIData->Data = ISCP_API_Commands::$BoolValueMapping($APIData->Data);
+        }
+        elseif (is_int($APIData->Data))
         {
             $APIData->Data = strlen(dechex($APIData->Data)) == 1 ? "0" . dechex($APIData->Data) : dechex($APIData->Data);
         }
-        $Frame = "!1" . $APIData->APICommand . $APIData->Data . chr(0x0D) . chr(0x0A);
+        $Frame = "!1" . $APIData->APICommand . $APIData->Data . chr(0x1A). chr(0x0D) . chr(0x0A);
         $this->SendDataToParent($Frame);
     }
 
@@ -256,9 +260,9 @@ class ISCPGateway extends IPSModule
         if ($this->Mode == ISCPGateway::LAN)
         {
             $eISCPlen = chr(0x00) . chr(0x00) . chr(floor(strlen($Data) / 256)) . chr(strlen($Data) % 256);
-            $Frame = $eISCPlen . chr($this->eISCPVersion) . "\x00\x00\x00";
+            $Frame = $eISCPlen . chr($this->eISCPVersion) . chr(0x00).chr(0x00).chr(0x00);
             $Len = strlen($Frame) + 8;
-            $eISCPHeaderlen = chr(0x00) . chr(0x00) . chr(floor(strlen($Len) / 256)) . chr(strlen($Len) % 256);
+            $eISCPHeaderlen = chr(0x00) . chr(0x00) . chr(floor($Len / 256)) . chr($Len % 256);
             $Frame = "ISCP" . $eISCPHeaderlen . $Frame . $Data;
         }
         elseif ($this->Mode == ISCPGateway::COM)
