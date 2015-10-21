@@ -257,7 +257,7 @@ class ISCPGateway extends IPSModule
         {
             $eISCPlen = chr(0x00) . chr(0x00) . chr(floor(strlen($Data) / 256)) . chr(strlen($Data) % 256);
             $Frame = $eISCPlen . $this->eISCPVersion . "\x00\x00\x00";
-            $Len = strelen($Frame) + 8;
+            $Len = strlen($Frame) + 8;
             $eISCPHeaderlen = chr(0x00) . chr(0x00) . chr(floor(strlen($Len) / 256)) . chr(strlen($Len) % 256);
             $Frame = "ISCP" . $eISCPHeaderlen . $Frame . $Data;
         }
