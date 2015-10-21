@@ -53,7 +53,7 @@ class OnkyoAVR extends IPSModule
     }
 private function UpdateVariable (ISCP_API_Data $APIData)
 {
-    $VarID = $this->GetIDForIdent($APIData->APICommand);
+    $VarID = @$this->GetIDForIdent($APIData->APICommand);
     if ($VarID > 0)
     {
         if (IPS_GetVariable($VarID)['VariableType'] <> $APIData->Mapping->VarType)
