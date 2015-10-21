@@ -239,32 +239,32 @@ class ISCP_API_Commands extends stdClass
 
     const IsVariable = 0;
     const VarType = 1;
-    const VarName = 2;    
+    const VarName = 2;
     const Profile = 3;
     const EnableAction = 4;
-    
+
     static $CMDMapping = array(
         ISCP_API_Commands::TUN => array(
             ONKYO_Zone::Zone2 => ISCP_API_Commands::TUZ
         ),
         ISCP_API_Commands::PRS => array(
             ONKYO_Zone::Zone2 => ISCP_API_Commands::PRZ
-                ),
+        ),
         ISCP_API_Commands::NTC => array(
             ONKYO_Zone::Zone2 => ISCP_API_Commands::NTZ
-                ),
+        ),
         ISCP_API_Commands::NPR => array(
             ONKYO_Zone::Zone2 => ISCP_API_Commands::NPZ
-                ),
+        ),
         ISCP_API_Commands::LMD => array(
             ONKYO_Zone::Zone2 => ISCP_API_Commands::LMZ
-                ),
+        ),
         ISCP_API_Commands::LTN => array(
             ONKYO_Zone::Zone2 => ISCP_API_Commands::LTZ
-                ),
+        ),
         ISCP_API_Commands::RAS => array(
             ISCP_API_Commands::RAZ
-                )
+        )
     );
     // Nur für alle CMDs, welche keine SubCommands sind.
     static $VarMapping = array(
@@ -273,56 +273,63 @@ class ISCP_API_Commands extends stdClass
             self::VarType => IPSVarType::vtBoolean,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptSwitch,
-            self::IsVariable => true
+            self::IsVariable => true,
+            self::VarName => 'Power'
         ),
         ISCP_API_Commands::AMT
         => array(
             self::VarType => IPSVarType::vtBoolean,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptMute,
-            self::IsVariable => true
+            self::IsVariable => true,
+            self::VarName => 'Mute'
         ),
         ISCP_API_Commands::MVL
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptVolume,
-            self::IsVariable => true
+            self::IsVariable => true,
+            self::VarName => 'Volume'
         ),
         ISCP_API_Commands::SLI
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptSLI,
-            self::IsVariable => true
+            self::IsVariable => true,
+            self::VarName => 'Input Selector'
         ),
         ISCP_API_Commands::TUN
         => array(
             self::VarType => IPSVarType::vtFloat,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptTunerFrequenz,
-            self::IsVariable => true
+            self::IsVariable => true,
+            self::VarName => 'Tuner Frequenz'
         ),
         ISCP_API_Commands::PRS
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptRadioPreset,
-            self::IsVariable => true
+            self::IsVariable => true,
+            self::VarName => 'Radio Preset'
         ),
         ISCP_API_Commands::NTC
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptNetTuneCommand,
-            self::IsVariable => true
+            self::IsVariable => false
         ),
         ISCP_API_Commands::NPR
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptNetRadioPreset,
-            self::IsVariable => true
+            self::IsVariable => true,
+            self::VarName => 'Network Radio Preset'
         )
             /*
               ISCP_API_Commands::TFR,
