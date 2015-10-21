@@ -40,7 +40,7 @@ class ONKYO_Zone extends stdClass
     const Zone4 = 4;
 
     public $thisZone;
-    private $ZoneCMDs = array(
+    static $ZoneCMDs = array(
         ONKYO_Zone::ZoneMain => array(
             ISCP_API_Commands::PWR,
             ISCP_API_Commands::AMT,
@@ -94,9 +94,9 @@ class ONKYO_Zone extends stdClass
         )
     );
 
-    public function CmdAvaiable()
+    public function CmdAvaiable(ISCP_API_Data $API_Data)
     {
-        return (in_array($this->thisZone, $this->ZoneCMDs));
+        return (in_array($API_Data->APICommand,self::$ZoneCMDs[$this->thisZone]));
     }
 
 }
