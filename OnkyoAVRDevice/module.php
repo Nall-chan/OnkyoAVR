@@ -51,7 +51,24 @@ class OnkyoAVR extends IPSModule
             return false;
         return true;
     }
-
+private function UpdateVariable (ISCP_API_Data $APIData)
+{
+    $VarID = $this->GetIDForIdent($APIData->APICommand);
+    if ($VarID > 0)
+    {
+        if (IPS_GetVariable($VarID)['VariableType'] <> $APIData->Mapping->VarType)
+        {
+            IPS_DeleteVariable($VarID);
+            $VarID=false;
+        }
+    }
+    if ($VarID === false)
+    {
+        $this->MaintainVariable($APIData->APICommand, $APIData->Mapping->VarName, $APIData->Mapping->VarType, $APIData->Mapping->Profile, 0, true);
+        if ($APIData->Mapping->EnableAction) $this->MaintainAction ($APIData->APICommand, true);
+    }
+    // more to do....
+}
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -137,10 +154,14 @@ class OnkyoAVR extends IPSModule
 
         $APIData = new ISCP_API_Data();
         $APIData->GetDataFromJSONObject($Data);
-        IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
+//        IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
         if ($this->OnkyoZone->CmdAvaiable($APIData) === false)
+        {
             if ($this->OnkyoZone->SubCmdAvaiable($APIData) === false)
                 return false;
+            else
+                $APIData->APICommand= $APIData->APISubCommand[$this->OnkyoZone->thisZone];
+        }
         $APIData->GetMapping();
         $this->ReceiveAPIData($APIData);
     }
@@ -157,7 +178,7 @@ class OnkyoAVR extends IPSModule
         IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
 
         if ($APIData->Mapping->IsVariable)
-            ;
+            $this->UpdateVariable($APIData);
 
 
 
