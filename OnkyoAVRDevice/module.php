@@ -312,7 +312,7 @@ IPS_LogMessage('ReceiveAPIData',print_r($APIData,true));
           $this->SendCommand($ATData); */
     }
 
-    private function SendCommand(ISCP_API_Commands $APIData)
+    private function SendCommand(ISCP_API_Data $APIData)
     {
         if (!$this->HasActiveParent())
             throw new Exception("Instance has no active Parent.");
