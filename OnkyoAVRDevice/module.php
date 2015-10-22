@@ -174,14 +174,12 @@ class OnkyoAVR extends IPSModule
 
             if ($this->OnkyoZone->SubCmdAvaiable($APIData) === false)
             {
-                IPS_LogMessage('SubCmdAvaiable','false');
+                IPS_LogMessage('SubCmdAvaiable', 'false');
                 return false;
-            }
-            else
+            } else
             {
                 $APIData->APICommand = $APIData->APISubCommand[$this->OnkyoZone->thisZone];
-                IPS_LogMessage('APISubCommand',$APIData->APISubCommand[$this->OnkyoZone->thisZone]);
-                
+                IPS_LogMessage('APISubCommand', $APIData->APISubCommand[$this->OnkyoZone->thisZone]);
             }
         }
 
@@ -374,6 +372,8 @@ class OnkyoAVR extends IPSModule
 
     private function SendCommand(ISCP_API_Data $APIData)
     {
+        if (!$this->OnkyoZone->CmdAvaiable($APIData))
+            throw new Exception("Command not available at this Zone.");
         if (!$this->HasActiveParent())
             throw new Exception("Instance has no active Parent.");
 
@@ -391,8 +391,7 @@ class OnkyoAVR extends IPSModule
         try
         {
             $this->SendDataToParent($APIData);
-        }
-        catch (Exception $exc)
+        } catch (Exception $exc)
         {
             $this->unlock('RequestSendData');
             throw new Exception($exc);
@@ -500,8 +499,7 @@ class OnkyoAVR extends IPSModule
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
 
             IPS_SetEventActive($id, true);
-        }
-        else
+        } else
         {
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
 
@@ -573,8 +571,7 @@ class OnkyoAVR extends IPSModule
         if (!IPS_VariableProfileExists($Name))
         {
             IPS_CreateVariableProfile($Name, 1);
-        }
-        else
+        } else
         {
             $profile = IPS_GetVariableProfile($Name);
             if ($profile['ProfileType'] != 1)
@@ -592,8 +589,7 @@ class OnkyoAVR extends IPSModule
         {
             $MinValue = 0;
             $MaxValue = 0;
-        }
-        else
+        } else
         {
             $MinValue = $Associations[0][0];
             $MaxValue = $Associations[sizeof($Associations) - 1][0];
@@ -616,8 +612,7 @@ class OnkyoAVR extends IPSModule
             if (IPS_SemaphoreEnter("OAVR_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            }
-            else
+            } else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }
