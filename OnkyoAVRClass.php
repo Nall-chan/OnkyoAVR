@@ -223,10 +223,11 @@ class ONKYO_Zone extends stdClass
           return true;
           }
           return false; */
-        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand[$this->thisZone], 1));
+        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand, 1));
         IPS_LogMessage('ZoneCMDs', print_r(self::$ZoneCMDs[$this->thisZone], 1));
-        if (property_exists($API_Data->APISubCommand, $this->thisZone))
-            return (in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]));
+        if ($API_Data->APISubCommand <> null)
+            if (property_exists($API_Data->APISubCommand, $this->thisZone))
+                return (in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]));
         return false;
     }
 
@@ -505,7 +506,7 @@ class ISCP_API_Command_Mapping extends stdClass
               $this->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
              */
         } else
-            return false;
+            return null;
     }
 
 }
