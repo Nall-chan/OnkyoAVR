@@ -616,7 +616,7 @@ class ISCP_API_Commands extends stdClass
         ),
         ISCP_API_Commands::SLI
         => array(
-            self::VarType => IPSVarType::vtBoolean,
+            self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptSelectInput,
             self::IsVariable => true,
