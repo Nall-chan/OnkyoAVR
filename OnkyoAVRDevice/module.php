@@ -63,6 +63,8 @@ class OnkyoAVR extends IPSModule
 
     private function UpdateVariable(ISCP_API_Data $APIData)
     {
+        if ($APIData->Data == "N/A") return;
+            
         $VarID = @$this->GetIDForIdent($APIData->APICommand);
         if ($VarID > 0)
         {
@@ -105,11 +107,13 @@ class OnkyoAVR extends IPSModule
         $APIData = new ISCP_API_Data();
         $APIData->APICommand = $Ident;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
-            throw new Exception("Illegal Command in this Zone");
+            echo "Illegal Command in this Zone";            
+//            throw new Exception("Illegal Command in this Zone");
         // Mapping holen
         $APIData->GetMapping();
         if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
-            throw new Exception("Type ob Variable do not match.");
+            echo "Type ob Variable do not match.";
+//            throw new Exception("Type ob Variable do not match.");
         // Variable konvertieren..        
         switch ($APIData->Mapping->VarType)
         {
@@ -117,17 +121,24 @@ class OnkyoAVR extends IPSModule
                 $APIData->Data = ISCP_API_Commands::$BoolValueMapping[$Value];
                 break;
             case IPSVarType::vtFloat:
-                throw new Exception("Float VarType not implemented.");
+                echo "Float VarType not implemented.";
+//                throw new Exception("Float VarType not implemented.");
                 break;
             case IPSVarType::vtInteger:
                 $APIData->Data = dechex($Value);
                 break;
             default:
-                throw new Exception("Unknow VarType.");
+                echo "Unknow VarType.";                
+//                throw new Exception("Unknow VarType.");
                 break;
         }
         // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
-        $this->SendCommand($APIData);
+        $ret = $this->SendCommand($APIData);
+        if ($ret->Data == "N/A")
+            echo "Command not available.";
+        if ($ret->Data <> $APIData->Data)
+            echo "Value not available.";
+            
     }
 
 ################## PUBLIC
