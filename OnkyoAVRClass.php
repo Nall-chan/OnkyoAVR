@@ -27,120 +27,120 @@ class IPSProfiles extends stdClass
     const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
     const ptNetTuneCommand = 'NetTuneCommand.Onkyo';
 
-        static $ProfilInteger = array(
-        self::ptNetRadioPreset => array(0x01,0x30),
-        self::ptRadioPreset => array(0x01,0x30)
-            );
+    static $ProfilInteger = array(
+        self::ptNetRadioPreset => array(0x01, 0x30),
+        self::ptRadioPreset => array(0x01, 0x30)
+    );
     static $ProfilAssociations = array(
 //      self::ptMute=> array(),
         self::ptSelectInput => array(
-            array(0x00, "Video 1 VCR/DVR", "" ,-1), //not z
-            array(0x01, "Video 2 CBL/SAT", "" ,-1),
-            array(0x02, "Video 3 GAME/TV", "" ,-1),
-            array(0x03, "Video 4 AUX1(AUX)", "" ,-1),
-            array(0x04, "Video 5 AUX2", "" ,-1), //not z
-            array(0x05, "Video 6 PC", "" ,-1),
+            array(0x00, "Video 1 VCR/DVR", "", -1), //not z
+            array(0x01, "Video 2 CBL/SAT", "", -1),
+            array(0x02, "Video 3 GAME/TV", "", -1),
+            array(0x03, "Video 4 AUX1(AUX)", "", -1),
+            array(0x04, "Video 5 AUX2", "", -1), //not z
+            array(0x05, "Video 6 PC", "", -1),
 //"Video 7", //not z
-            array(0x10,"BD/DVD", "" ,-1),
-            array(0x20 ,"TV", "" ,-1), // not z
+            array(0x10, "BD/DVD", "", -1),
+            array(0x20, "TV", "", -1), // not z
 //"TAPE2", // not z
-            array(0x22,"PHONO", "" ,-1),
-            array(0x23,"TV/CD", "" ,-1),
-            array(0x24,"FM", "" ,-1),
-            array(0x25,"AM", "" ,-1),
-            array(0x26,"TUNER", "" ,-1), // not z
+            array(0x22, "PHONO", "", -1),
+            array(0x23, "TV/CD", "", -1),
+            array(0x24, "FM", "", -1),
+            array(0x25, "AM", "", -1),
+            array(0x26, "TUNER", "", -1), // not z
 //"MUSIC SERVER DLNA",
 //"INTERNET RADIO",
-            array(0x29,"USB(Front)", "" ,-1),
+            array(0x29, "USB(Front)", "", -1),
 //"USB(Rear)", // not z
-            array(0x2B,"NETWORK", "" ,-1),
+            array(0x2B, "NETWORK", "", -1),
 //"USB(toggle)", //lol
-            array(0x2D,"Aiplay", "" ,-1), //?
+            array(0x2D, "Aiplay", "", -1), //?
 //0x30 => "MULTI CH", //not z
 //"XM", //not z
 //"SIRIUS", // not z
 //"DAB", // not z
-array(0x40,"Universal PORT", "" ,-1) //not z
+            array(0x40, "Universal PORT", "", -1) //not z
         ),
         self::ptListeningMode => array(
-            array(0x00,"STEREO", "" ,-1),
-            array(0x01,"DIRECT", "" ,-1),
-            array(0x02,"SURROUND", "" ,-1),
-            array(0x03,"FILM", "" ,-1),
-            array(0x04,"THX", "" ,-1),
-            array(0x05,"ACTION", "" ,-1),
-            array(0x06,"MUSICAL", "" ,-1),
-            array(0x08,"ORCHESTRA", "" ,-1),
-            array(0x09,"UNPLUGGED", "" ,-1),
-            array(0x0A,"STUDIO-MIX", "" ,-1),
-            array(0x0B,"TV LOGIC", "" ,-1),
-            array(0x0C,"ALL CH STEREO", "" ,-1),
-            array(0x0D,"THEATER-DIMENSIONAL", "" ,-1),
-            array(0x0E,"ENHANCED", "" ,-1),
-            array(0x0F,"MONO", "" ,-1),
-            array(0x11,"PURE AUDIO", "" ,-1),
-            array(0x13,"FULL MONO", "" ,-1),
-            array(0x16,"Audyssey DSX", "" ,-1),
-            array(0x40,"Straight Decode", "" ,-1),
-            array(0x41,"Dolby EX", "" ,-1),
-            array(0x42,"THX Cinema", "" ,-1),
-            array(0x43,"THX Surround EX", "" ,-1),
-            array(0x44,"THX Music", "" ,-1),
-            array(0x45,"THX Games", "" ,-1),
-            array(0x50,"THX Cinema Mode, THX U2/S2/I/S Cinema", "" ,-1),
-            array(0x51,"THX Music Mode, THX U2/S2/I/S Music", "" ,-1),
-            array(0x52,"THX Games Mode, THX U2/S2/I/S Games", "" ,-1),
-            array(0x84,"PLII/PLIIx THX Cinema", "" ,-1),
-            array(0x80,"PLII/PLIIx Movie", "" ,-1),
-            array(0x81,"PLII/PLIIx Music", "" ,-1),
-            array(0x82,"Neo:6 Cinema/Neo:X Cinema", "" ,-1),
-            array(0x83,"Neo:6 Music/Neo:X Music", "" ,-1)
+            array(0x00, "STEREO", "", -1),
+            array(0x01, "DIRECT", "", -1),
+            array(0x02, "SURROUND", "", -1),
+            array(0x03, "FILM", "", -1),
+            array(0x04, "THX", "", -1),
+            array(0x05, "ACTION", "", -1),
+            array(0x06, "MUSICAL", "", -1),
+            array(0x08, "ORCHESTRA", "", -1),
+            array(0x09, "UNPLUGGED", "", -1),
+            array(0x0A, "STUDIO-MIX", "", -1),
+            array(0x0B, "TV LOGIC", "", -1),
+            array(0x0C, "ALL CH STEREO", "", -1),
+            array(0x0D, "THEATER-DIMENSIONAL", "", -1),
+            array(0x0E, "ENHANCED", "", -1),
+            array(0x0F, "MONO", "", -1),
+            array(0x11, "PURE AUDIO", "", -1),
+            array(0x13, "FULL MONO", "", -1),
+            array(0x16, "Audyssey DSX", "", -1),
+            array(0x40, "Straight Decode", "", -1),
+            array(0x41, "Dolby EX", "", -1),
+            array(0x42, "THX Cinema", "", -1),
+            array(0x43, "THX Surround EX", "", -1),
+            array(0x44, "THX Music", "", -1),
+            array(0x45, "THX Games", "", -1),
+            array(0x50, "THX Cinema Mode, THX U2/S2/I/S Cinema", "", -1),
+            array(0x51, "THX Music Mode, THX U2/S2/I/S Music", "", -1),
+            array(0x52, "THX Games Mode, THX U2/S2/I/S Games", "", -1),
+            array(0x84, "PLII/PLIIx THX Cinema", "", -1),
+            array(0x80, "PLII/PLIIx Movie", "", -1),
+            array(0x81, "PLII/PLIIx Music", "", -1),
+            array(0x82, "Neo:6 Cinema/Neo:X Cinema", "", -1),
+            array(0x83, "Neo:6 Music/Neo:X Music", "", -1)
 //            array(0x85,"Neo:6/Neo:X THX Cinema", "" ,-1)
-            /*
-            array(0x86,"PLII/PLIIx Game", "" ,-1),
-            array(0x89,"PLII/PLIIx THX Games", "" ,-1),
-            "Neo:6/Neo:X THX Games", "" ,-1),
-            "PLII/PLIIx THX Music", "" ,-1),
-            "Neo:6/Neo:X THX Music", "" ,-1),
-            0x90 => "PLIIz Height", "" ,-1),
-            0x94 => "PLIIz Height + THX Cinema", "" ,-1),
-            "PLIIz Height + THX Music", "" ,-1),
-            "PLIIz Height + THX Games", "" ,-1),
-            0xA0 => "PLIIx/PLII Movie + Audyssey DSX", "" ,-1),
-            "PLIIx/PLII Music + Audyssey DSX", "" ,-1),
-            "PLIIx/PLII Game + Audyssey DSX", "" ,-1),*/
+        /*
+          array(0x86,"PLII/PLIIx Game", "" ,-1),
+          array(0x89,"PLII/PLIIx THX Games", "" ,-1),
+          "Neo:6/Neo:X THX Games", "" ,-1),
+          "PLII/PLIIx THX Music", "" ,-1),
+          "Neo:6/Neo:X THX Music", "" ,-1),
+          0x90 => "PLIIz Height", "" ,-1),
+          0x94 => "PLIIz Height + THX Cinema", "" ,-1),
+          "PLIIz Height + THX Music", "" ,-1),
+          "PLIIz Height + THX Games", "" ,-1),
+          0xA0 => "PLIIx/PLII Movie + Audyssey DSX", "" ,-1),
+          "PLIIx/PLII Music + Audyssey DSX", "" ,-1),
+          "PLIIx/PLII Game + Audyssey DSX", "" ,-1), */
         ),
         self::ptVideoResolution => array(
-            array(0x00,"Through", "" ,-1),
-            array(0x01,"Auto(HDMI Output Only)", "" ,-1),
-            array(0x02, "480p", "" ,-1),
-            array(0x03, "720p", "" ,-1),
-            array(0x04,"1080i", "" ,-1),
-            array(0x05,"1080p(HDMI Output Only)", "" ,-1),
-            array(0x06,"Source", "" ,-1),
-            array(0x07,"1080p/24fs(HDMI Output Only)", "" ,-1),
-            array(0x08,"4K Upcaling(HDMI Output Only)", "" ,-1)
+            array(0x00, "Through", "", -1),
+            array(0x01, "Auto(HDMI Output Only)", "", -1),
+            array(0x02, "480p", "", -1),
+            array(0x03, "720p", "", -1),
+            array(0x04, "1080i", "", -1),
+            array(0x05, "1080p(HDMI Output Only)", "", -1),
+            array(0x06, "Source", "", -1),
+            array(0x07, "1080p/24fs(HDMI Output Only)", "", -1),
+            array(0x08, "4K Upcaling(HDMI Output Only)", "", -1)
         ),
         self::ptSelectInputAudio => array(
-            array(0x00,"AUTO", "" ,-1),
-            array(0x01,"MULTI-CHANNEL", "" ,-1),
-            array(0x02,"ANALOG", "" ,-1),
-            array(0x03,"iLINK", "" ,-1),
-            array(0x04,"HDMI", "" ,-1),
-            array(0x05,"COAX/OPT", "" ,-1),
-            array(0x06,"BALANCE", "" ,-1),
-            array(0x07,"ARC", "" ,-1),
-            array(0x0F,"None", "" ,-1)            
+            array(0x00, "AUTO", "", -1),
+            array(0x01, "MULTI-CHANNEL", "", -1),
+            array(0x02, "ANALOG", "", -1),
+            array(0x03, "iLINK", "", -1),
+            array(0x04, "HDMI", "", -1),
+            array(0x05, "COAX/OPT", "", -1),
+            array(0x06, "BALANCE", "", -1),
+            array(0x07, "ARC", "", -1),
+            array(0x0F, "None", "", -1)
         ),
         self::ptVideoWideMode => array(
-            array(0x00,"Auto", "" ,-1),
-            array(0x01,"4:3", "" ,-1),
-            array(0x02,"Full", "" ,-1),
-            array(0x03,"Zoom", "" ,-1),
-            array(0x04,"Wide Zoom", "" ,-1),
-            array(0x05,"Smart Zoom", "" ,-1)
+            array(0x00, "Auto", "", -1),
+            array(0x01, "4:3", "", -1),
+            array(0x02, "Full", "", -1),
+            array(0x03, "Zoom", "", -1),
+            array(0x04, "Wide Zoom", "", -1),
+            array(0x05, "Smart Zoom", "", -1)
         ),
-  //      self::ptTunerFrequenz => array(),
+            //      self::ptTunerFrequenz => array(),
 //        self::ptNetTuneCommand => array()
     );
 
@@ -223,9 +223,11 @@ class ONKYO_Zone extends stdClass
           return true;
           }
           return false; */
-IPS_LogMessage('APISubCommand',print_r($API_Data->APISubCommand[$this->thisZone],1));
-IPS_LogMessage('ZoneCMDs',print_r(self::$ZoneCMDs[$this->thisZone],1));
-        return (in_array($API_Data->APISubCommand[$this->thisZone], self::$ZoneCMDs[$this->thisZone]));
+        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand[$this->thisZone], 1));
+        IPS_LogMessage('ZoneCMDs', print_r(self::$ZoneCMDs[$this->thisZone], 1));
+        if (property_exists($API_Data->APISubCommand, $this->thisZone))
+            return (in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]));
+        return false;
     }
 
 }
@@ -425,7 +427,7 @@ class ISCP_API_Commands extends stdClass
             self::Profile => IPSProfiles::ptSelectInputAudio,
             self::IsVariable => true,
             self::VarName => 'Audio Input Selector'
-        ),  
+        ),
         ISCP_API_Commands::LMD
         => array(
             self::VarType => IPSVarType::vtInteger,
@@ -433,7 +435,7 @@ class ISCP_API_Commands extends stdClass
             self::Profile => IPSProfiles::ptListeningMode,
             self::IsVariable => true,
             self::VarName => 'Listening Mode'
-        ),            
+        ),
         ISCP_API_Commands::TUN
         => array(
             self::VarType => IPSVarType::vtFloat,
@@ -474,17 +476,18 @@ class ISCP_API_Commands extends stdClass
               ISCP_API_Commands::TSB,
               ISCP_API_Commands::TSW */
     );
-/*
-    static function GetMapping(ISCP_API_Data $APIData)
-    {
-        if (array_key_exists($APIData->APICommand, self::$VarMapping))
-        {
-//$APIData->APICommand            in_array(, self::$VarMapping);
-        }
-        else
-            return false;
-    }
-*/
+
+    /*
+      static function GetMapping(ISCP_API_Data $APIData)
+      {
+      if (array_key_exists($APIData->APICommand, self::$VarMapping))
+      {
+      //$APIData->APICommand            in_array(, self::$VarMapping);
+      }
+      else
+      return false;
+      }
+     */
 }
 
 class ISCP_API_Command_Mapping extends stdClass
@@ -494,15 +497,14 @@ class ISCP_API_Command_Mapping extends stdClass
     {
         if (array_key_exists($Cmd, ISCP_API_Commands::$CMDMapping))
         {
-            IPS_LogMessage('GetMapping',print_r(ISCP_API_Commands::$CMDMapping[$Cmd],1));
+            IPS_LogMessage('GetMapping', print_r(ISCP_API_Commands::$CMDMapping[$Cmd], 1));
             return ISCP_API_Commands::$CMDMapping[$Cmd];
             /*
               $this->VarType = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::VarType];
               $this->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
               $this->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
              */
-        }
-        else
+        } else
             return false;
     }
 
@@ -534,8 +536,7 @@ class ISCP_API_Data_Mapping extends stdClass
               $this->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
               $this->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
              */
-        }
-        else
+        } else
             return null;
     }
 
@@ -554,7 +555,7 @@ class ISCP_API_Data extends stdClass
         $this->APICommand = $Data->APICommand;
         $this->Data = utf8_decode($Data->Data);
         if (property_exists($Data, 'APISubCommand'))
-            $this->APISubCommand =  get_object_vars($Data->APISubCommand);
+            $this->APISubCommand = $Data->APISubCommand;
     }
 
     public function ToJSONString($GUID)
@@ -575,7 +576,7 @@ class ISCP_API_Data extends stdClass
 
     public function GetSubCommand()
     {
-        IPS_LogMessage('GetSubCommand',print_r(ISCP_API_Command_Mapping::GetMapping($this->APICommand),1));
+        IPS_LogMessage('GetSubCommand', print_r(ISCP_API_Command_Mapping::GetMapping($this->APICommand), 1));
         $this->APISubCommand = ISCP_API_Command_Mapping::GetMapping($this->APICommand);
     }
 
