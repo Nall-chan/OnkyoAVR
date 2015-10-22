@@ -48,13 +48,13 @@ class IPSProfiles extends stdClass
             array(0x04, "Front High & Front Wide", "", -1)
             ),
         self::ptDisplayMode=>array(
-            array(0x00, "Selector & Volume", -1),
+            array(0x00, "Selector & Volume","", -1),
             array(0x01, "Selector & Listening Mode", "", -1),
             array(0x02, "Digital Format", "", -1),
             array(0x03, "Video Format", "", -1)
             ),
         self::ptDisplayDimmer=>array(
-            array(0x00, "Bright", -1),
+            array(0x00, "Bright","", -1),
             array(0x01, "Dim", "", -1),
             array(0x02, "Dark", "", -1),
             array(0x03, "Off", "", -1),
@@ -562,7 +562,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
-            self::Profile => self::ptSleep,
+            self::Profile => IPSProfiles::ptSleep,
             self::IsVariable => true,
             self::VarName => 'Sleep Set',
             self::RequestValue => true,
