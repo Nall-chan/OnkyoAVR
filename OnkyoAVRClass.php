@@ -223,8 +223,8 @@ class ONKYO_Zone extends stdClass
           return true;
           }
           return false; */
-IPS_LogMessage('APISubCommand',print_s($API_Data->APISubCommand[$this->thisZone],1));
-IPS_LogMessage('ZoneCMDs',print_s(self::$ZoneCMDs[$this->thisZone],1));
+IPS_LogMessage('APISubCommand',print_r($API_Data->APISubCommand[$this->thisZone],1));
+IPS_LogMessage('ZoneCMDs',print_r(self::$ZoneCMDs[$this->thisZone],1));
         return (in_array($API_Data->APISubCommand[$this->thisZone], self::$ZoneCMDs[$this->thisZone]));
     }
 
@@ -494,7 +494,7 @@ class ISCP_API_Command_Mapping extends stdClass
     {
         if (array_key_exists($Cmd, ISCP_API_Commands::$CMDMapping))
         {
-            IPS_LogMessage('GetMapping',print_s(ISCP_API_Commands::$CMDMapping[$Cmd],1));
+            IPS_LogMessage('GetMapping',print_r(ISCP_API_Commands::$CMDMapping[$Cmd],1));
             return ISCP_API_Commands::$CMDMapping[$Cmd];
             /*
               $this->VarType = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::VarType];
