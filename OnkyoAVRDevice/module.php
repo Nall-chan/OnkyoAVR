@@ -420,13 +420,13 @@ class OnkyoAVR extends IPSModule
             $APIData = new ISCP_API_Data();
             $APIData->APICommand = $ApiCmd;
             $APIData->GetMapping();
-            if (property_exists($APIData->Mapping, 'RequestValue'))
-                if ($APIData->Mapping->RequestValue)
-                {
-                    $APIData->Data = ISCP_API_Commands::Request;
-                    $result = $this->SendCommand($APIData);
-                    IPS_LogMessage('RequestZoneStateResult', print_r($result, true));
-                }
+//            if (property_exists($APIData->Mapping, 'RequestValue'))
+            if ($APIData->Mapping->RequestValue)
+            {
+                $APIData->Data = ISCP_API_Commands::Request;
+                $result = $this->SendCommand($APIData);
+                IPS_LogMessage('RequestZoneStateResult', print_r($result, true));
+            }
         }
     }
 
