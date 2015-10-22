@@ -25,12 +25,10 @@ class OnkyoAVR extends IPSModule
         foreach (IPSProfiles::$ProfilAssociations as $Profile => $Association)
         {
             $this->RegisterProfileIntegerEx($Profile, "", "", "", $Association);
-            
         }
         foreach (IPSProfiles::$ProfilInteger as $Profile => $Size)
         {
-            $this->RegisterProfileInteger($Profile, "", "", "", $Size[0],$Size[1],1);
-            
+            $this->RegisterProfileInteger($Profile, "", "", "", $Size[0], $Size[1], 1);
         }
         if ($this->GetZone())
             $this->RequestZoneState();
@@ -190,9 +188,9 @@ class OnkyoAVR extends IPSModule
         SetValueString($ReplyAPIDataID, $ReplyAPIData);
         $this->unlock('ReplyAPIData');
         IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
-
-        if ($APIData->Mapping->IsVariable)
-            $this->UpdateVariable($APIData);
+        if ($APIData->Mapping <> null)
+            if ($APIData->Mapping->IsVariable)
+                $this->UpdateVariable($APIData);
 
 
 

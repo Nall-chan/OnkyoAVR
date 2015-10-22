@@ -472,7 +472,7 @@ class ISCP_API_Commands extends stdClass
               ISCP_API_Commands::TSB,
               ISCP_API_Commands::TSW */
     );
-
+/*
     static function GetMapping(ISCP_API_Data $APIData)
     {
         if (array_key_exists($APIData->APICommand, self::$VarMapping))
@@ -482,7 +482,7 @@ class ISCP_API_Commands extends stdClass
         else
             return false;
     }
-
+*/
 }
 
 class ISCP_API_Command_Mapping extends stdClass
@@ -533,7 +533,7 @@ class ISCP_API_Data_Mapping extends stdClass
              */
         }
         else
-            return false;
+            return null;
     }
 
 }
