@@ -96,9 +96,10 @@ class OnkyoAVR extends IPSModule
                 SetValueInteger($VarID, $Value);
                 break;
             case IPSVarType::vtString:
-                SetValueString($VarID,$Value);
+                $Value = $APIData->Data;
+
+                SetValueString($VarID, $Value);
                 break;
-                
         }
     }
 
@@ -130,7 +131,7 @@ class OnkyoAVR extends IPSModule
 //                throw new Exception("Float VarType not implemented.");
                 break;
             case IPSVarType::vtInteger:
-                $APIData->Data = substr('0'.dechex($Value),-2);
+                $APIData->Data = substr('0' . dechex($Value), -2);
                 break;
             default:
                 echo "Unknow VarType.";
