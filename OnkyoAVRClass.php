@@ -161,6 +161,7 @@ class ONKYO_Zone extends stdClass
             ISCP_API_Commands::PWR,
             ISCP_API_Commands::AMT,
             ISCP_API_Commands::MVL,
+            ISCP_API_Commands::LMD,
             ISCP_API_Commands::SLI,
             ISCP_API_Commands::TUN,
             ISCP_API_Commands::PRS,
@@ -175,6 +176,7 @@ class ONKYO_Zone extends stdClass
             ISCP_API_Commands::TSW
         ),
         ONKYO_Zone::Zone2 => array(
+            ISCP_API_Commands::LMZ,
             ISCP_API_Commands::ZPW,
             ISCP_API_Commands::ZMT,
             ISCP_API_Commands::ZVL,
