@@ -16,127 +16,129 @@ class IPSProfiles extends stdClass
 {
 
     const ptSwitch = '~Switch';
-    const ptMute = '~Switch';
-    const ptSLI = 'SLI.Onkyo';
-    const ptLMD = 'LMD.Onkyo';
+    const ptSelectInput = 'SelectInput.Onkyo';
+    const ptListeningMode = 'LMD.Onkyo';
     const ptVolume = '~Intensity.100';
     const ptNetRadioPreset = 'NetRadioPreset.Onkyo';
     const ptRadioPreset = 'RadioPreset.Onkyo';
     const ptVideoResolution = 'VideoResolution.Onkyo';
-    const ptSLA = 'SLA.Onkyo';
-    const ptVWM = 'VWM.Onkyo';
+    const ptSelectInputAudio = 'SelectInputAudio.Onkyo';
+    const ptVideoWideMode = 'VideoWideMode.Onkyo';
     const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
     const ptNetTuneCommand = 'NetTuneCommand.Onkyo';
 
         static $ProfilInteger = array(
-        self::ptNetRadioPreset => array(1,6),
-        self::ptRadioPreset => array(1,6)
+        self::ptNetRadioPreset => array(0x01,0x30),
+        self::ptRadioPreset => array(0x01,0x30)
             );
     static $ProfilAssociations = array(
 //      self::ptMute=> array(),
-        self::ptSLI => array(//0x00 => "Video 1 VCR/DVR", //not z
-            0x01 => "Video 2 CBL/SAT",
-            "Video 3 GAME/TV",
-            "Video 4 AUX1(AUX)",
-//"Video 5 AUX2", //not z
-            "Video 6 PC",
+        self::ptSelectInput => array(
+            array(0x00, "Video 1 VCR/DVR", "" ,-1), //not z
+            array(0x01, "Video 2 CBL/SAT", "" ,-1),
+            array(0x02, "Video 3 GAME/TV", "" ,-1),
+            array(0x03, "Video 4 AUX1(AUX)", "" ,-1),
+            array(0x04, "Video 5 AUX2", "" ,-1), //not z
+            array(0x05, "Video 6 PC", "" ,-1),
 //"Video 7", //not z
-            0x10 => "BD/DVD",
-            0x20 => "TV", // not z
+            array(0x10,"BD/DVD", "" ,-1),
+            array(0x20 ,"TV", "" ,-1), // not z
 //"TAPE2", // not z
-            0x21 => "PHONO",
-            "TV/CD",
-            "FM",
-            "AM",
-//"TUNER", // not z
+            array(0x22,"PHONO", "" ,-1),
+            array(0x23,"TV/CD", "" ,-1),
+            array(0x24,"FM", "" ,-1),
+            array(0x25,"AM", "" ,-1),
+            array(0x26,"TUNER", "" ,-1), // not z
 //"MUSIC SERVER DLNA",
 //"INTERNET RADIO",
-            0x29 => "USB(Front)",
+            array(0x29,"USB(Front)", "" ,-1),
 //"USB(Rear)", // not z
-            0x2B => "NETWORK",
+            array(0x2B,"NETWORK", "" ,-1),
 //"USB(toggle)", //lol
-            0x2D => "Aiplay", //?
+            array(0x2D,"Aiplay", "" ,-1), //?
 //0x30 => "MULTI CH", //not z
 //"XM", //not z
 //"SIRIUS", // not z
 //"DAB", // not z
-//0x40 => "Universal PORT" //not z
+array(0x40,"Universal PORT", "" ,-1) //not z
         ),
-        self::ptLMD => array(
-            0x00 => "STEREO",
-            "DIRECT",
-            "SURROUND",
-            "FILM",
-            "THX",
-            "ACTION",
-            "MUSICAL",
-            0x08 => "ORCHESTRA",
-            "UNPLUGGED",
-            "STUDIO-MIX",
-            "TV LOGIC",
-            "ALL CH STEREO",
-            "THEATER-DIMENSIONAL",
-            "ENHANCED",
-            "MONO",
-            0x11 => "PURE AUDIO",
-            0x13 => "FULL MONO",
-            0x16 => "Audyssey DSX",
-            0x40 => "Straight Decode",
-            "Dolby EX",
-            "THX Cinema",
-            "THX Surround EX",
-            "THX Music",
-            "THX Games",
-            0x50 => "THX U2/S2/I/S Cinema/Cinema2",
-            "THX MusicMode,THX U2/S2/I/S Music",
-            "THX Games Mode,THX U2/S2/I/S Games",
-            0x80 => "PLII/PLIIx Movie",
-            "PLII/PLIIx Music",
-            "Neo:6 Cinema/Neo:X Cinema",
-            "Neo:6 Music/Neo:X Music",
-            "PLII/PLIIx THX Cinema",
-            "Neo:6/Neo:X THX Cinema",
-            "PLII/PLIIx Game",
-            0x89 => "PLII/PLIIx THX Games",
-            "Neo:6/Neo:X THX Games",
-            "PLII/PLIIx THX Music",
-            "Neo:6/Neo:X THX Music",
-            0x90 => "PLIIz Height",
-            0x94 => "PLIIz Height + THX Cinema",
-            "PLIIz Height + THX Music",
-            "PLIIz Height + THX Games",
-            0xA0 => "PLIIx/PLII Movie + Audyssey DSX",
-            "PLIIx/PLII Music + Audyssey DSX",
-            "PLIIx/PLII Game + Audyssey DSX"
+        self::ptListeningMode => array(
+            array(0x00,"STEREO", "" ,-1),
+            array(0x01,"DIRECT", "" ,-1),
+            array(0x02,"SURROUND", "" ,-1),
+            array(0x03,"FILM", "" ,-1),
+            array(0x04,"THX", "" ,-1),
+            array(0x05,"ACTION", "" ,-1),
+            array(0x06,"MUSICAL", "" ,-1),
+            array(0x08,"ORCHESTRA", "" ,-1),
+            array(0x09,"UNPLUGGED", "" ,-1),
+            array(0x0A,"STUDIO-MIX", "" ,-1),
+            array(0x0B,"TV LOGIC", "" ,-1),
+            array(0x0C,"ALL CH STEREO", "" ,-1),
+            array(0x0D,"THEATER-DIMENSIONAL", "" ,-1),
+            array(0x0E,"ENHANCED", "" ,-1),
+            array(0x0F,"MONO", "" ,-1),
+            array(0x11,"PURE AUDIO", "" ,-1),
+            array(0x13 ,"FULL MONO", "" ,-1),
+            array(0x16,"Audyssey DSX", "" ,-1),
+            array(0x40,"Straight Decode", "" ,-1),
+            array(0x41,"Dolby EX", "" ,-1),
+            array(0x42,"THX Cinema", "" ,-1),
+            array(0x43,"THX Surround EX", "" ,-1),
+            array(0x44,"THX Music", "" ,-1),
+            array(0x45,"THX Games", "" ,-1),
+            array(0x50 ,"THX U2/S2/I/S Cinema/Cinema2", "" ,-1),
+            array(0x51,"THX MusicMode,THX U2/S2/I/S Music", "" ,-1),
+            array(0x52,"THX Games Mode,THX U2/S2/I/S Games", "" ,-1),
+            array(0x80,"PLII/PLIIx Movie", "" ,-1),
+            array(0x81,"PLII/PLIIx Music", "" ,-1),
+            array(0x82,"Neo:6 Cinema/Neo:X Cinema", "" ,-1),
+            array(0x83,"Neo:6 Music/Neo:X Music", "" ,-1),
+            array(0x84,"PLII/PLIIx THX Cinema", "" ,-1),
+            array(0x85,"Neo:6/Neo:X THX Cinema", "" ,-1)
+            /*
+            array(0x86,"PLII/PLIIx Game", "" ,-1),
+            array(0x89,"PLII/PLIIx THX Games", "" ,-1),
+            "Neo:6/Neo:X THX Games", "" ,-1),
+            "PLII/PLIIx THX Music", "" ,-1),
+            "Neo:6/Neo:X THX Music", "" ,-1),
+            0x90 => "PLIIz Height", "" ,-1),
+            0x94 => "PLIIz Height + THX Cinema", "" ,-1),
+            "PLIIz Height + THX Music", "" ,-1),
+            "PLIIz Height + THX Games", "" ,-1),
+            0xA0 => "PLIIx/PLII Movie + Audyssey DSX", "" ,-1),
+            "PLIIx/PLII Music + Audyssey DSX", "" ,-1),
+            "PLIIx/PLII Game + Audyssey DSX", "" ,-1),*/
         ),
         self::ptVideoResolution => array(
-            0 => "Through",
-            "Auto(HDMI Output Only)",
-            "480p",
-            "720p",
-            "1080i",
-            "1080p(HDMI Output Only)",
-            7 => "1080p/24fs(HDMI Output Only)",
-            "4K Upcaling(HDMI Output Only)",
-            6 => "Source"
+            array(0x00,"Through", "" ,-1),
+            array(0x01,"Auto(HDMI Output Only)", "" ,-1),
+            array(0x02, "480p", "" ,-1),
+            array(0x03, "720p", "" ,-1),
+            array(0x04,"1080i", "" ,-1),
+            array(0x05,"1080p(HDMI Output Only)", "" ,-1),
+            array(0x06,"Source", "" ,-1),
+            array(0x07,"1080p/24fs(HDMI Output Only)", "" ,-1),
+            array(0x08,"4K Upcaling(HDMI Output Only)", "" ,-1)
         ),
-        self::ptSLA => array(
-            0 => "AUTO",
-            "MULTI-CHANNEL",
-            "ANALOG",
-            "iLINK",
-            "HDMI",
-            "COAX/OPT",
-            "BALANCE",
-            "ARC"
+        self::ptSelectInputAudio => array(
+            array(0x00,"AUTO", "" ,-1),
+            array(0x01,"MULTI-CHANNEL", "" ,-1),
+            array(0x02,"ANALOG", "" ,-1),
+            array(0x03,"iLINK", "" ,-1),
+            array(0x04,"HDMI", "" ,-1),
+            array(0x05,"COAX/OPT", "" ,-1),
+            array(0x06,"BALANCE", "" ,-1),
+            array(0x07,"ARC", "" ,-1),
+            array(0x0F,"None", "" ,-1)            
         ),
-        self::ptVWM => array(
-            0 => "Auto",
-            "4:3",
-            "Full",
-            "Zoom",
-            "Wide Zoom",
-            "Smart Zoom"
+        self::ptVideoWideMode => array(
+            array(0x00,"Auto", "" ,-1),
+            array(0x01,"4:3", "" ,-1),
+            array(0x02,"Full", "" ,-1),
+            array(0x03,"Zoom", "" ,-1),
+            array(0x04,"Wide Zoom", "" ,-1),
+            array(0x05,"Smart Zoom", "" ,-1)
         ),
   //      self::ptTunerFrequenz => array(),
 //        self::ptNetTuneCommand => array()
@@ -394,7 +396,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptMute,
+            self::Profile => IPSProfiles::ptSwitch,
             self::IsVariable => true,
             self::VarName => 'Mute'
         ),
@@ -410,10 +412,26 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptSLI,
+            self::Profile => IPSProfiles::ptSelectInput,
             self::IsVariable => true,
             self::VarName => 'Input Selector'
         ),
+        ISCP_API_Commands::SLA
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSelectInputAudio,
+            self::IsVariable => true,
+            self::VarName => 'Audio Input Selector'
+        ),  
+        ISCP_API_Commands::LMD
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptListeningMode,
+            self::IsVariable => true,
+            self::VarName => 'Listening Mode'
+        ),            
         ISCP_API_Commands::TUN
         => array(
             self::VarType => IPSVarType::vtFloat,
