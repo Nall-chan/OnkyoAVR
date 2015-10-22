@@ -554,7 +554,7 @@ class ISCP_API_Data extends stdClass
         $this->APICommand = $Data->APICommand;
         $this->Data = utf8_decode($Data->Data);
         if (property_exists($Data, 'APISubCommand'))
-            $this->APISubCommand = $Data->APISubCommand;
+            $this->APISubCommand =  get_object_vars($Data->APISubCommand);
     }
 
     public function ToJSONString($GUID)
