@@ -166,7 +166,7 @@ class OnkyoAVR extends IPSModule
 
         $APIData = new ISCP_API_Data();
         $APIData->GetDataFromJSONObject($Data);
-//        IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
+        IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
         if ($this->OnkyoZone->CmdAvaiable($APIData) === false)
         {
             if ($this->OnkyoZone->SubCmdAvaiable($APIData) === false)

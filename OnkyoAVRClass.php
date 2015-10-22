@@ -79,7 +79,7 @@ array(0x40,"Universal PORT", "" ,-1) //not z
             array(0x0E,"ENHANCED", "" ,-1),
             array(0x0F,"MONO", "" ,-1),
             array(0x11,"PURE AUDIO", "" ,-1),
-            array(0x13 ,"FULL MONO", "" ,-1),
+            array(0x13,"FULL MONO", "" ,-1),
             array(0x16,"Audyssey DSX", "" ,-1),
             array(0x40,"Straight Decode", "" ,-1),
             array(0x41,"Dolby EX", "" ,-1),
@@ -87,15 +87,15 @@ array(0x40,"Universal PORT", "" ,-1) //not z
             array(0x43,"THX Surround EX", "" ,-1),
             array(0x44,"THX Music", "" ,-1),
             array(0x45,"THX Games", "" ,-1),
-            array(0x50 ,"THX U2/S2/I/S Cinema/Cinema2", "" ,-1),
-            array(0x51,"THX MusicMode,THX U2/S2/I/S Music", "" ,-1),
-            array(0x52,"THX Games Mode,THX U2/S2/I/S Games", "" ,-1),
+            array(0x50,"THX Cinema Mode, THX U2/S2/I/S Cinema", "" ,-1),
+            array(0x51,"THX Music Mode, THX U2/S2/I/S Music", "" ,-1),
+            array(0x52,"THX Games Mode, THX U2/S2/I/S Games", "" ,-1),
+            array(0x84,"PLII/PLIIx THX Cinema", "" ,-1),
             array(0x80,"PLII/PLIIx Movie", "" ,-1),
             array(0x81,"PLII/PLIIx Music", "" ,-1),
             array(0x82,"Neo:6 Cinema/Neo:X Cinema", "" ,-1),
-            array(0x83,"Neo:6 Music/Neo:X Music", "" ,-1),
-            array(0x84,"PLII/PLIIx THX Cinema", "" ,-1),
-            array(0x85,"Neo:6/Neo:X THX Cinema", "" ,-1)
+            array(0x83,"Neo:6 Music/Neo:X Music", "" ,-1)
+//            array(0x85,"Neo:6/Neo:X THX Cinema", "" ,-1)
             /*
             array(0x86,"PLII/PLIIx Game", "" ,-1),
             array(0x89,"PLII/PLIIx THX Games", "" ,-1),
@@ -223,6 +223,8 @@ class ONKYO_Zone extends stdClass
           return true;
           }
           return false; */
+IPS_LogMessage('APISubCommand',print_s($API_Data->APISubCommand[$this->thisZone],1));
+IPS_LogMessage('ZoneCMDs',print_s(self::$ZoneCMDs[$this->thisZone],1));
         return (in_array($API_Data->APISubCommand[$this->thisZone], self::$ZoneCMDs[$this->thisZone]));
     }
 
@@ -492,6 +494,7 @@ class ISCP_API_Command_Mapping extends stdClass
     {
         if (array_key_exists($Cmd, ISCP_API_Commands::$CMDMapping))
         {
+            IPS_LogMessage('GetMapping',print_s(ISCP_API_Commands::$CMDMapping[$Cmd],1));
             return ISCP_API_Commands::$CMDMapping[$Cmd];
             /*
               $this->VarType = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::VarType];
@@ -572,6 +575,7 @@ class ISCP_API_Data extends stdClass
 
     public function GetSubCommand()
     {
+        IPS_LogMessage('GetSubCommand',print_r(ISCP_API_Command_Mapping::GetMapping($this->APICommand),1));
         $this->APISubCommand = ISCP_API_Command_Mapping::GetMapping($this->APICommand);
     }
 
