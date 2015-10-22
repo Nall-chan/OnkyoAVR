@@ -77,6 +77,7 @@ class OnkyoAVR extends IPSModule
             $this->MaintainVariable($APIData->APICommand, $APIData->Mapping->VarName, $APIData->Mapping->VarType, $APIData->Mapping->Profile, 0, true);
             if ($APIData->Mapping->EnableAction)
                 $this->MaintainAction($APIData->APICommand, true);
+            $VarID = $this->GetIDForIdent($APIData->APICommand);
         }
         switch ($APIData->Mapping->VarType)
         {
