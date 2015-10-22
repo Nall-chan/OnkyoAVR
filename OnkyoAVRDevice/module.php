@@ -78,17 +78,55 @@ class OnkyoAVR extends IPSModule
             if ($APIData->Mapping->EnableAction)
                 $this->MaintainAction($APIData->APICommand, true);
         }
-        // more to do....
+        switch ($APIData->Mapping->VarType)
+        {
+            case IPSVarType::vtBoolean:
+                $Value = ISCP_API_Commands::$BoolValueMapping[$APIData->Data];
+                SetValueBoolean($VarID, $Value);
+                break;
+            case IPSVarType::vtFloat:
+                throw new Exception("Float VarType not implemented.");
+                break;
+            case IPSVarType::vtInteger:
+                $Value = hexdec($APIData->Data);
+                SetValueInteger($VarID, $Value);
+                break;
+        }
     }
 
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
     {
-        /*        if (is_bool($Value) === false)
-          throw new Exception('Wrong Datatype for ' . $Ident);
-          $this->WriteBoolean($Ident, (bool) $Value);
-         */
+        if (!$this->GetZone())
+            throw new Exception("Illegal Zone");
+
+        $APIData = new ISCP_API_Data();
+        $APIData->APICommand = $Ident;
+        if (!$this->OnkyoZone->CmdAvaiable($APIData))
+            throw new Exception("Illegal Command in this Zone");
+        // Mapping holen
+        $APIData->GetMapping();
+        if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
+            throw new Exception("Type ob Variable do not match.");
+        // Variable konvertieren..        
+        switch ($APIData->Mapping->VarType)
+        {
+            case IPSVarType::vtBoolean:
+                $APIData->Data = ISCP_API_Commands::$BoolValueMapping[$Value];
+                break;
+            case IPSVarType::vtFloat:
+                throw new Exception("Float VarType not implemented.");
+                break;
+            case IPSVarType::vtInteger:
+                $APIData->Data = dechex($Value);
+                break;
+            default:
+                throw new Exception("Unknow VarType.");
+                break;
+        }
+        // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
+        $this->SendCommand($APIData);
     }
 
 ################## PUBLIC
