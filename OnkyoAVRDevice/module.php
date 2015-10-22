@@ -21,6 +21,17 @@ class OnkyoAVR extends IPSModule
         parent::ApplyChanges();
         $this->RegisterVariableString("ReplyAPIData", "ReplyAPIData", "", -3);
         IPS_SetHidden($this->GetIDForIdent('ReplyAPIData'), true);
+
+        foreach (IPSProfiles::$ProfilAssociations as $Profile => $Association)
+        {
+            $this->RegisterProfileIntegerEx($Profile, "", "", "", $Association);
+            
+        }
+        foreach (IPSProfiles::$ProfilInteger as $Profile => $Size)
+        {
+            $this->RegisterProfileInteger($Profile, "", "", "", $Size[0],$Size[1],1);
+            
+        }
         if ($this->GetZone())
             $this->RequestZoneState();
 
@@ -51,24 +62,27 @@ class OnkyoAVR extends IPSModule
             return false;
         return true;
     }
-private function UpdateVariable (ISCP_API_Data $APIData)
-{
-    $VarID = @$this->GetIDForIdent($APIData->APICommand);
-    if ($VarID > 0)
+
+    private function UpdateVariable(ISCP_API_Data $APIData)
     {
-        if (IPS_GetVariable($VarID)['VariableType'] <> $APIData->Mapping->VarType)
+        $VarID = @$this->GetIDForIdent($APIData->APICommand);
+        if ($VarID > 0)
         {
-            IPS_DeleteVariable($VarID);
-            $VarID=false;
+            if (IPS_GetVariable($VarID)['VariableType'] <> $APIData->Mapping->VarType)
+            {
+                IPS_DeleteVariable($VarID);
+                $VarID = false;
+            }
         }
+        if ($VarID === false)
+        {
+            $this->MaintainVariable($APIData->APICommand, $APIData->Mapping->VarName, $APIData->Mapping->VarType, $APIData->Mapping->Profile, 0, true);
+            if ($APIData->Mapping->EnableAction)
+                $this->MaintainAction($APIData->APICommand, true);
+        }
+        // more to do....
     }
-    if ($VarID === false)
-    {
-        $this->MaintainVariable($APIData->APICommand, $APIData->Mapping->VarName, $APIData->Mapping->VarType, $APIData->Mapping->Profile, 0, true);
-        if ($APIData->Mapping->EnableAction) $this->MaintainAction ($APIData->APICommand, true);
-    }
-    // more to do....
-}
+
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -160,7 +174,7 @@ private function UpdateVariable (ISCP_API_Data $APIData)
             if ($this->OnkyoZone->SubCmdAvaiable($APIData) === false)
                 return false;
             else
-                $APIData->APICommand= $APIData->APISubCommand[$this->OnkyoZone->thisZone];
+                $APIData->APICommand = $APIData->APISubCommand[$this->OnkyoZone->thisZone];
         }
         $APIData->GetMapping();
         $this->ReceiveAPIData($APIData);
@@ -539,6 +553,47 @@ private function UpdateVariable (ISCP_API_Data $APIData)
     protected function SetSummary($data)
     {
 //        IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //                   
+    }
+
+    //Remove on next Symcon update
+    protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize)
+    {
+
+        if (!IPS_VariableProfileExists($Name))
+        {
+            IPS_CreateVariableProfile($Name, 1);
+        }
+        else
+        {
+            $profile = IPS_GetVariableProfile($Name);
+            if ($profile['ProfileType'] != 1)
+                throw new Exception("Variable profile type does not match for profile " . $Name);
+        }
+
+        IPS_SetVariableProfileIcon($Name, $Icon);
+        IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+        IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
+    }
+
+    protected function RegisterProfileIntegerEx($Name, $Icon, $Prefix, $Suffix, $Associations)
+    {
+        if (sizeof($Associations) === 0)
+        {
+            $MinValue = 0;
+            $MaxValue = 0;
+        }
+        else
+        {
+            $MinValue = $Associations[0][0];
+            $MaxValue = $Associations[sizeof($Associations) - 1][0];
+        }
+
+        $this->RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+
+        foreach ($Associations as $Association)
+        {
+            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
     }
 
 ################## SEMAPHOREN Helper  - private  

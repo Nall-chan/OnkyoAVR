@@ -16,17 +16,131 @@ class IPSProfiles extends stdClass
 {
 
     const ptSwitch = '~Switch';
-    const ptMute = 'Onkyo.Mute';
-    const ptSLI = 'Onkyo.SLI';
-    const ptLMD = 'Onkyo.LMD';
+    const ptMute = '~Switch';
+    const ptSLI = 'SLI.Onkyo';
+    const ptLMD = 'LMD.Onkyo';
     const ptVolume = '~Intensity.100';
-    const ptNetRadioPreset = 'Onkyo.NetRadioPreset';
-    const ptRadioPreset = 'Onkyo.RadioPreset';
-    const ptVideoResolution = 'Onkyo.VideoResolution';
-    const ptSLA = 'Onkyo.SLA';
-    const ptVWM = 'Onkyo.VWM';
-    const ptTunerFrequenz = 'Onkyo.TunerFrequenz';
-    const ptNetTuneCommand = 'Onkyo.NetTuneCommand';
+    const ptNetRadioPreset = 'NetRadioPreset.Onkyo';
+    const ptRadioPreset = 'RadioPreset.Onkyo';
+    const ptVideoResolution = 'VideoResolution.Onkyo';
+    const ptSLA = 'SLA.Onkyo';
+    const ptVWM = 'VWM.Onkyo';
+    const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
+    const ptNetTuneCommand = 'NetTuneCommand.Onkyo';
+
+        static $ProfilInteger = array(
+        self::ptNetRadioPreset => array(1,6),
+        self::ptRadioPreset => array(1,6)
+            );
+    static $ProfilAssociations = array(
+//      self::ptMute=> array(),
+        self::ptSLI => array(//0x00 => "Video 1 VCR/DVR", //not z
+            0x01 => "Video 2 CBL/SAT",
+            "Video 3 GAME/TV",
+            "Video 4 AUX1(AUX)",
+//"Video 5 AUX2", //not z
+            "Video 6 PC",
+//"Video 7", //not z
+            0x10 => "BD/DVD",
+            0x20 => "TV", // not z
+//"TAPE2", // not z
+            0x21 => "PHONO",
+            "TV/CD",
+            "FM",
+            "AM",
+//"TUNER", // not z
+//"MUSIC SERVER DLNA",
+//"INTERNET RADIO",
+            0x29 => "USB(Front)",
+//"USB(Rear)", // not z
+            0x2B => "NETWORK",
+//"USB(toggle)", //lol
+            0x2D => "Aiplay", //?
+//0x30 => "MULTI CH", //not z
+//"XM", //not z
+//"SIRIUS", // not z
+//"DAB", // not z
+//0x40 => "Universal PORT" //not z
+        ),
+        self::ptLMD => array(
+            0x00 => "STEREO",
+            "DIRECT",
+            "SURROUND",
+            "FILM",
+            "THX",
+            "ACTION",
+            "MUSICAL",
+            0x08 => "ORCHESTRA",
+            "UNPLUGGED",
+            "STUDIO-MIX",
+            "TV LOGIC",
+            "ALL CH STEREO",
+            "THEATER-DIMENSIONAL",
+            "ENHANCED",
+            "MONO",
+            0x11 => "PURE AUDIO",
+            0x13 => "FULL MONO",
+            0x16 => "Audyssey DSX",
+            0x40 => "Straight Decode",
+            "Dolby EX",
+            "THX Cinema",
+            "THX Surround EX",
+            "THX Music",
+            "THX Games",
+            0x50 => "THX U2/S2/I/S Cinema/Cinema2",
+            "THX MusicMode,THX U2/S2/I/S Music",
+            "THX Games Mode,THX U2/S2/I/S Games",
+            0x80 => "PLII/PLIIx Movie",
+            "PLII/PLIIx Music",
+            "Neo:6 Cinema/Neo:X Cinema",
+            "Neo:6 Music/Neo:X Music",
+            "PLII/PLIIx THX Cinema",
+            "Neo:6/Neo:X THX Cinema",
+            "PLII/PLIIx Game",
+            0x89 => "PLII/PLIIx THX Games",
+            "Neo:6/Neo:X THX Games",
+            "PLII/PLIIx THX Music",
+            "Neo:6/Neo:X THX Music",
+            0x90 => "PLIIz Height",
+            0x94 => "PLIIz Height + THX Cinema",
+            "PLIIz Height + THX Music",
+            "PLIIz Height + THX Games",
+            0xA0 => "PLIIx/PLII Movie + Audyssey DSX",
+            "PLIIx/PLII Music + Audyssey DSX",
+            "PLIIx/PLII Game + Audyssey DSX"
+        ),
+        self::ptVideoResolution => array(
+            0 => "Through",
+            "Auto(HDMI Output Only)",
+            "480p",
+            "720p",
+            "1080i",
+            "1080p(HDMI Output Only)",
+            7 => "1080p/24fs(HDMI Output Only)",
+            "4K Upcaling(HDMI Output Only)",
+            6 => "Source"
+        ),
+        self::ptSLA => array(
+            0 => "AUTO",
+            "MULTI-CHANNEL",
+            "ANALOG",
+            "iLINK",
+            "HDMI",
+            "COAX/OPT",
+            "BALANCE",
+            "ARC"
+        ),
+        self::ptVWM => array(
+            0 => "Auto",
+            "4:3",
+            "Full",
+            "Zoom",
+            "Wide Zoom",
+            "Smart Zoom"
+        ),
+  //      self::ptTunerFrequenz => array(),
+//        self::ptNetTuneCommand => array()
+    );
 
 }
 
