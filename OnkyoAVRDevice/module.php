@@ -535,10 +535,10 @@ class OnkyoAVR extends IPSModule
     private function WaitForResponse()
     {
         $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
-        for ($i = 0; $i < 500; $i++)
+        for ($i = 0; $i < 300; $i++)
         {
             if (GetValueString($ReplyAPIDataID) === '')
-                IPS_Sleep(10);
+                IPS_Sleep(4);
             else
             {
                 if ($this->lock('ReplyAPIData'))
