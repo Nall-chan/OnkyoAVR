@@ -65,26 +65,10 @@ class OnkyoAVR extends IPSModule
     {
         if ($APIData->Data == "N/A")
             return;
-
-        $VarID = @$this->GetIDForIdent($APIData->APICommand);
-        if ($VarID > 0)
-        {
-            if (IPS_GetVariable($VarID)['VariableType'] <> $APIData->Mapping->VarType)
-            {
-                IPS_DeleteVariable($VarID);
-                $VarID = false;
-            }
-        }
-        if ($VarID === false)
-        {
-            $this->MaintainVariable($APIData->APICommand, $APIData->Mapping->VarName, $APIData->Mapping->VarType, $APIData->Mapping->Profile, 0, true);
-            if ($APIData->Mapping->EnableAction)
-                $this->MaintainAction($APIData->APICommand, true);
-            $VarID = $this->GetIDForIdent($APIData->APICommand);
-        }
         switch ($APIData->Mapping->VarType)
         {
             case IPSVarType::vtBoolean:
+                $VarID = $this->GetVariable($APIData->APICommand, $APIData->Mapping->VarType, $APIData->Mapping->VarName, $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
                 $Value = ISCP_API_Commands::$BoolValueMapping[$APIData->Data];
                 SetValueBoolean($VarID, $Value);
                 break;
@@ -92,14 +76,22 @@ class OnkyoAVR extends IPSModule
                 throw new Exception("Float VarType not implemented.");
                 break;
             case IPSVarType::vtInteger:
+                $VarID = $this->GetVariable($APIData->APICommand, $APIData->Mapping->VarType, $APIData->Mapping->VarName, $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
                 $Value = hexdec($APIData->Data);
                 SetValueInteger($VarID, $Value);
                 break;
             case IPSVarType::vtString:
+                $VarID = $this->GetVariable($APIData->APICommand, $APIData->Mapping->VarType, $APIData->Mapping->VarName, $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
                 $Value = $APIData->Data;
-
                 SetValueString($VarID, $Value);
                 break;
+            case IPSVarType::vtDualInteger:
+                {
+                    $Prefix = substr($APIData->Data, 0, 1);
+                    $VarID = $this->GetVariable($APIData->APICommand . $APIData->Mapping->ValuePrefix[$Prefix], IPSVarType::vtInteger, $APIData->Mapping->VarName[$Prefix], $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
+                    $Value = $APIData->Mapping->ValueMapping[substr($APIData->Data, 1, 2)];
+                    SetValueInteger($VarID, $Value);
+                }
         }
     }
 
@@ -112,6 +104,7 @@ class OnkyoAVR extends IPSModule
 
         $APIData = new ISCP_API_Data();
         $APIData->APICommand = $Ident;
+        $APIData->Data = $Value;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
             echo "Illegal Command in this Zone";
 //            throw new Exception("Illegal Command in this Zone");
@@ -120,33 +113,17 @@ class OnkyoAVR extends IPSModule
         if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
             echo "Type ob Variable do not match.";
 //            throw new Exception("Type ob Variable do not match.");
-        // Variable konvertieren..        
-        switch ($APIData->Mapping->VarType)
-        {
-            case IPSVarType::vtBoolean:
-                $APIData->Data = ISCP_API_Commands::$BoolValueMapping[$Value];
-                break;
-            case IPSVarType::vtFloat:
-                echo "Float VarType not implemented.";
-//                throw new Exception("Float VarType not implemented.");
-                break;
-            case IPSVarType::vtInteger:
-                $APIData->Data = substr('0' . dechex($Value), -2);
-                break;
-            default:
-                echo "Unknow VarType.";
-//                throw new Exception("Unknow VarType.");
-                break;
-        }
         // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
-        $ret = $this->SendCommand($APIData);
+        $ret = $this->SendAPIData($APIData);
         if ($ret->Data == "N/A")
         {
-            echo "Command not available.";
+            echo "Command temporally not available.";
             return;
         }
         if ($ret->Data <> $APIData->Data)
         {
+            IPS_LogMessage('RequestAction', print_r($APIData, 1));
+            IPS_LogMessage('RequestActionResult', print_r($ret, 1));
             echo "Value not available.";
             return;
         }
@@ -227,7 +204,7 @@ class OnkyoAVR extends IPSModule
 
         $APIData = new ISCP_API_Data();
         $APIData->GetDataFromJSONObject($Data);
-        IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
+//        IPS_LogMessage('ReceiveAPIData1', print_r($APIData, true));
 
         if ($this->OnkyoZone->CmdAvaiable($APIData) === false)
         {
@@ -260,7 +237,7 @@ class OnkyoAVR extends IPSModule
             throw new Exception('ReplyAPIData is locked');
         SetValueString($ReplyAPIDataID, $ReplyAPIData);
         $this->unlock('ReplyAPIData');
-        IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
+//        IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
         if ($APIData->Mapping <> null)
             if ($APIData->Mapping->IsVariable)
                 $this->UpdateVariable($APIData);
@@ -442,6 +419,58 @@ class OnkyoAVR extends IPSModule
         }
     }
 
+    private function SendAPIData(ISCP_API_Data $APIData)
+    {
+        $DualType = substr($APIData->APICommand, 4, 1);
+        $APIData->APICommand = substr($APIData->APICommand, 0, 3);
+        if ($APIData->Mapping == null)
+            $APIData->GetMapping();
+
+        // Variable konvertieren..        
+        switch ($APIData->Mapping->VarType)
+        {
+            case IPSVarType::vtBoolean:
+                $APIData->Data = ISCP_API_Commands::$BoolValueMapping[$APIData->Data];
+                break;
+            case IPSVarType::vtFloat:
+                echo "Float VarType not implemented.";
+                return;
+//                throw new Exception("Float VarType not implemented.");
+                break;
+            case IPSVarType::vtInteger:
+                if ($APIData->Mapping->ValueMapping == null)
+                    $APIData->Data = substr('0' . dechex($APIData->Data), -2);
+                else
+                {
+                    $Mapping = array_flip($APIData->Mapping->ValueMapping);
+                    if (array_key_exists($APIData->Data, $Mapping))
+                        $APIData->Data = $Mapping[$APIData->Data];
+                    else
+                        $APIData->Data = substr('0' . dechex($APIData->Data), -2);
+                }
+                break;
+            case IPSVarType::vtDualInteger:
+                if ($DualType === false)
+                {
+                    echo "Error on get DualInteger.";
+                    return;
+                }
+                $Prefix = array_flip($APIData->Mapping->ValuePrefix)['$DualType'];
+                $Mapping = array_flip($APIData->Mapping->ValueMapping);
+                if (array_key_exists($APIData->Data, $Mapping))
+                    $APIData->Data = $Prefix . $Mapping[$APIData->Data];
+                else
+                    $APIData->Data = $Prefix . substr('0' . dechex($APIData->Data), -2);
+                break;
+            default:
+                echo "Unknow VarType.";
+                return;
+//                throw new Exception("Unknow VarType.");
+                break;
+        }
+        return $this->SendCommand($APIData);
+    }
+
     private function SendCommand(ISCP_API_Data $APIData)
     {
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
@@ -538,6 +567,27 @@ class OnkyoAVR extends IPSModule
                 return true;
         }
         return false;
+    }
+
+    protected function GetVariable($Ident, $VarType, $VarName, $Profile, $EnableAction)
+    {
+        $VarID = @$this->GetIDForIdent($Ident);
+        if ($VarID > 0)
+        {
+            if (IPS_GetVariable($VarID)['VariableType'] <> $VarType)
+            {
+                IPS_DeleteVariable($VarID);
+                $VarID = false;
+            }
+        }
+        if ($VarID === false)
+        {
+            $this->MaintainVariable($Ident, $VarName, $VarType, $Profile, 0, true);
+            if ($EnableAction)
+                $this->MaintainAction($Ident, true);
+            $VarID = $this->GetIDForIdent($Ident);
+        }
+        return $VarID;
     }
 
     protected function RegisterTimer($Name, $Interval, $Script)

@@ -9,7 +9,7 @@ class IPSVarType extends stdClass
     const vtInteger = 1;
     const vtFloat = 2;
     const vtString = 3;
-
+    const vtDualInteger = 10;
 }
 
 class IPSProfiles extends stdClass
@@ -465,6 +465,7 @@ class ISCP_API_Commands extends stdClass
     const EnableAction = 4;
     const RequestValue = 5;
     const ValueMapping = 6;
+    const ValuePrefix = 7;
 
 //    const ValuePrefix = 7;
 //    const ValueStepSize = 8;
@@ -542,7 +543,7 @@ class ISCP_API_Commands extends stdClass
             self::IsVariable => true,
             self::VarName => 'Speaker Layout',
             self::RequestValue => true,
-            self::ValueMapping => array("SB" => 1, "FH" => 2, "FW" => 3, "HW" => 4, 1 => "SB", 2 => "FH", 3 => "FW", 4 => "HW")
+            self::ValueMapping => array("SB" => 1, "FH" => 2, "FW" => 3, "HW" => 4)//, 1 => "SB", 2 => "FH", 3 => "FW", 4 => "HW")
         ),
         ISCP_API_Commands::MVL
         => array(
@@ -554,6 +555,17 @@ class ISCP_API_Commands extends stdClass
             self::RequestValue => true,
             self::ValueMapping=> null
         ),
+        ISCP_API_Commands::TFW
+        => array(
+            self::VarType => IPSVarType::vtDualInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptOffset,
+            self::IsVariable => true,
+            self::VarName => array('T'=>'Front Wide Treble','B'=>'Front Wide Bass'),
+            self::RequestValue => true,
+            self::ValuePrefix=>array('T'=>0,'B'=>1),
+            self::ValueMapping => array("-A" => -10, "-8" => -8, "-6" => -6, "-4" => -4,"-2" => -2, "00" => 0, "+2" => 2, "+4" => 4,"+6" => 6, "+8" => 8, "+A" => 10)
+        ),        
         ISCP_API_Commands::PMB
         => array(
             self::VarType => IPSVarType::vtBoolean,
@@ -572,7 +584,7 @@ class ISCP_API_Commands extends stdClass
             self::IsVariable => true,
             self::VarName => 'Sleep Set',
             self::RequestValue => true,
-            self::ValueMapping=>array("OFF"=> 0, 0 => "OFF")
+            self::ValueMapping=>array("OFF"=> 0)
         ),
         ISCP_API_Commands::DIF
         => array(
@@ -803,7 +815,7 @@ class ISCP_API_Data extends stdClass
 
     public $APICommand;
     public $Data;
-    public $Mapping;
+    public $Mapping = null;
     public $APISubCommand;
 
     public function GetDataFromJSONObject($Data)
