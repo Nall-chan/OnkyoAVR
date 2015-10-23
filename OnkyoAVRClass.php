@@ -19,6 +19,7 @@ class IPSProfiles extends stdClass
     const ptSwitch = '~Switch';
     const ptSpeakerLayout = 'SpeakerLayout.Onkyo';
     const ptVolume = '~Intensity.100';
+const ptToneOffset ='ToneOffset.Onkyo'    ;
     const ptSleep = 'Sleep.Onkyo';
     const ptDisplayMode = 'DisplayMode.Onkyo';
     const ptDisplayDimmer = 'DisplayDimmer.Onkyo';
@@ -33,7 +34,7 @@ class IPSProfiles extends stdClass
     const ptNetTuneCommand = 'NetTuneCommand.Onkyo';
 
     static $ProfilInteger = array(
-        self::ptOffset => array(-10, 10, 2),
+        self::ptToneOffset => array(-10, 10, 2),
         self::ptSleep => array(0x00, 0x5A, 1),
         self::ptNetRadioPreset => array(0x01, 0x30, 1),
         self::ptRadioPreset => array(0x01, 0x30, 1)
@@ -557,7 +558,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtDualInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptOffset,
+            self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
             self::VarName => array('T' => 'Front Treble', 'B' => 'Front Bass'),
             self::RequestValue => true,
@@ -568,7 +569,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtDualInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptOffset,
+            self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
             self::VarName => array('T' => 'Front Wide Treble', 'B' => 'Front Wide Bass'),
             self::RequestValue => true,
@@ -579,7 +580,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtDualInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptOffset,
+            self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
             self::VarName => array('T' => 'Front High Treble', 'B' => 'Front High Bass'),
             self::RequestValue => true,
@@ -590,7 +591,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtDualInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptOffset,
+            self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
             self::VarName => array('T' => 'Center Treble', 'B' => 'Center Bass'),
             self::RequestValue => true,
@@ -601,7 +602,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtDualInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptOffset,
+            self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
             self::VarName => array('T' => 'Surround Treble', 'B' => 'Surround Bass'),
             self::RequestValue => true,
@@ -612,7 +613,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtDualInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptOffset,
+            self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
             self::VarName => array('T' => 'Surround Back Treble', 'B' => 'Surround Back Bass'),
             self::RequestValue => true,
@@ -623,7 +624,7 @@ class ISCP_API_Commands extends stdClass
         => array(
             self::VarType => IPSVarType::vtDualInteger,
             self::EnableAction => true,
-            self::Profile => IPSProfiles::ptOffset,
+            self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
             self::VarName => array('B'=>'Subwoofer Bass'),
             self::RequestValue => true,
