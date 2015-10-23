@@ -446,14 +446,14 @@ class OnkyoAVR extends IPSModule
                 break;
             case IPSVarType::vtInteger:
                 if ($APIData->Mapping->ValueMapping == null)
-                    $APIData->Data = substr('0' . dechex($APIData->Data), -2);
+                    $APIData->Data = strtoupper (substr('0' . dechex($APIData->Data), -2));
                 else
                 {
                     $Mapping = array_flip($APIData->Mapping->ValueMapping);
                     if (array_key_exists($APIData->Data, $Mapping))
                         $APIData->Data = $Mapping[$APIData->Data];
                     else
-                        $APIData->Data = substr('0' . dechex($APIData->Data), -2);
+                        $APIData->Data = strtoupper(substr('0' . dechex($APIData->Data), -2));
                 }
                 break;
             case IPSVarType::vtDualInteger:
@@ -467,7 +467,7 @@ class OnkyoAVR extends IPSModule
                 if (array_key_exists($APIData->Data, $Mapping))
                     $APIData->Data = $Prefix . $Mapping[$APIData->Data];
                 else
-                    $APIData->Data = $Prefix . substr('0' . dechex($APIData->Data), -2);
+                    $APIData->Data = strtoupper($Prefix . substr('0' . dechex($APIData->Data), -2));
                 break;
             default:
                 echo "Unknow VarType.";
