@@ -28,7 +28,7 @@ class OnkyoAVR extends IPSModule
         }
         foreach (IPSProfiles::$ProfilInteger as $Profile => $Size)
         {
-            $this->RegisterProfileInteger($Profile, "", "", "", $Size[0], $Size[1], 1);
+            $this->RegisterProfileInteger($Profile, "", "", "", $Size[0], $Size[1], $Size[2]);
         }
         if ($this->GetZone())
             $this->RequestZoneState();
@@ -91,6 +91,13 @@ class OnkyoAVR extends IPSModule
                     $VarID = $this->GetVariable($APIData->APICommand . $APIData->Mapping->ValuePrefix[$Prefix], IPSVarType::vtInteger, $APIData->Mapping->VarName[$Prefix], $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
                     $Value = $APIData->Mapping->ValueMapping[substr($APIData->Data, 1, 2)];
                     SetValueInteger($VarID, $Value);
+                    if (strlen($APIData->Data) > 3)
+                    {
+                        $Prefix = substr($APIData->Data, 3, 1);
+                        $VarID = $this->GetVariable($APIData->APICommand . $APIData->Mapping->ValuePrefix[$Prefix], IPSVarType::vtInteger, $APIData->Mapping->VarName[$Prefix], $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
+                        $Value = $APIData->Mapping->ValueMapping[substr($APIData->Data, 4, 2)];
+                        SetValueInteger($VarID, $Value);
+                    }
                 }
         }
     }
