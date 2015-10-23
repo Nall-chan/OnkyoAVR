@@ -224,8 +224,8 @@ class OnkyoAVR extends IPSModule
             }
             else
             {
-                $APIData->APICommand = $APIData->APISubCommand[$this->OnkyoZone->thisZone];
-//                IPS_LogMessage('APISubCommand', $APIData->APISubCommand[$this->OnkyoZone->thisZone]);
+            $APIData->APICommand = $APIData->APISubCommand->{$this->OnkyoZone->thisZone};
+            //IPS_LogMessage('APISubCommand', $APIData->APISubCommand[$this->OnkyoZone->thisZone]);
             }
         }
 
