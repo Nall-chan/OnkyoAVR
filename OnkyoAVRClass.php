@@ -857,10 +857,11 @@ class ISCP_API_Data_Mapping extends stdClass
             $result->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
             $result->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
             $result->RequestValue = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::RequestValue];
-            $result->ValuePrefix = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValuePrefix];
+
             $result->ValueMapping = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValueMapping];
-//            if (array_key_exists(ISCP_API_Commands::APIMainCommand, ISCP_API_Commands::$VarMapping[$Cmd]))
-//                $result->APIMainCommand = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::APIMainCommand];
+            
+            if (array_key_exists(ISCP_API_Commands::ValuePrefix, ISCP_API_Commands::$VarMapping[$Cmd]))
+                $result->ValuePrefix = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValuePrefix];
 
             return $result;
             /*
