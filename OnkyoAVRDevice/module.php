@@ -10,7 +10,7 @@ class OnkyoAVR extends IPSModule
     public function Create()
     {
         parent::Create();
-        $this->RequireParent("{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}");
+        $this->ConnectParent("{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}");
 //        $this->RegisterPropertyBoolean("EmulateStatus", false);
         $this->RegisterPropertyInteger("Zone", ONKYO_Zone::None);
     }
