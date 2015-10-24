@@ -127,11 +127,11 @@ class OnkyoAVR extends IPSModule
         $APIData->APICommand = $Ident;
         IPS_LogMessage('RequestValueMapping', print_r($APIData, 1));
 
-        if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
+/*        if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
         {
             echo "Type of Variable do not match.";
             return;
-        }
+        }*/
 //            throw new Exception("Type ob Variable do not match.");
         // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
         $ret = $this->SendAPIData($APIData);
