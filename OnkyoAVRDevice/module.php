@@ -111,40 +111,21 @@ class OnkyoAVR extends IPSModule
         $APIData->APICommand = $Ident;
         IPS_LogMessage('RequestValueMapping', print_r($APIData, 1));
         // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
-        $ret = $this->SendAPIData($APIData);
-        if ($ret === false)
+        try
         {
-            echo "Error on Send.";
+            $ret = $this->SendAPIData($APIData);
+        }
+        catch (Exception $exc)
+        {
+            echo $exc->getMessage();
             return;
         }
-        if ($ret->Data == "N/A")
-        {
-            echo "Command temporally not available.";
-            return;
-        }
-        switch ($APIData->Mapping->VarType)
-        {
-            case IPSVarType::vtBoolean:
-            case IPSVarType::vtInteger:
-            case IPSVarType::vtFloat:
-                if ($ret->Data <> $APIData->Data)
-                {
-                    IPS_LogMessage('RequestAction', print_r($APIData, 1));
-                    IPS_LogMessage('RequestActionResult', print_r($ret, 1));
-                    echo "Value not available.";
-                    return;
-                }
-                break;
-            case IPSVarType::vtDualInteger:
-                if (strpos($ret->Data, $APIData->Data) === false)
-                {
-                    IPS_LogMessage('RequestAction', print_r($APIData, 1));
-                    IPS_LogMessage('RequestActionResult', print_r($ret, 1));
-                    echo "Value not available.";
-                    return;
-                }
-                break;
-        }
+
+        /*        if ($ret === false)
+          {
+          echo "Error on Send.";
+          return;
+          } */
     }
 
 ################## PUBLIC
@@ -160,55 +141,227 @@ class OnkyoAVR extends IPSModule
         if ($this->GetZone())
             $this->RequestZoneState();
     }
-public function Power(boolean $Value)
-{
-    
-}
-public function SetVolume(integer $Value)
-{
-    
-}
-public function GetVolume()
-{
-    
-}
-public function SetMute(boolean $Value)
-{
-    
-}
-public function GetMute()
-{
-    
-}
-public function SelectInput(integer $Value)
-{
-    
-}
-public function SelectListingMode(integer $Value)
-{
-    
-}
-public function SetSleep(integer $Value)
-{
-    
-}
-public function GetSleep()
-{
-    
-}
-public function SendTVCommand(string $Command)
-{
-    
-}
-public function SendBDCommand(string $Command)
-{
-    
-}
 
-public function SendCommand(string $Command, string $Value)
-{
-    
-}
+    public function Power(boolean $Value)
+    {
+        if (!$this->GetZone())
+        {
+            echo "Zone not set!";
+            return;
+        }
+        $APIData = new ISCP_API_Data();
+        $APIData->Data=$Value;
+        switch ($this->OnkyoZone->thisZone)
+        {
+            case ONKYO_Zone::ZoneMain:
+                $APIData->APICommand = ISCP_API_Commands::PWR;
+                break;
+            case ONKYO_Zone::Zone2:
+                $APIData->APICommand = ISCP_API_Commands::ZPW;
+                break;
+            case ONKYO_Zone::Zone3:
+                $APIData->APICommand = ISCP_API_Commands::PW3;
+                break;
+            case ONKYO_Zone::Zone4:
+                $APIData->APICommand = ISCP_API_Commands::PW4;
+                break;
+        }
+        try
+        {
+            $this->SendAPIData($APIData);
+        }
+        catch (Exception $exc)
+        {
+            echo $exc->getMessage();
+            return false;
+        }
+        return true;
+    }
+
+    public function SetVolume(integer $Value)
+    {
+        if (!$this->GetZone())
+        {
+            echo "Zone not set!";
+            return;
+        }
+        $APIData = new ISCP_API_Data();
+        $APIData->Data=$Value;
+        switch ($this->OnkyoZone->thisZone)
+        {
+            case ONKYO_Zone::ZoneMain:
+                $APIData->APICommand = ISCP_API_Commands::MVL;
+                break;
+            case ONKYO_Zone::Zone2:
+                $APIData->APICommand = ISCP_API_Commands::ZVL;
+                break;
+            case ONKYO_Zone::Zone3:
+                $APIData->APICommand = ISCP_API_Commands::VL3;
+                break;
+            case ONKYO_Zone::Zone4:
+                $APIData->APICommand = ISCP_API_Commands::VL4;
+                break;
+        }
+        try
+        {
+            $this->SendAPIData($APIData);
+        }
+        catch (Exception $exc)
+        {
+            echo $exc->getMessage();
+            return false;
+        }
+        return true;
+    }
+
+    public function SetMute(boolean $Value)
+    {
+        if (!$this->GetZone())
+        {
+            echo "Zone not set!";
+            return;
+        }
+        $APIData = new ISCP_API_Data();
+        $APIData->Data=$Value;
+        switch ($this->OnkyoZone->thisZone)
+        {
+            case ONKYO_Zone::ZoneMain:
+                $APIData->APICommand = ISCP_API_Commands::AMT;
+                break;
+            case ONKYO_Zone::Zone2:
+                $APIData->APICommand = ISCP_API_Commands::ZMT;
+                break;
+            case ONKYO_Zone::Zone3:
+                $APIData->APICommand = ISCP_API_Commands::MT3;
+                break;
+            case ONKYO_Zone::Zone4:
+                $APIData->APICommand = ISCP_API_Commands::MT4;
+                break;
+        }
+        try
+        {
+            $this->SendAPIData($APIData);
+        }
+        catch (Exception $exc)
+        {
+            echo $exc->getMessage();
+            return false;
+        }
+        return true;
+        
+    }
+
+    public function SelectInput(integer $Value)
+    {
+        
+    }
+
+    public function SelectListingMode(integer $Value)
+    {
+        
+    }
+
+    public function SetSleep(integer $Value)
+    {
+        
+    }
+
+    public function SendTVCommand(string $Command)
+    {
+        if (!$this->GetZone())
+        {
+            echo "Zone not set!";
+            return;
+        }
+        $APIData = new ISCP_API_Data();
+        $APIData->APICommand = ISCP_API_Commands::CTV;
+        $APIData->Data=$Command;
+        try
+        {
+            $APIResult= $this->SendData($APIData);
+        }
+        catch (Exception $exc)
+        {
+            echo $exc->getMessage();
+            return false;
+        }
+        if ($APIResult->Data =="N/A")
+        {
+            echo "Command (temporally) not available.";
+            return false;
+        }
+        if ($APIResult->Data <> $APIData->Data)
+        {
+            echo "Value not available.";
+            return false;
+        }
+        return true;
+        
+    }
+
+    public function SendBDCommand(string $Command)
+    {
+        if (!$this->GetZone())
+        {
+            echo "Zone not set!";
+            return;
+        }
+        $APIData = new ISCP_API_Data();
+        $APIData->APICommand = ISCP_API_Commands::CDV;
+        $APIData->Data=$Command;
+        try
+        {
+            $APIResult= $this->SendData($APIData);
+        }
+        catch (Exception $exc)
+        {
+            echo $exc->getMessage();
+            return false;
+        }
+        if ($APIResult->Data =="N/A")
+        {
+            echo "Command (temporally) not available.";
+            return false;
+        }
+        if ($APIResult->Data <> $APIData->Data)
+        {
+            echo "Value not available.";
+            return false;
+        }
+        return true;        
+    }
+
+    public function SendCommand(string $Command, string $Value)
+    {
+        if (!$this->GetZone())
+        {
+            echo "Zone not set!";
+            return;
+        }
+        $APIData = new ISCP_API_Data();
+        $APIData->APICommand = $$Command;
+        $APIData->Data=$Value;
+        try
+        {
+            $APIResult= $this->SendData($APIData);
+        }
+        catch (Exception $exc)
+        {
+            echo $exc->getMessage();
+            return false;
+        }
+        if ($APIResult->Data =="N/A")
+        {
+            echo "Command (temporally) not available.";
+            return false;
+        }
+        if ($APIResult->Data <> $APIData->Data)
+        {
+            echo "Value not available.";
+            return false;
+        }
+        return true;        
+    }
 
 ################## Datapoints
 
@@ -263,10 +416,7 @@ public function SendCommand(string $Command, string $Value)
         if ($APIData->Mapping <> null)
             if ($APIData->Mapping->IsVariable)
                 $this->UpdateVariable($APIData);
-
-
     }
-
 
 //------------------------------------------------------------------------------
     private function RequestZoneState()
@@ -309,9 +459,9 @@ public function SendCommand(string $Command, string $Value)
                 $APIData->Data = ISCP_API_Commands::$BoolValueMapping[$APIData->Data];
                 break;
             case IPSVarType::vtFloat:
-                echo "Float VarType not implemented.";
-                return false;
-//                throw new Exception("Float VarType not implemented.");
+//                echo "Float VarType not implemented.";
+
+                throw new Exception("Float VarType not implemented.");
                 break;
             case IPSVarType::vtInteger:
                 if ($APIData->Mapping->ValueMapping == null)
@@ -328,8 +478,9 @@ public function SendCommand(string $Command, string $Value)
             case IPSVarType::vtDualInteger:
                 if ($DualType === false)
                 {
-                    echo "Error on get DualInteger.";
-                    return false;
+                    throw new Exception("Error on get DualInteger.");
+//                    echo "Error on get DualInteger.";
+//                    return false;
                 }
                 $Prefix = array_flip($APIData->Mapping->ValuePrefix)[$DualType];
                 $Mapping = array_flip($APIData->Mapping->ValueMapping);
@@ -339,9 +490,9 @@ public function SendCommand(string $Command, string $Value)
                     $APIData->Data = strtoupper($Prefix . substr('0' . dechex($APIData->Data), -2));
                 break;
             default:
-                echo "Unknow VarType.";
-                return;
-//                throw new Exception("Unknow VarType.");
+//                echo "Unknow VarType.";
+//                return;
+                throw new Exception("Unknow VarType.");
                 break;
         }
         try
@@ -350,9 +501,40 @@ public function SendCommand(string $Command, string $Value)
         }
         catch (Exception $exc)
         {
-            $ret = false;
-            unset($exc);
+            throw $exc;
         }
+
+        if ($ret->Data == "N/A")
+        {
+                throw new Exception("Command (temporally) not available.");
+//            return;
+        }
+        switch ($APIData->Mapping->VarType)
+        {
+            case IPSVarType::vtBoolean:
+            case IPSVarType::vtInteger:
+            case IPSVarType::vtFloat:
+                if ($ret->Data <> $APIData->Data)
+                {
+                    IPS_LogMessage('RequestAction', print_r($APIData, 1));
+                    IPS_LogMessage('RequestActionResult', print_r($ret, 1));
+                throw new Exception("Value not available.");
+//                    echo "Value not available.";
+//                    return;
+                }
+                break;
+            case IPSVarType::vtDualInteger:
+                if (strpos($ret->Data, $APIData->Data) === false)
+                {
+                    IPS_LogMessage('RequestAction', print_r($APIData, 1));
+                    IPS_LogMessage('RequestActionResult', print_r($ret, 1));
+                throw new Exception("Value not available.");
+//                    echo "Value not available.";
+//                    return;
+                }
+                break;
+        }
+        
         return $ret;
     }
 

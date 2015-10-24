@@ -622,32 +622,39 @@ class ISCP_API_Commands extends stdClass
 // Mapping von CMDs der Main auf identische CMDs der Zonen
     static $CMDMapping = array(
         ISCP_API_Commands::TUN => array(
+            ONKYO_Zone::ZoneMain => ISCP_API_Commands::TUN,            
             ONKYO_Zone::Zone2 => ISCP_API_Commands::TUZ,
             ONKYO_Zone::Zone3 => ISCP_API_Commands::TU3,
             ONKYO_Zone::Zone4 => ISCP_API_Commands::TU4
         ),
         ISCP_API_Commands::PRS => array(
+            ONKYO_Zone::ZoneMain => ISCP_API_Commands::PRS,            
             ONKYO_Zone::Zone2 => ISCP_API_Commands::PRZ,
             ONKYO_Zone::Zone3 => ISCP_API_Commands::PR3,
             ONKYO_Zone::Zone4 => ISCP_API_Commands::PR4
         ),
         ISCP_API_Commands::NTC => array(
+            ONKYO_Zone::ZoneMain => ISCP_API_Commands::NTC,            
             ONKYO_Zone::Zone2 => ISCP_API_Commands::NTZ,
             ONKYO_Zone::Zone3 => ISCP_API_Commands::NT3,
             ONKYO_Zone::Zone4 => ISCP_API_Commands::NT4
         ),
         ISCP_API_Commands::NPR => array(
+            ONKYO_Zone::ZoneMain => ISCP_API_Commands::NPR,            
             ONKYO_Zone::Zone2 => ISCP_API_Commands::NPZ,
             ONKYO_Zone::Zone3 => ISCP_API_Commands::NP3,
             ONKYO_Zone::Zone4 => ISCP_API_Commands::NP4
         ),
         ISCP_API_Commands::LMD => array(
+            ONKYO_Zone::ZoneMain => ISCP_API_Commands::LMD,            
             ONKYO_Zone::Zone2 => ISCP_API_Commands::LMZ
         ),
         ISCP_API_Commands::LTN => array(
+            ONKYO_Zone::ZoneMain => ISCP_API_Commands::LTN,            
             ONKYO_Zone::Zone2 => ISCP_API_Commands::LTZ
         ),
         ISCP_API_Commands::RAS => array(
+            ONKYO_Zone::ZoneMain => ISCP_API_Commands::RAS,            
             ONKYO_Zone::Zone2 => ISCP_API_Commands::RAZ
         )
     );
