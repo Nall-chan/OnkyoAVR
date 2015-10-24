@@ -145,12 +145,28 @@ class OnkyoAVR extends IPSModule
             echo "Command temporally not available.";
             return;
         }
-        if ($ret->Data <> $APIData->Data)
+        switch ($APIData->Mapping->VarType)
         {
-            IPS_LogMessage('RequestAction', print_r($APIData, 1));
-            IPS_LogMessage('RequestActionResult', print_r($ret, 1));
-            echo "Value not available.";
-            return;
+            case IPSVarType::vtBoolean:
+            case IPSVarType::vtInteger:
+            case IPSVarType::vtFloat:
+                if ($ret->Data <> $APIData->Data)
+                {
+                    IPS_LogMessage('RequestAction', print_r($APIData, 1));
+                    IPS_LogMessage('RequestActionResult', print_r($ret, 1));
+                    echo "Value not available.";
+                    return;
+                }
+                break;
+            case IPSVarType::vtDualInteger:
+                if (strpos($ret->Data, $APIData->Data) === false)
+                {
+                    IPS_LogMessage('RequestAction', print_r($APIData, 1));
+                    IPS_LogMessage('RequestActionResult', print_r($ret, 1));
+                    echo "Value not available.";
+                    return;
+                }
+                break;
         }
     }
 
