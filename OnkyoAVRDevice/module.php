@@ -613,6 +613,7 @@ class OnkyoAVR extends IPSModule
                     $APIData->GetDataFromJSONObject($JSON);
                     if ($APIData_Command == $APIData->APICommand)
                         return $APIData;
+                    else $i =$i - 100;
                 }
             }
         }
