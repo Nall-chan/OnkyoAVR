@@ -278,7 +278,7 @@ class OnkyoAVR extends IPSModule
         $APIData->Data=$Command;
         try
         {
-            $APIResult= $this->SendData($APIData);
+            $APIResult= $this->Send($APIData);
         }
         catch (Exception $exc)
         {
@@ -311,7 +311,7 @@ class OnkyoAVR extends IPSModule
         $APIData->Data=$Command;
         try
         {
-            $APIResult= $this->SendData($APIData);
+            $APIResult= $this->Send($APIData);
         }
         catch (Exception $exc)
         {
@@ -343,7 +343,7 @@ class OnkyoAVR extends IPSModule
         $APIData->Data=$Value;
         try
         {
-            $APIResult= $this->SendData($APIData);
+            $APIResult= $this->Send($APIData);
         }
         catch (Exception $exc)
         {
@@ -600,7 +600,7 @@ class OnkyoAVR extends IPSModule
         for ($i = 0; $i < 300; $i++)
         {
             if (GetValueString($ReplyAPIDataID) === '')
-                IPS_Sleep(4);
+                IPS_Sleep(5);
             else
             {
                 if ($this->lock('ReplyAPIData'))
@@ -613,7 +613,11 @@ class OnkyoAVR extends IPSModule
                     $APIData->GetDataFromJSONObject($JSON);
                     if ($APIData_Command == $APIData->APICommand)
                         return $APIData;
-                    else $i =$i - 100;
+                    else
+                    {
+                        $i =$i - 100;
+                        if ($i<0) $i=0;
+                    }
                 }
             }
         }
