@@ -483,7 +483,7 @@ class OnkyoAVR extends IPSModule
                     echo "Error on get DualInteger.";
                     return false;
                 }
-                $Prefix = array_flip($APIData->Mapping->ValuePrefix)['$DualType'];
+                $Prefix = array_flip($APIData->Mapping->ValuePrefix)[$DualType];
                 $Mapping = array_flip($APIData->Mapping->ValueMapping);
                 if (array_key_exists($APIData->Data, $Mapping))
                     $APIData->Data = $Prefix . $Mapping[$APIData->Data];
