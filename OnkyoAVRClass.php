@@ -36,7 +36,7 @@ class IPSProfiles extends stdClass
     const ptAudyssey ='Audyssey.Onkyo';
     const ptAudysseyDynamic ='AudysseyDynamic.Onkyo';
     const ptDolbyVolume ='DolbyVolume.Onkyo';
-    const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
+//    const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
     const ptRadioPreset = 'RadioPreset.Onkyo';
 //Main end    
     const ptNetRadioPreset = 'NetRadioPreset.Onkyo';
@@ -949,9 +949,10 @@ class ISCP_API_Commands extends stdClass
         // MORE TODO AVS -> ECO
         ISCP_API_Commands::TUN
         => array(
-            self::VarType => IPSVarType::vtFloat,
+//            self::VarType => IPSVarType::vtFloat,
+            self::VarType => IPSVarType::vtString,            
             self::EnableAction => false,
-            self::Profile => IPSProfiles::ptTunerFrequenz,
+            self::Profile => '',
             self::IsVariable => true,
             self::VarName => 'Tuner Frequenz',
             self::RequestValue => true,

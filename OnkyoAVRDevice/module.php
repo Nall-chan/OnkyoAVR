@@ -74,9 +74,9 @@ class OnkyoAVR extends IPSModule
                 break;
             case IPSVarType::vtFloat:
                 $VarID = $this->GetVariable($APIData->APICommand, $APIData->Mapping->VarType, $APIData->Mapping->VarName, $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
-                $Value = $APIData/100;
+                $Value = $APIData / 100;
                 SetValueFloat($VarID, $Value);
-                
+
 //                throw new Exception("Float VarType not implemented.");
                 break;
             case IPSVarType::vtInteger:
@@ -236,14 +236,17 @@ class OnkyoAVR extends IPSModule
             }
             else
             {
+                $APIData->GetMapping();
                 $APIData->APICommand = $APIData->APISubCommand->{$this->OnkyoZone->thisZone};
                 IPS_LogMessage('APISubCommand', $APIData->APICommand);
             }
         }
+        else
+            $APIData->GetMapping();
 
 //        IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
 
-        $APIData->GetMapping();
+
         $this->ReceiveAPIData($APIData);
     }
 
@@ -561,7 +564,7 @@ class OnkyoAVR extends IPSModule
                     $JSON = json_decode($ret);
                     $APIData = new ISCP_API_Data();
                     $APIData->GetDataFromJSONObject($JSON);
-                    if ($APIData_Command ==$APIData->APICommand)
+                    if ($APIData_Command == $APIData->APICommand)
                         return $APIData;
                 }
             }
