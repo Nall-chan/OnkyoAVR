@@ -1134,6 +1134,59 @@ class ISCP_API_Commands extends stdClass
             self::RequestValue => true,
             self::ValueMapping => null
         ),
+        ISCP_API_Commands::LMZ
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptListeningMode,
+            self::IsVariable => true,
+            self::VarName => 'Listening Mode',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::LTZ
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptLateNight,
+            self::IsVariable => true,
+            self::VarName => 'Late Night',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::RAZ
+        => array(
+            self::VarType => IPSVarType::vtBoolean,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSwitch,
+            self::IsVariable => true,
+            self::VarName => 'Re-EQ or Cinema Filter',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        
+        ISCP_API_Commands::TUZ
+        => array(
+//            self::VarType => IPSVarType::vtFloat,
+            self::VarType => IPSVarType::vtString,
+            self::EnableAction => false,
+            self::Profile => '',
+            self::IsVariable => true,
+            self::VarName => 'Tuner Frequenz',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::PRZ
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptRadioPreset,
+            self::IsVariable => true,
+            self::VarName => 'Radio Preset',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        
         // Zone 2 end
 // Zone 3 start
         ISCP_API_Commands::PW3
@@ -1187,7 +1240,28 @@ class ISCP_API_Commands extends stdClass
             self::VarName => 'Input Selector',
             self::RequestValue => true,
             self::ValueMapping => null
+        ),        ISCP_API_Commands::TU3
+        => array(
+//            self::VarType => IPSVarType::vtFloat,
+            self::VarType => IPSVarType::vtString,
+            self::EnableAction => false,
+            self::Profile => '',
+            self::IsVariable => true,
+            self::VarName => 'Tuner Frequenz',
+            self::RequestValue => false,
+            self::ValueMapping => null
         ),
+        ISCP_API_Commands::PR3
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptRadioPreset,
+            self::IsVariable => true,
+            self::VarName => 'Radio Preset',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+
         //Zone 3 end
 // Zone 4 start
         ISCP_API_Commands::PW4
@@ -1230,8 +1304,61 @@ class ISCP_API_Commands extends stdClass
             self::RequestValue => true,
             self::ValueMapping => null
         ),
-        //Zone 3 end        // MORE TODO Network all
+                ISCP_API_Commands::TU4
+        => array(
+//            self::VarType => IPSVarType::vtFloat,
+            self::VarType => IPSVarType::vtString,
+            self::EnableAction => false,
+            self::Profile => '',
+            self::IsVariable => true,
+            self::VarName => 'Tuner Frequenz',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::PR4
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptRadioPreset,
+            self::IsVariable => true,
+            self::VarName => 'Radio Preset',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+
+        //Zone 4 end
+        // MORE TODO Network all
         ISCP_API_Commands::NTC
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetTuneCommand,
+            self::IsVariable => false,
+            self::VarName => null,
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::NTZ
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetTuneCommand,
+            self::IsVariable => false,
+            self::VarName => null,
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::NT3
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetTuneCommand,
+            self::IsVariable => false,
+            self::VarName => null,
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::NT4
         => array(
             self::VarType => IPSVarType::vtInteger,
             self::EnableAction => true,
@@ -1250,7 +1377,38 @@ class ISCP_API_Commands extends stdClass
             self::VarName => 'Network Radio Preset',
             self::RequestValue => false,
             self::ValueMapping => null
+        ),
+        ISCP_API_Commands::NPZ
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetRadioPreset,
+            self::IsVariable => true,
+            self::VarName => 'Network Radio Preset',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::NP3
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetRadioPreset,
+            self::IsVariable => true,
+            self::VarName => 'Network Radio Preset',
+            self::RequestValue => false,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::NP4
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptNetRadioPreset,
+            self::IsVariable => true,
+            self::VarName => 'Network Radio Preset',
+            self::RequestValue => false,
+            self::ValueMapping => null
         )
+        
             /*
               ISCP_API_Commands::TFR,
               ISCP_API_Commands::TFW,
