@@ -449,7 +449,7 @@ class OnkyoAVR extends IPSModule
 
     private function SendAPIData(ISCP_API_Data $APIData)
     {
-        $DualType = substr($APIData->APICommand, 4, 1);
+        $DualType = substr($APIData->APICommand, 3, 1);
         $APIData->APICommand = substr($APIData->APICommand, 0, 3);
         if ($APIData->Mapping == null)
             $APIData->GetMapping();
