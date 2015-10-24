@@ -449,7 +449,7 @@ class OnkyoAVR extends IPSModule
     {
         $DualType = substr($APIData->APICommand, 3, 1);
         $APIData->APICommand = substr($APIData->APICommand, 0, 3);
-        if ($APIData->Mapping == null)
+        if (!property_exists($APIData->Mapping,'VarType'))
             $APIData->GetMapping();
 
         // Variable konvertieren..        
