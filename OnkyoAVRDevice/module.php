@@ -114,7 +114,7 @@ class OnkyoAVR extends IPSModule
             throw new Exception("Illegal Zone");
 
         $APIData = new ISCP_API_Data();
-        $APIData->APICommand = $Ident;
+        $APIData->APICommand = substr($Ident,0,3);
         $APIData->Data = $Value;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
         {
@@ -124,6 +124,7 @@ class OnkyoAVR extends IPSModule
 //            throw new Exception("Illegal Command in this Zone");
         // Mapping holen
         $APIData->GetMapping();
+        $APIData->APICommand = $Ident;
         IPS_LogMessage('RequestValueMapping', print_r($APIData, 1));
 
         if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
