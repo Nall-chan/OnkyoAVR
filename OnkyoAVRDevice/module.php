@@ -73,7 +73,11 @@ class OnkyoAVR extends IPSModule
                 SetValueBoolean($VarID, $Value);
                 break;
             case IPSVarType::vtFloat:
-                throw new Exception("Float VarType not implemented.");
+                $VarID = $this->GetVariable($APIData->APICommand, $APIData->Mapping->VarType, $APIData->Mapping->VarName, $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);
+                $Value = $APIData/100;
+                SetValueFloat($VarID, $Value);
+                
+//                throw new Exception("Float VarType not implemented.");
                 break;
             case IPSVarType::vtInteger:
                 $VarID = $this->GetVariable($APIData->APICommand, $APIData->Mapping->VarType, $APIData->Mapping->VarName, $APIData->Mapping->Profile, $APIData->Mapping->EnableAction);

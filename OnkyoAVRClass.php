@@ -1077,7 +1077,7 @@ class ISCP_API_Data extends stdClass
     public $APICommand;
     public $Data;
     public $Mapping = null;
-    public $APISubCommand;
+    public $APISubCommand =null;
 
     public function GetDataFromJSONObject($Data)
     {
@@ -1093,8 +1093,9 @@ class ISCP_API_Data extends stdClass
         $SendData->DataID = $GUID;
         $SendData->APICommand = $this->APICommand;
         $SendData->Data = utf8_encode($this->Data);
-        if (is_array($this->APISubCommand))
-            $SendData->APISubCommand = $this->APISubCommand;
+//        if (is_array($this->APISubCommand))
+//        if ($this->APISubCommand <> null)        
+        $SendData->APISubCommand = $this->APISubCommand;
         return json_encode($SendData);
     }
 
@@ -1106,7 +1107,7 @@ class ISCP_API_Data extends stdClass
     public function GetSubCommand()
     {
 //        IPS_LogMessage('GetSubCommand', print_r(ISCP_API_Command_Mapping::GetMapping($this->APICommand), 1));
-        $this->APISubCommand = ISCP_API_Command_Mapping::GetMapping($this->APICommand);
+        $this->APISubCommand = (object)ISCP_API_Command_Mapping::GetMapping($this->APICommand);
     }
 
 }
