@@ -19,18 +19,27 @@ class IPSProfiles extends stdClass
     const ptSwitch = '~Switch';
     const ptSpeakerLayout = 'SpeakerLayout.Onkyo';
     const ptVolume = '~Intensity.100';
-const ptToneOffset ='ToneOffset.Onkyo'    ;
+    const ptToneOffset = 'ToneOffset.Onkyo';
     const ptSleep = 'Sleep.Onkyo';
+    // SW & SW2 & CTL
     const ptDisplayMode = 'DisplayMode.Onkyo';
     const ptDisplayDimmer = 'DisplayDimmer.Onkyo';
     const ptSelectInput = 'SelectInput.Onkyo';
-    const ptListeningMode = 'LMD.Onkyo';
-    const ptNetRadioPreset = 'NetRadioPreset.Onkyo';
-    const ptRadioPreset = 'RadioPreset.Onkyo';
-    const ptVideoResolution = 'VideoResolution.Onkyo';
     const ptSelectInputAudio = 'SelectInputAudio.Onkyo';
+    const ptHDMIOutput = 'HDMIOutput.Onkyo';
+    const ptHDMIAudioOutput = 'HDMIAudioOutput.Onkyo';
+    const ptVideoResolution = 'VideoResolution.Onkyo';
     const ptVideoWideMode = 'VideoWideMode.Onkyo';
+    const ptVideoPictureMode = 'VideoPictureMode.Onkyo';
+    const ptListeningMode = 'LMD.Onkyo';
+    const ptLateNight = 'LateNight.Onkyo';
+    const ptAudyssey ='Audyssey.Onkyo';
+    const ptAudysseyDynamic ='AudysseyDynamic.Onkyo';
+    const ptDolbyVolume ='DolbyVolume.Onkyo';
     const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
+    const ptRadioPreset = 'RadioPreset.Onkyo';
+//Main end    
+    const ptNetRadioPreset = 'NetRadioPreset.Onkyo';
     const ptNetTuneCommand = 'NetTuneCommand.Onkyo';
 
     static $ProfilInteger = array(
@@ -100,7 +109,19 @@ const ptToneOffset ='ToneOffset.Onkyo'    ;
             array(0x07, "ARC", "", -1),
             array(0x0F, "None", "", -1)
         ),
-        // MORE TODO HDO -> VPM
+        self::ptHDMIOutput => array(
+            array(0x00, "OFF (Analog)", "", -1),
+            array(0x01, "Main Out", "", -1),
+            array(0x02, "Sub Out", "", -1),
+            array(0x03, "Both", "", -1),
+            array(0x04, "Both (Main)", "", -1),
+            array(0x05, "Both (Sub)", "", -1)
+        ),
+        self::ptHDMIAudioOutput => array(
+            array(0x00, "Off", "", -1),
+            array(0x01, "On", "", -1),
+            array(0x02, "Auto", "", -1)
+        ),
         self::ptVideoResolution => array(
             array(0x00, "Through", "", -1),
             array(0x01, "Auto(HDMI Output Only)", "", -1),
@@ -119,6 +140,16 @@ const ptToneOffset ='ToneOffset.Onkyo'    ;
             array(0x03, "Zoom", "", -1),
             array(0x04, "Wide Zoom", "", -1),
             array(0x05, "Smart Zoom", "", -1)
+        ),
+        self::ptVideoPictureMode => array(
+            array(0x00, "Through", "", -1),
+            array(0x01, "Custom", "", -1),
+            array(0x02, "Cinema", "", -1),
+            array(0x03, "Game", "", -1),
+            array(0x05, "ISF Day", "", -1),
+            array(0x06, "ISF Night", "", -1),
+            array(0x07, "Streaming", "", -1),
+            array(0x08, "Direct (Bypass)", "", -1)
         ),
         self::ptListeningMode => array(
             array(0x00, "STEREO", "", -1),
@@ -167,7 +198,34 @@ const ptToneOffset ='ToneOffset.Onkyo'    ;
           0xA0 => "PLIIx/PLII Movie + Audyssey DSX", "" ,-1),
           "PLIIx/PLII Music + Audyssey DSX", "" ,-1),
           "PLIIx/PLII Game + Audyssey DSX", "" ,-1), */
-        )
+        ),
+self::ptLateNight => array(
+                array(0x00, "Off", "", -1),
+            array(0x01, "Low", "", -1),
+            array(0x02, "High", "", -1),
+            array(0x03, "Auto", "", -1)
+),
+self::ptAudyssey =>array(
+                array(0x00, "Off", "", -1),
+            array(0x01, "On (Movie)", "", -1),
+            array(0x02, "On (Music)", "", -1)
+
+),
+self::ptAudysseyDynamic =>array(
+                array(0x00, "Off", "", -1),
+            array(0x01, "Light", "", -1),
+            array(0x02, "Medium", "", -1),
+            array(0x03, "Heavy", "", -1)
+
+),
+    self::ptDolbyVolume => array(
+                array(0x00, "Off", "", -1),
+            array(0x01, "Low", "", -1),
+            array(0x02, "Medium", "", -1),
+            array(0x03, "High", "", -1)
+
+)
+        
 
             //      self::ptTunerFrequenz => array(),
 //        self::ptNetTuneCommand => array()
@@ -423,11 +481,6 @@ class ISCP_API_Commands extends stdClass
     const LMZ = "LMZ";
     const LTZ = "LTZ";
     const RAZ = "RAZ";
-    /*
-      const LMZ ="LMZ";
-      const LTZ="LTZ";
-      const RAZ="RAZ";
-     */
 //Zone3 Zone
     const PW3 = "PW3";  // Power
     const MT3 = "MT3";  // Mute
@@ -626,12 +679,11 @@ class ISCP_API_Commands extends stdClass
             self::EnableAction => true,
             self::Profile => IPSProfiles::ptToneOffset,
             self::IsVariable => true,
-            self::VarName => array('B'=>'Subwoofer Bass'),
+            self::VarName => array('B' => 'Subwoofer Bass'),
             self::RequestValue => true,
             self::ValuePrefix => array('B' => 0),
             self::ValueMapping => array("-A" => -10, "-8" => -8, "-6" => -6, "-4" => -4, "-2" => -2, "00" => 0, "+2" => 2, "+4" => 4, "+6" => 6, "+8" => 8, "+A" => 10)
         ),
-        
         ISCP_API_Commands::PMB
         => array(
             self::VarType => IPSVarType::vtBoolean,
@@ -652,6 +704,7 @@ class ISCP_API_Commands extends stdClass
             self::RequestValue => true,
             self::ValueMapping => array("OFF" => 0)
         ),
+        // TODO SWL SW2 CTL
         ISCP_API_Commands::DIF
         => array(
             self::VarType => IPSVarType::vtInteger,
@@ -742,7 +795,76 @@ class ISCP_API_Commands extends stdClass
             self::RequestValue => true,
             self::ValueMapping => null
         ),
-        // MORE TODO HDO -> VPM
+        ISCP_API_Commands::HDO
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptHDMIOutput,
+            self::IsVariable => true,
+            self::VarName => 'HDMI Output',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::HAO
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptHDMIAudioOutput,
+            self::IsVariable => true,
+            self::VarName => 'HDMI Audio Output',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::HAS
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptHDMIAudioOutput,
+            self::IsVariable => true,
+            self::VarName => 'HDMI Audio Output (Sub)',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::CEC
+        => array(
+            self::VarType => IPSVarType::vtBoolean,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSwitch,
+            self::IsVariable => true,
+            self::VarName => 'Listening Mode',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::RES
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptVideoResolution,
+            self::IsVariable => true,
+            self::VarName => 'Monitor Out Resolution',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::VWM
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptVideoWideMode,
+            self::IsVariable => true,
+            self::VarName => 'Video Wide Mode',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
+        ISCP_API_Commands::VPM
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptVideoPictureMode,
+            self::IsVariable => true,
+            self::VarName => 'Video Picture Mode',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),
         ISCP_API_Commands::LMD
         => array(
             self::VarType => IPSVarType::vtInteger,
@@ -753,15 +875,86 @@ class ISCP_API_Commands extends stdClass
             self::RequestValue => true,
             self::ValueMapping => null
         ),
-        // MORE TODO LTN -> ECO
+        ISCP_API_Commands::LTN
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptLateNight,
+            self::IsVariable => true,
+            self::VarName => 'Late Night',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),  
+        ISCP_API_Commands::RAS
+        => array(
+            self::VarType => IPSVarType::vtBoolean,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSwitch,
+            self::IsVariable => true,
+            self::VarName => 'Re-EQ or Cinema Filter',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),  
+        ISCP_API_Commands::ADY
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptAudyssey,
+            self::IsVariable => true,
+            self::VarName => 'Audyssey',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),  
+        ISCP_API_Commands::ADQ
+        => array(
+            self::VarType => IPSVarType::vtBoolean,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSwitch,
+            self::IsVariable => true,
+            self::VarName => 'Audyssey Dynamic EQ',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),  
+               ISCP_API_Commands::ADV
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptAudysseyDynamic,
+            self::IsVariable => true,
+            self::VarName => 'Audyssey',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),  
+        ISCP_API_Commands::DVL
+        => array(
+            self::VarType => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptDolbyVolume,
+            self::IsVariable => true,
+            self::VarName => 'Dolby Volume',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ),  
+                ISCP_API_Commands::MOT
+        => array(
+            self::VarType => IPSVarType::vtBoolean,
+            self::EnableAction => true,
+            self::Profile => IPSProfiles::ptSwitch,
+            self::IsVariable => true,
+            self::VarName => 'Music Optimizer',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ), 
+        
+        // MORE TODO AVS -> ECO
         ISCP_API_Commands::TUN
         => array(
             self::VarType => IPSVarType::vtFloat,
-            self::EnableAction => true,
+            self::EnableAction => false,
             self::Profile => IPSProfiles::ptTunerFrequenz,
             self::IsVariable => true,
             self::VarName => 'Tuner Frequenz',
-            self::RequestValue => false,
+            self::RequestValue => true,
             self::ValueMapping => null
         ),
         ISCP_API_Commands::PRS
@@ -771,9 +964,11 @@ class ISCP_API_Commands extends stdClass
             self::Profile => IPSProfiles::ptRadioPreset,
             self::IsVariable => true,
             self::VarName => 'Radio Preset',
-            self::RequestValue => false,
+            self::RequestValue => true,
             self::ValueMapping => null
         ),
+        //Main end
+        //
         // MORE TODO Network all
         ISCP_API_Commands::NTC
         => array(
@@ -859,7 +1054,7 @@ class ISCP_API_Data_Mapping extends stdClass
             $result->RequestValue = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::RequestValue];
 
             $result->ValueMapping = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValueMapping];
-            
+
             if (array_key_exists(ISCP_API_Commands::ValuePrefix, ISCP_API_Commands::$VarMapping[$Cmd]))
                 $result->ValuePrefix = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValuePrefix];
 
