@@ -113,12 +113,20 @@ class OnkyoAVR extends IPSModule
         $APIData->APICommand = $Ident;
         $APIData->Data = $Value;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
+        {
             echo "Illegal Command in this Zone";
+            return;
+        }
 //            throw new Exception("Illegal Command in this Zone");
         // Mapping holen
         $APIData->GetMapping();
+        IPS_LogMessage('RequestValueMapping', print_r($APIData, 1));
+
         if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
-            echo "Type ob Variable do not match.";
+        {
+            echo "Type of Variable do not match.";
+            return;
+        }
 //            throw new Exception("Type ob Variable do not match.");
         // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
         $ret = $this->SendAPIData($APIData);
@@ -224,8 +232,8 @@ class OnkyoAVR extends IPSModule
             }
             else
             {
-            $APIData->APICommand = $APIData->APISubCommand->{$this->OnkyoZone->thisZone};
-            //IPS_LogMessage('APISubCommand', $APIData->APISubCommand[$this->OnkyoZone->thisZone]);
+                $APIData->APICommand = $APIData->APISubCommand->{$this->OnkyoZone->thisZone};
+                IPS_LogMessage('APISubCommand', $APIData->APICommand);
             }
         }
 
@@ -446,7 +454,7 @@ class OnkyoAVR extends IPSModule
                 break;
             case IPSVarType::vtInteger:
                 if ($APIData->Mapping->ValueMapping == null)
-                    $APIData->Data = strtoupper (substr('0' . dechex($APIData->Data), -2));
+                    $APIData->Data = strtoupper(substr('0' . dechex($APIData->Data), -2));
                 else
                 {
                     $Mapping = array_flip($APIData->Mapping->ValueMapping);
@@ -505,7 +513,7 @@ class OnkyoAVR extends IPSModule
             $this->unlock('RequestSendData');
             throw new Exception($exc);
         }
-        $ReplayAPIData = $this->WaitForResponse();
+        $ReplayAPIData = $this->WaitForResponse($APIData->APICommand);
 
         //        IPS_LogMessage('ReplayATData:'.$this->InstanceID,print_r($ReplayATData,1));
 
@@ -532,7 +540,7 @@ class OnkyoAVR extends IPSModule
 
 ################## DUMMYS / WOARKAROUNDS - protected
 
-    private function WaitForResponse()
+    private function WaitForResponse($APIData_Command)
     {
         $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
         for ($i = 0; $i < 300; $i++)
@@ -549,7 +557,8 @@ class OnkyoAVR extends IPSModule
                     $JSON = json_decode($ret);
                     $APIData = new ISCP_API_Data();
                     $APIData->GetDataFromJSONObject($JSON);
-                    return $APIData;
+                    if ($APIData_Command ==$APIData->APICommand)
+                        return $APIData;
                 }
             }
         }
