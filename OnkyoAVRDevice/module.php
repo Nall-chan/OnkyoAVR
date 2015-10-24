@@ -30,24 +30,9 @@ class OnkyoAVR extends IPSModule
         {
             $this->RegisterProfileInteger($Profile, "", "", "", $Size[0], $Size[1], $Size[2]);
         }
+//        if fKernelRunlevel = KR_READY then
         if ($this->GetZone())
             $this->RequestZoneState();
-
-//        if fKernelRunlevel = KR_READY then
-//        $this->RegisterTimer('RequestPinState', $this->ReadPropertyInteger('Interval'), 'XBee_RequestState($_IPS[\'TARGET\']);');
-//                                IDENT                 INTERVAL                                FUNKTION
-//        $this->ReadPinConfig();
-
-
-        /*
-          fFrameID: byte;  // integer
-          fFrameIDLock : TCriticalSection;  //Lock
-          fReadyToSend : TEvent; // wird Lock
-          fDataReadyToReadReply: TEvent; // Wenn ReplyATData <> ""
-          fDelayTimerActive: boolean; //später ?
-          fReplyATData : TXB_Command_Data; // String JSON
-          fReplyATDataLock : TCriticalSection;  // Lock
-         */
     }
 
 ################## PRIVATE     
@@ -121,18 +106,10 @@ class OnkyoAVR extends IPSModule
             echo "Illegal Command in this Zone";
             return;
         }
-//            throw new Exception("Illegal Command in this Zone");
         // Mapping holen
         $APIData->GetMapping();
         $APIData->APICommand = $Ident;
         IPS_LogMessage('RequestValueMapping', print_r($APIData, 1));
-
-        /*        if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
-          {
-          echo "Type of Variable do not match.";
-          return;
-          } */
-//            throw new Exception("Type ob Variable do not match.");
         // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
         $ret = $this->SendAPIData($APIData);
         if ($ret === false)
@@ -183,55 +160,56 @@ class OnkyoAVR extends IPSModule
         if ($this->GetZone())
             $this->RequestZoneState();
     }
+public function Power(boolean $Value)
+{
+    
+}
+public function SetVolume(integer $Value)
+{
+    
+}
+public function GetVolume()
+{
+    
+}
+public function SetMute(boolean $Value)
+{
+    
+}
+public function GetMute()
+{
+    
+}
+public function SelectInput(integer $Value)
+{
+    
+}
+public function SelectListingMode(integer $Value)
+{
+    
+}
+public function SetSleep(integer $Value)
+{
+    
+}
+public function GetSleep()
+{
+    
+}
+public function SendTVCommand(string $Command)
+{
+    
+}
+public function SendBDCommand(string $Command)
+{
+    
+}
 
-    /*    public function WriteBoolean(string $Pin, boolean $Value)
-      {
-      if ($Pin == '')
-      throw new Exception('Pin is not Set!');
-      if (!in_array($Pin, $this->DPin_Name))
-      throw new Exception('Pin not exists!');
-      $VarID = @$this->GetIDForIdent($Pin);
-      if ($VarID === false)
-      throw new Exception('Pin not exists! Try WriteParameter.');
-      if (IPS_GetVariable($VarID)['VariableType'] !== 0)
-      throw new Exception('Wrong Datatype for ' . $VarID);
-      if ($Value === true)
-      $ValueStr = 0x05;
-      else
-      $ValueStr = 0x04;
-      $ATData = new TXB_Command_Data();
-      $ATData->ATCommand = $Pin;
-      $ATData->Data = chr($ValueStr);
-      $this->SendCommand($ATData);
-      if ($this->ReadPropertyBoolean('EmulateStatus'))
-      SetValue($VarID, $Value);
-      return true;
-      }
+public function SendCommand(string $Command, string $Value)
+{
+    
+}
 
-      public function WriteParameter(string $Parameter, string $Value)
-      {
-      if ($Value == "")
-      throw new Exception('Value is empty!');
-      if (!in_array($Parameter, $this->AT_WriteCommand))
-      throw new Exception('Unknown Parameter: ' . $Parameter);
-      $ATData = new TXB_Command_Data();
-      $ATData->ATCommand = $Parameter;
-      $ATData->Data = $Value;
-      $this->SendCommand($ATData);
-      return true;
-      }
-
-      public function ReadParameter(string $Parameter)
-      {
-      if (!in_array($Parameter, $this->AT_ReadCommand))
-      throw new Exception('Unknown Parameter: ' . $Parameter);
-      $ATData = new TXB_Command_Data();
-      $ATData->ATCommand = $Parameter;
-      $ATData->Data = '';
-      $ResponseATData = $this->SendCommand($ATData);
-      return $ResponseATData->Data;
-      }
-     */
 ################## Datapoints
 
     public function ReceiveData($JSONString)
@@ -287,154 +265,8 @@ class OnkyoAVR extends IPSModule
                 $this->UpdateVariable($APIData);
 
 
-
-        // TODO Prüfen ob Variable nachgeführt werden muss.
-
-        /*      switch ($ATData->ATCommand)
-          {
-          case TXB_AT_Command::XB_AT_D0:
-          case TXB_AT_Command::XB_AT_D1:
-          case TXB_AT_Command::XB_AT_D2:
-          case TXB_AT_Command::XB_AT_D3:
-          case TXB_AT_Command::XB_AT_D4:
-          case TXB_AT_Command::XB_AT_D5:
-          case TXB_AT_Command::XB_AT_D6:
-          case TXB_AT_Command::XB_AT_D7:
-          case TXB_AT_Command::XB_AT_P0:
-          case TXB_AT_Command::XB_AT_P1:
-          case TXB_AT_Command::XB_AT_P2:
-          // Neuen Wert darstellen und Variable anlegen und Schaltbar machen wenn Value 4 oder 5 sonst nicht schaltbar
-          if (strlen($ATData->Data) <> 1)
-          return;
-          switch (ord($ATData->Data))
-          {
-          case 0:
-          case 1:
-          $VarID = @$this->GetIDForIdent($ATData->ATCommand);
-          if ($VarID <> 0)
-          {
-          $this->DisableAction($ATData->ATCommand);
-          IPS_SetVariableCustomProfile($VarID, '');
-          }
-          break;
-          case 2:
-
-          $VarID = $this->RegisterVariableInteger('A' . $ATData->ATCommand, 'A' . $ATData->ATCommand);
-          if ($VarID <> 0)
-          {
-          $this->DisableAction($ATData->ATCommand);
-          IPS_SetVariableCustomProfile($VarID, '');
-          }
-          break;
-          case 3:
-          $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
-          $this->DisableAction($ATData->ATCommand);
-          IPS_SetVariableCustomProfile($VarID, '');
-          break;
-          case 4:
-          $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
-          IPS_SetVariableCustomProfile($VarID, '~Switch');
-          $this->EnableAction($ATData->ATCommand);
-          SetValueBoolean($VarID, false);
-          break;
-          case 5:
-          $VarID = $this->RegisterVariableBoolean($ATData->ATCommand, $ATData->ATCommand);
-          IPS_SetVariableCustomProfile($VarID, '~Switch');
-          $this->EnableAction($ATData->ATCommand);
-          SetValueBoolean($VarID, true);
-          break;
-          }
-          break;
-          case TXB_AT_Command::XB_AT_IS:
-          //                if not fDelayTimerActive then
-          $IOSample = new TXB_API_IO_Sample();
-          $IOSample->Status = TXB_Receive_Status::XB_Receive_Packet_Acknowledged;
-          $IOSample->Sample = $ATData->Data;
-          $this->DecodeIOSample($IOSample);
-          break;
-          } */
     }
 
-    /*
-      private function DecodeIOSample(TXB_API_IO_Sample $IOSample)
-      {
-      $ActiveDPins = unpack("n", substr($IOSample->Sample, 1, 2))[1];
-      $ActiveAPins = ord($IOSample->Sample[3]);
-      if ($ActiveDPins <> 0)
-      {
-      $PinValue = unpack("n", substr($IOSample->Sample, 4, 2))[1];
-      foreach ($this->DPin_Name as $Index => $Pin_Name)
-      {
-      if ($Pin_Name == '')
-      continue;
-      $Bit = pow(2, $Index);
-      if (($ActiveDPins & $Bit) == $Bit)
-      {
-      //                        {$IFDEF DEBUG}        SendData('DPIN','I:'+floattostr(Power(2,ord(i))));{$ENDIF}
-      $VarID = @$this->GetIDForIdent($Pin_Name);
-      if ($VarID === false)
-      $VarID = $this->RegisterVariableBoolean($Pin_Name, $Pin_Name);
-
-      if (($PinValue & $Bit) == $Bit)
-      {
-      //                            {$IFDEF DEBUG}          SendData(DPin_Name[i],'true - Bit:'+inttostr(ord(i)));{$ENDIF}
-      SetValueBoolean($VarID, true);
-      }
-      else
-      {
-      //                            {$IFDEF DEBUG}          SendData(DPin_Name[i],'false - Bit:'+inttostr(ord(i)));{$ENDIF}
-      SetValueBoolean($VarID, false);
-      }
-      }
-      }
-      }
-      if ($ActiveAPins <> 0)
-      {
-      $i=0;
-      foreach ($this->APin_Name as $Index => $Pin_Name)
-      {
-      if ($Pin_Name == "")
-      continue;;
-      $Bit = pow(2, $Index);
-      if (($ActiveAPins & $Bit) == $Bit)
-      {
-      //                    {$IFDEF DEBUG}        SendData('APIN','I:'+floattostr(Power(2,ord(i))));{$ENDIF}
-      $PinAValue = 0;
-      $PinAValue = unpack("n", substr($IOSample->Sample, 6 + ($i*2), 2))[1];
-      $PinAValue = $PinAValue * 1.171875;
-
-      if ($Pin_Name == 'VSS')
-      {
-      $VarID = @$this->GetIDForIdent($Pin_Name);
-      if ($VarID === false)
-      $VarID = $this->RegisterVariableFloat('VSS', 'VSS', '~Volt');
-      SetValueFloat($VarID, $PinAValue / 1000);
-      }
-      else
-      {
-      $VarID = @$this->GetIDForIdent($Pin_Name);
-      if ($VarID === false)
-      $VarID = $this->RegisterVariableInteger($Pin_Name, $Pin_Name);
-      SetValueInteger($VarID, $PinAValue);
-      }
-      $i++;
-      }
-      }
-      }
-      }
-
-      private function ReadPinConfig()
-      {
-      $ATData = new TXB_Command_Data();
-      $ATData->Data = '';
-      foreach ($this->DPin_Name as $Pin)
-      {
-      if ($Pin== '') continue;
-
-      $ATData->ATCommand = $Pin;
-      $this->SendCommand($ATData);
-      }
-      } */
 
 //------------------------------------------------------------------------------
     private function RequestZoneState()
@@ -452,7 +284,7 @@ class OnkyoAVR extends IPSModule
                     $APIData->Data = ISCP_API_Commands::Request;
                     try
                     {
-                        $result = $this->SendCommand($APIData);
+                        $result = $this->Send($APIData);
                     }
                     catch (Exception $exc)
                     {
@@ -514,7 +346,7 @@ class OnkyoAVR extends IPSModule
         }
         try
         {
-            $ret = $this->SendCommand($APIData);
+            $ret = $this->Send($APIData);
         }
         catch (Exception $exc)
         {
@@ -524,7 +356,7 @@ class OnkyoAVR extends IPSModule
         return $ret;
     }
 
-    private function SendCommand(ISCP_API_Data $APIData)
+    private function Send(ISCP_API_Data $APIData)
     {
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
             throw new Exception("Command not available at this Zone.");
