@@ -114,7 +114,7 @@ class OnkyoAVR extends IPSModule
             throw new Exception("Illegal Zone");
 
         $APIData = new ISCP_API_Data();
-        $APIData->APICommand = substr($Ident,0,3);
+        $APIData->APICommand = substr($Ident, 0, 3);
         $APIData->Data = $Value;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
         {
@@ -127,14 +127,19 @@ class OnkyoAVR extends IPSModule
         $APIData->APICommand = $Ident;
         IPS_LogMessage('RequestValueMapping', print_r($APIData, 1));
 
-/*        if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
-        {
-            echo "Type of Variable do not match.";
-            return;
-        }*/
+        /*        if ($APIData->Mapping->VarType <> IPS_GetVariable($this->GetIDForIdent($Ident))['VariableType'])
+          {
+          echo "Type of Variable do not match.";
+          return;
+          } */
 //            throw new Exception("Type ob Variable do not match.");
         // Daten senden        Rückgabe ist egal, Variable wird automatisch durch Datenempfang nachgeführt
         $ret = $this->SendAPIData($APIData);
+        if ($ret === false)
+        {
+            echo "Error on Send.";
+            return;
+        }
         if ($ret->Data == "N/A")
         {
             echo "Command temporally not available.";
@@ -457,7 +462,7 @@ class OnkyoAVR extends IPSModule
                 break;
             case IPSVarType::vtFloat:
                 echo "Float VarType not implemented.";
-                return;
+                return false;
 //                throw new Exception("Float VarType not implemented.");
                 break;
             case IPSVarType::vtInteger:
@@ -476,7 +481,7 @@ class OnkyoAVR extends IPSModule
                 if ($DualType === false)
                 {
                     echo "Error on get DualInteger.";
-                    return;
+                    return false;
                 }
                 $Prefix = array_flip($APIData->Mapping->ValuePrefix)['$DualType'];
                 $Mapping = array_flip($APIData->Mapping->ValueMapping);
@@ -491,7 +496,16 @@ class OnkyoAVR extends IPSModule
 //                throw new Exception("Unknow VarType.");
                 break;
         }
-        return $this->SendCommand($APIData);
+        try
+        {
+            $ret = $this->SendCommand($APIData);
+        }
+        catch (Exception $exc)
+        {
+            $ret = false;
+            unset($exc);
+        }
+        return $ret;
     }
 
     private function SendCommand(ISCP_API_Data $APIData)
