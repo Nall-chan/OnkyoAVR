@@ -110,7 +110,7 @@ class ISCPGateway extends IPSModule
             trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
-
+        return true;
     }
 
 ################## DATAPOINTS DEVICE
