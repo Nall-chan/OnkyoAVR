@@ -109,7 +109,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -117,7 +117,7 @@ class OnkyoAVR extends IPSModule
         $APIData->Data = $Value;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
         {
-            error_reporting("Illegal Command in this Zone.",E_USER_WARNING);
+            trigger_error("Illegal Command in this Zone.",E_USER_WARNING);
 //            echo "Illegal Command in this Zone";
             return false;
         }
@@ -132,7 +132,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
 //            echo $exc->getMessage();
 //            return;
@@ -155,7 +155,7 @@ class OnkyoAVR extends IPSModule
     {
         if (!$this->HasActiveParent())
         {
-            error_reporting('Instance has no active Parent Instance!',E_USER_WARNING);
+            trigger_error('Instance has no active Parent Instance!',E_USER_WARNING);
             return false;
         }
         try
@@ -163,7 +163,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $this->RequestZoneState();
@@ -176,7 +176,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -202,7 +202,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         return true;
@@ -215,7 +215,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -241,7 +241,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         return true;
@@ -254,7 +254,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -280,7 +280,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         return true;
@@ -294,7 +294,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -320,7 +320,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         return true;
@@ -334,7 +334,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -349,7 +349,7 @@ class OnkyoAVR extends IPSModule
                 break;
             case ONKYO_Zone::Zone3:
             case ONKYO_Zone::Zone4:
-                error_reporting(E_USER_ERROR,'Command not available at this Zone.');
+                trigger_error(E_USER_ERROR,'Command not available at this Zone.');
                 break;
         }
         try
@@ -358,7 +358,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         return true;
@@ -377,7 +377,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -389,7 +389,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         if ($APIResult->Data =="N/A")
@@ -413,7 +413,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -425,7 +425,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         if ($APIResult->Data =="N/A")
@@ -448,7 +448,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            error_reporting($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(),$ex->getCode())        ;
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -460,7 +460,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            error_reporting($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getCode(),$ex->getMessage());
             return false;
         }
         if ($APIResult->Data =="N/A")
