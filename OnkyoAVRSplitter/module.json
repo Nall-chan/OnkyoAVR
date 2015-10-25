@@ -1,8 +1,8 @@
 {
     "id": "{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}",
-    "name": "ISCPGateway",
+    "name": "ISCPSplitter",
     "type": 2,
-    "vendor": "Onkyo",
+    "vendor": "",
     "aliases": ["Onkyo AVR Splitter"],
     "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
     "childRequirements": ["{43E4B48E-2345-4A9A-B506-3E8E7A964757}"],
