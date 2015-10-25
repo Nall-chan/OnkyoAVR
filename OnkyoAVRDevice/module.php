@@ -342,7 +342,7 @@ class OnkyoAVR extends IPSModule
                 break;
             case ONKYO_Zone::Zone3:
             case ONKYO_Zone::Zone4:
-                trigger_error(E_USER_ERROR, 'Command not available at this Zone.');
+                trigger_error('Command not available at this Zone.',E_USER_ERROR);
                 break;
         }
         try
@@ -368,14 +368,14 @@ class OnkyoAVR extends IPSModule
         }
         if (($Value < 0) or ( $Value > 0x5))
         {
-            trigger_error(E_USER_ERROR, 'Value not valid.');
+            trigger_error('Value not valid.',E_USER_WARNING);
             return false;
         }
         $APIData = new ISCP_API_Data();
         $APIData->Data = $Value;
         if ($this->OnkyoZone->thisZone <> ONKYO_Zone::ZoneMain)
         {
-            trigger_error(E_USER_ERROR, 'Command not available at this Zone.');
+            trigger_error('Command not available at this Zone.',E_USER_ERROR);
             return false;
         }
         $APIData->APICommand = ISCP_API_Commands::SLP;
@@ -411,15 +411,10 @@ class OnkyoAVR extends IPSModule
             trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
-        if ($APIResult->Data == "N/A")
+        if ($APIResult == false)
         {
-            echo "Command (temporally) not available.";
-            return false;
-        }
-        if ($APIResult->Data <> $APIData->Data)
-        {
-            echo "Value not available.";
-            return false;
+                trigger_error("Error on send data.", E_USER_WARNING);
+                return false;
         }
         return true;
     }
@@ -445,15 +440,10 @@ class OnkyoAVR extends IPSModule
             trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
-        if ($APIResult->Data == "N/A")
+        if ($APIResult == false)
         {
-            echo "Command (temporally) not available.";
-            return false;
-        }
-        if ($APIResult->Data <> $APIData->Data)
-        {
-            echo "Value not available.";
-            return false;
+                trigger_error("Error on send data.", E_USER_WARNING);
+                return false;
         }
         return true;
     }
@@ -479,15 +469,25 @@ class OnkyoAVR extends IPSModule
             trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
-        if ($APIResult->Data == "N/A")
+        if ($needResponse)
         {
-            echo "Command (temporally) not available.";
-            return false;
-        }
-        if ($APIResult->Data <> $APIData->Data)
+            if ($APIResult->Data == "N/A")
+            {
+                trigger_error("Command (temporally) not available.", E_USER_WARNING);
+                return false;
+            }
+            if ($APIResult->Data <> $APIData->Data)
+            {
+                trigger_error("Value not available.", E_USER_WARNING);
+                return false;
+            }
+        } else
         {
-            echo "Value not available.";
-            return false;
+            if ($APIData === false)
+            {
+                trigger_error("Error on send data.", E_USER_WARNING);
+                return false;
+            }
         }
         return true;
     }
@@ -700,7 +700,7 @@ class OnkyoAVR extends IPSModule
             $this->unlock('RequestSendData');
             throw new Exception('Instance has no active Parent Instance!', E_USER_WARNING);
         }
-        IPS_LogMessage('noexc', print_r($ret, 1));
+//        IPS_LogMessage('noexc', print_r($ret, 1));
         if (!$needResponse)
         {
             $this->unlock('RequestSendData');
