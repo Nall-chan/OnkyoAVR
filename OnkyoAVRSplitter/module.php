@@ -101,7 +101,15 @@ class ISCPGateway extends IPSModule
             return false;
         $APIData = new ISCP_API_Data();
         $APIData->GetDataFromJSONObject($Data);
-        return $this->ForwardDataFromDevice($APIData);
+        try
+        {
+            $this->ForwardDataFromDevice($APIData);
+            
+        } catch (Exception $ex)
+        {
+            throw $ex;
+        }
+
     }
 
 ################## DATAPOINTS DEVICE
@@ -117,7 +125,15 @@ class ISCPGateway extends IPSModule
             $APIData->Data = strlen(dechex($APIData->Data)) == 1 ? "0" . dechex($APIData->Data) : dechex($APIData->Data);
         }
         $Frame = "!1" . $APIData->APICommand . $APIData->Data . chr(0x0D) . chr(0x0A);
+        try
+        {
         $this->SendDataToParent($Frame);
+            
+        } catch (Exception $ex)
+        {
+            throw $ex;
+        }
+
     }
 
     private function SendDataToZone(ISCP_API_Data $APIData)
