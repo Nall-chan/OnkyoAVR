@@ -699,15 +699,7 @@ class OnkyoAVR extends IPSModule
         $JSONString = $Data->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}');
 //        IPS_LogMessage('SendDataToSplitter:'.$this->InstanceID,$JSONString);
         // Daten senden
-        try
-        {
-            IPS_SendDataToParent($this->InstanceID, $JSONString);
-        } catch (Exception $ex)
-        {
-            throw new Exception($ex->getMessage(), $ex->getCode());
-        }
-
-        return true;
+            return IPS_SendDataToParent($this->InstanceID, $JSONString);
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
