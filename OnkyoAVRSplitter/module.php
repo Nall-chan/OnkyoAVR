@@ -135,12 +135,12 @@ class ISCPGateway extends IPSModule
         //IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
         $this->CheckParents();
         if ($this->Mode === false)
-            throw new Exception("Wrong IO-Parent");
+            throw new Exception("Wrong IO-Parent",E_USER_ERROR);
 
         $bufferID = $this->GetIDForIdent("BufferIN");
         // Empfangs Lock setzen
         if (!$this->lock("ReceiveLock"))
-            throw new Exception("ReceiveBuffer is locked");
+            throw new Exception("ReceiveBuffer is locked",E_USER_WARNING);
 
         // Datenstream zusammenfügen
         $head = GetValueString($bufferID);
@@ -254,7 +254,7 @@ class ISCPGateway extends IPSModule
 //        IPS_LogMessage('SendDataToSerialPort:'.$this->InstanceID,$Data);
         //Parent ok ?
         if (!$this->CheckParents())
-            throw new Exception("Instance has no active Parent.");
+            throw new Exception("Instance has no active Parent.",E_USER_WARNING);
         // Frame bauen
         // 
         // DATA aufüllen
@@ -272,14 +272,14 @@ class ISCPGateway extends IPSModule
         }
         else
         {
-            throw new Exception("Wrong IO-Parent.");
+            throw new Exception("Wrong IO-Parent.",E_USER_ERROR);
         }
 
 
         //Semaphore setzen
         if (!$this->lock("ToParent"))
         {
-            throw new Exception("Can not send to Parent");
+            throw new Exception("Can not send to Parent",E_USER_WARNING);
         }
         // Daten senden
         try
@@ -319,7 +319,7 @@ class ISCPGateway extends IPSModule
         if ($id > 0)
         {
             if (!IPS_EventExists($id))
-                throw new Exception("Ident with name " . $Name . " is used for wrong object type");
+                throw new Exception("Ident with name " . $Name . " is used for wrong object type",E_USER_NOTICE);
 
             if (IPS_GetEvent($id)['EventType'] <> 1)
             {
@@ -354,7 +354,7 @@ class ISCPGateway extends IPSModule
         if ($id > 0)
         {
             if (!IPS_EventExists($id))
-                throw new Exception('Timer not present');
+                throw new Exception('Timer not present',E_USER_WARNING);
             IPS_DeleteEvent($id);
         }
     }
@@ -363,9 +363,9 @@ class ISCPGateway extends IPSModule
     {
         $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
         if ($id === false)
-            throw new Exception('Timer not present');
+            throw new Exception('Timer not present',E_USER_WARNING);
         if (!IPS_EventExists($id))
-            throw new Exception('Timer not present');
+            throw new Exception('Timer not present',E_USER_WARNING);
         $Event = IPS_GetEvent($id);
         if ($Interval < 1)
         {

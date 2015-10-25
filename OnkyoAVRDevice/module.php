@@ -35,10 +35,9 @@ class OnkyoAVR extends IPSModule
         {
             if ($this->GetZone())
                 $this->RequestZoneState();
-            
         } catch (Exception $ex)
         {
-            unset ($ex);
+            unset($ex);
         }
     }
 
@@ -50,7 +49,7 @@ class OnkyoAVR extends IPSModule
         $this->OnkyoZone->thisZone = $this->ReadPropertyInteger("Zone");
         if ($this->OnkyoZone->thisZone == ONKYO_Zone::None)
         {
-            throw new Exception("Zone not set.",E_USER_NOTICE);
+            throw new Exception("Zone not set.", E_USER_NOTICE);
         }
         return true;
     }
@@ -109,7 +108,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -117,7 +116,7 @@ class OnkyoAVR extends IPSModule
         $APIData->Data = $Value;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
         {
-            trigger_error("Illegal Command in this Zone.",E_USER_WARNING);
+            trigger_error("Illegal Command in this Zone.", E_USER_WARNING);
 //            echo "Illegal Command in this Zone";
             return false;
         }
@@ -129,10 +128,9 @@ class OnkyoAVR extends IPSModule
         try
         {
             $this->SendAPIData($APIData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
 //            echo $exc->getMessage();
 //            return;
@@ -155,7 +153,7 @@ class OnkyoAVR extends IPSModule
     {
         if (!$this->HasActiveParent())
         {
-            trigger_error('Instance has no active Parent Instance!',E_USER_WARNING);
+            trigger_error('Instance has no active Parent Instance!', E_USER_WARNING);
             return false;
         }
         try
@@ -163,7 +161,7 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $this->RequestZoneState();
@@ -176,11 +174,11 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
-        $APIData->Data=$Value;
+        $APIData->Data = $Value;
         switch ($this->OnkyoZone->thisZone)
         {
             case ONKYO_Zone::ZoneMain:
@@ -199,10 +197,9 @@ class OnkyoAVR extends IPSModule
         try
         {
             $this->SendAPIData($APIData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         return true;
@@ -215,11 +212,11 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
-        $APIData->Data=$Value;
+        $APIData->Data = $Value;
         switch ($this->OnkyoZone->thisZone)
         {
             case ONKYO_Zone::ZoneMain:
@@ -238,10 +235,9 @@ class OnkyoAVR extends IPSModule
         try
         {
             $this->SendAPIData($APIData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         return true;
@@ -254,11 +250,11 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
-        $APIData->Data=$Value;
+        $APIData->Data = $Value;
         switch ($this->OnkyoZone->thisZone)
         {
             case ONKYO_Zone::ZoneMain:
@@ -277,14 +273,12 @@ class OnkyoAVR extends IPSModule
         try
         {
             $this->SendAPIData($APIData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         return true;
-        
     }
 
     public function SelectInput(integer $Value)
@@ -294,11 +288,11 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
-        $APIData->Data=$Value;
+        $APIData->Data = $Value;
         switch ($this->OnkyoZone->thisZone)
         {
             case ONKYO_Zone::ZoneMain:
@@ -317,14 +311,12 @@ class OnkyoAVR extends IPSModule
         try
         {
             $this->SendAPIData($APIData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         return true;
-        
     }
 
     public function SelectListingMode(integer $Value)
@@ -334,11 +326,11 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
-        $APIData->Data=$Value;
+        $APIData->Data = $Value;
         switch ($this->OnkyoZone->thisZone)
         {
             case ONKYO_Zone::ZoneMain:
@@ -349,20 +341,18 @@ class OnkyoAVR extends IPSModule
                 break;
             case ONKYO_Zone::Zone3:
             case ONKYO_Zone::Zone4:
-                trigger_error(E_USER_ERROR,'Command not available at this Zone.');
+                trigger_error(E_USER_ERROR, 'Command not available at this Zone.');
                 break;
         }
         try
         {
             $this->SendAPIData($APIData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         return true;
-        
     }
 
     public function SetSleep(integer $Value)
@@ -377,22 +367,21 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
         $APIData->APICommand = ISCP_API_Commands::CTV;
-        $APIData->Data=$Command;
+        $APIData->Data = $Command;
         try
         {
-            $APIResult= $this->Send($APIData,false);
-        }
-        catch (Exception $ex)
+            $APIResult = $this->Send($APIData, false);
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
-        if ($APIResult->Data =="N/A")
+        if ($APIResult->Data == "N/A")
         {
             echo "Command (temporally) not available.";
             return false;
@@ -403,7 +392,6 @@ class OnkyoAVR extends IPSModule
             return false;
         }
         return true;
-        
     }
 
     public function SendBDCommand(string $Command)
@@ -413,22 +401,21 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
         $APIData->APICommand = ISCP_API_Commands::CDV;
-        $APIData->Data=$Command;
+        $APIData->Data = $Command;
         try
         {
-            $APIResult= $this->Send($APIData,FALSE);
-        }
-        catch (Exception $ex)
+            $APIResult = $this->Send($APIData, FALSE);
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
-        if ($APIResult->Data =="N/A")
+        if ($APIResult->Data == "N/A")
         {
             echo "Command (temporally) not available.";
             return false;
@@ -438,7 +425,7 @@ class OnkyoAVR extends IPSModule
             echo "Value not available.";
             return false;
         }
-        return true;        
+        return true;
     }
 
     public function SendCommand(string $Command, string $Value, boolean $needResponse)
@@ -448,22 +435,21 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(),$ex->getCode())        ;
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
         $APIData = new ISCP_API_Data();
         $APIData->APICommand = $$Command;
-        $APIData->Data=$Value;
+        $APIData->Data = $Value;
         try
         {
-            $APIResult= $this->Send($APIData,$needResponse);
-        }
-        catch (Exception $ex)
+            $APIResult = $this->Send($APIData, $needResponse);
+        } catch (Exception $ex)
         {
-           trigger_error($ex->getMessage(),$ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
             return false;
         }
-        if ($APIResult->Data =="N/A")
+        if ($APIResult->Data == "N/A")
         {
             echo "Command (temporally) not available.";
             return false;
@@ -473,7 +459,7 @@ class OnkyoAVR extends IPSModule
             echo "Value not available.";
             return false;
         }
-        return true;        
+        return true;
     }
 
 ################## Datapoints
@@ -506,15 +492,13 @@ class OnkyoAVR extends IPSModule
             {
 //                IPS_LogMessage('SubCmdAvaiable', 'false');
                 return false;
-            }
-            else
+            } else
             {
                 $APIData->GetMapping();
                 $APIData->APICommand = $APIData->APISubCommand->{$this->OnkyoZone->thisZone};
                 IPS_LogMessage('APISubCommand', $APIData->APICommand);
             }
-        }
-        else
+        } else
             $APIData->GetMapping();
 
 //        IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
@@ -529,7 +513,7 @@ class OnkyoAVR extends IPSModule
         $ReplyAPIData = $APIData->ToJSONString('');
 
         if (!$this->lock('ReplyAPIData'))
-            throw new Exception('ReplyAPIData is locked',E_USER_WARNING);
+            throw new Exception('ReplyAPIData is locked', E_USER_WARNING);
         SetValueString($ReplyAPIDataID, $ReplyAPIData);
         $this->unlock('ReplyAPIData');
 //        IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
@@ -554,9 +538,8 @@ class OnkyoAVR extends IPSModule
                     $APIData->Data = ISCP_API_Commands::Request;
                     try
                     {
-                        $result = $this->Send($APIData,false);
-                    }
-                    catch (Exception $exc)
+                        $result = $this->Send($APIData, false);
+                    } catch (Exception $exc)
                     {
                         unset($exc);
                     }
@@ -572,7 +555,7 @@ class OnkyoAVR extends IPSModule
         if ($APIData->Mapping === null)
             $APIData->GetMapping();
 
-            IPS_LogMessage('SendAPIData', print_r($APIData, 1));
+        IPS_LogMessage('SendAPIData', print_r($APIData, 1));
 
         // Variable konvertieren..        
         switch ($APIData->Mapping->VarType)
@@ -583,7 +566,7 @@ class OnkyoAVR extends IPSModule
             case IPSVarType::vtFloat:
 //                echo "Float VarType not implemented.";
 
-                throw new Exception("Float VarType not implemented.",E_USER_NOTICE);
+                throw new Exception("Float VarType not implemented.", E_USER_NOTICE);
                 break;
             case IPSVarType::vtInteger:
                 if ($APIData->Mapping->ValueMapping == null)
@@ -600,7 +583,7 @@ class OnkyoAVR extends IPSModule
             case IPSVarType::vtDualInteger:
                 if ($DualType === false)
                 {
-                    throw new Exception("Error on get DualInteger.",E_USER_WARNING);
+                    throw new Exception("Error on get DualInteger.", E_USER_WARNING);
 //                    echo "Error on get DualInteger.";
 //                    return false;
                 }
@@ -614,21 +597,20 @@ class OnkyoAVR extends IPSModule
             default:
 //                echo "Unknow VarType.";
 //                return;
-                throw new Exception("Unknow VarType.",E_USER_NOTICE);
+                throw new Exception("Unknow VarType.", E_USER_NOTICE);
                 break;
         }
         try
         {
             $ret = $this->Send($APIData);
-        }
-        catch (Exception $exc)
+        } catch (Exception $exc)
         {
             throw $exc;
         }
 
         if ($ret->Data == "N/A")
         {
-                throw new Exception("Command (temporally) not available.",E_USER_NOTICE);
+            throw new Exception("Command (temporally) not available.", E_USER_NOTICE);
 //            return;
         }
         switch ($APIData->Mapping->VarType)
@@ -640,7 +622,7 @@ class OnkyoAVR extends IPSModule
                 {
                     IPS_LogMessage('RequestAction', print_r($APIData, 1));
                     IPS_LogMessage('RequestActionResult', print_r($ret, 1));
-                throw new Exception("Value not available.",E_USER_NOTICE);
+                    throw new Exception("Value not available.", E_USER_NOTICE);
 //                    echo "Value not available.";
 //                    return;
                 }
@@ -650,42 +632,41 @@ class OnkyoAVR extends IPSModule
                 {
                     IPS_LogMessage('RequestAction', print_r($APIData, 1));
                     IPS_LogMessage('RequestActionResult', print_r($ret, 1));
-                throw new Exception("Value not available.",E_USER_NOTICE);
+                    throw new Exception("Value not available.", E_USER_NOTICE);
 //                    echo "Value not available.";
 //                    return;
                 }
                 break;
         }
-        
+
         return $ret;
     }
 
-    private function Send(ISCP_API_Data $APIData,$needResponse = true)
+    private function Send(ISCP_API_Data $APIData, $needResponse = true)
     {
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
-            throw new Exception("Command not available at this Zone.",E_USER_WARNING);
+            throw new Exception("Command not available at this Zone.", E_USER_WARNING);
         if (!$this->HasActiveParent())
-            throw new Exception("Instance has no active Parent.",E_USER_WARNING);
+            throw new Exception("Instance has no active Parent.", E_USER_WARNING);
 
         $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
         if (!$this->lock('RequestSendData'))
-            throw new Exception('RequestSendData is locked',E_USER_WARNING);
+            throw new Exception('RequestSendData is locked', E_USER_WARNING);
 
         if ($needResponse)
         {
-        if (!$this->lock('ReplyAPIData'))
-        {
-            $this->unlock('RequestSendData');
-            throw new Exception('ReplyAPIData is locked',E_USER_WARNING);
-        }
-        SetValueString($ReplyAPIDataID, '');
-        $this->unlock('ReplyAPIData');
+            if (!$this->lock('ReplyAPIData'))
+            {
+                $this->unlock('RequestSendData');
+                throw new Exception('ReplyAPIData is locked', E_USER_WARNING);
+            }
+            SetValueString($ReplyAPIDataID, '');
+            $this->unlock('ReplyAPIData');
         }
         try
         {
             $this->SendDataToParent($APIData);
-        }
-        catch (Exception $exc)
+        } catch (Exception $exc)
         {
             $this->unlock('RequestSendData');
             throw $exc;
@@ -703,7 +684,7 @@ class OnkyoAVR extends IPSModule
         {
             //          Senddata('TX_Status','Timeout');
             $this->unlock('RequestSendData');
-            throw new Exception('Send Data Timeout',E_USER_WARNING);
+            throw new Exception('Send Data Timeout', E_USER_WARNING);
         }
         //            Senddata('TX_Status','OK')
         $this->unlock('RequestSendData');
@@ -716,7 +697,14 @@ class OnkyoAVR extends IPSModule
         $JSONString = $Data->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}');
 //        IPS_LogMessage('SendDataToSplitter:'.$this->InstanceID,$JSONString);
         // Daten senden
-        IPS_SendDataToParent($this->InstanceID, $JSONString);
+        try
+        {
+            IPS_SendDataToParent($this->InstanceID, $JSONString);
+        } catch (Exception $ex)
+        {
+            throw new Exception($ex->getMessage(), $ex->getCode());
+        }
+
         return true;
     }
 
@@ -743,8 +731,9 @@ class OnkyoAVR extends IPSModule
                         return $APIData;
                     else
                     {
-                        $i =$i - 100;
-                        if ($i<0) $i=0;
+                        $i = $i - 100;
+                        if ($i < 0)
+                            $i = 0;
                     }
                 }
             }
@@ -803,7 +792,7 @@ class OnkyoAVR extends IPSModule
         if ($id > 0)
         {
             if (!IPS_EventExists($id))
-                throw new Exception("Ident with name " . $Name . " is used for wrong object type",E_USER_NOTICE);
+                throw new Exception("Ident with name " . $Name . " is used for wrong object type", E_USER_NOTICE);
 
             if (IPS_GetEvent($id)['EventType'] <> 1)
             {
@@ -825,8 +814,7 @@ class OnkyoAVR extends IPSModule
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
 
             IPS_SetEventActive($id, true);
-        }
-        else
+        } else
         {
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
 
@@ -840,7 +828,7 @@ class OnkyoAVR extends IPSModule
         if ($id > 0)
         {
             if (!IPS_EventExists($id))
-                throw new Exception('Timer not present',E_USER_WARNING);
+                throw new Exception('Timer not present', E_USER_WARNING);
             IPS_DeleteEvent($id);
         }
     }
@@ -849,9 +837,9 @@ class OnkyoAVR extends IPSModule
     {
         $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
         if ($id === false)
-            throw new Exception('Timer not present',E_USER_WARNING);
+            throw new Exception('Timer not present', E_USER_WARNING);
         if (!IPS_EventExists($id))
-            throw new Exception('Timer not present',E_USER_WARNING);
+            throw new Exception('Timer not present', E_USER_WARNING);
 
         $Event = IPS_GetEvent($id);
 
@@ -896,12 +884,11 @@ class OnkyoAVR extends IPSModule
         if (!IPS_VariableProfileExists($Name))
         {
             IPS_CreateVariableProfile($Name, 1);
-        }
-        else
+        } else
         {
             $profile = IPS_GetVariableProfile($Name);
             if ($profile['ProfileType'] != 1)
-                throw new Exception("Variable profile type does not match for profile " . $Name,E_USER_WARNING);
+                throw new Exception("Variable profile type does not match for profile " . $Name, E_USER_WARNING);
         }
 
         IPS_SetVariableProfileIcon($Name, $Icon);
@@ -915,8 +902,7 @@ class OnkyoAVR extends IPSModule
         {
             $MinValue = 0;
             $MaxValue = 0;
-        }
-        else
+        } else
         {
             $MinValue = $Associations[0][0];
             $MaxValue = $Associations[sizeof($Associations) - 1][0];
@@ -939,8 +925,7 @@ class OnkyoAVR extends IPSModule
             if (IPS_SemaphoreEnter("OAVR_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            }
-            else
+            } else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }
