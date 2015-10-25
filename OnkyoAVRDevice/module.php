@@ -663,14 +663,12 @@ class OnkyoAVR extends IPSModule
             SetValueString($ReplyAPIDataID, '');
             $this->unlock('ReplyAPIData');
         }
-        try
+        $ret = $this->SendDataToParent($APIData);
+        if ($ret === false)
         {
-            $ret = $this->SendDataToParent($APIData);
-        } catch (Exception $exc)
-        {
-            IPS_LogMessage('exc',print_r($ret,1));
+//            IPS_LogMessage('exc',print_r($ret,1));
             $this->unlock('RequestSendData');
-            throw $exc;
+            throw new Exception('Instance has no active Parent Instance!', E_USER_WARNING);
         }
         IPS_LogMessage('noexc',print_r($ret,1));
         if (!$needResponse)
@@ -699,7 +697,7 @@ class OnkyoAVR extends IPSModule
         $JSONString = $Data->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}');
 //        IPS_LogMessage('SendDataToSplitter:'.$this->InstanceID,$JSONString);
         // Daten senden
-            return IPS_SendDataToParent($this->InstanceID, $JSONString);
+            return @IPS_SendDataToParent($this->InstanceID, $JSONString);
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
