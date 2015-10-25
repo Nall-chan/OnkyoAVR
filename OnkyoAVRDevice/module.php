@@ -132,7 +132,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
 //            echo $exc->getMessage();
 //            return;
@@ -202,7 +202,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         return true;
@@ -241,7 +241,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         return true;
@@ -280,7 +280,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+            trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         return true;
@@ -320,7 +320,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         return true;
@@ -358,7 +358,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         return true;
@@ -389,7 +389,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         if ($APIResult->Data =="N/A")
@@ -425,7 +425,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         if ($APIResult->Data =="N/A")
@@ -460,7 +460,7 @@ class OnkyoAVR extends IPSModule
         }
         catch (Exception $ex)
         {
-            trigger_error($ex->getCode(),$ex->getMessage());
+           trigger_error($ex->getMessage(),$ex->getCode());
             return false;
         }
         if ($APIResult->Data =="N/A")
