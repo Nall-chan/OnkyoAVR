@@ -441,7 +441,7 @@ class OnkyoAVR extends IPSModule
         return true;        
     }
 
-    public function SendCommand(string $Command, string $Value, boolen $needResponse)
+    public function SendCommand(string $Command, string $Value, boolean $needResponse)
     {
         try
         {
@@ -560,7 +560,7 @@ class OnkyoAVR extends IPSModule
                     {
                         unset($exc);
                     }
-                    IPS_LogMessage('RequestZoneStateResult', print_r($result, true));
+                    //IPS_LogMessage('RequestZoneStateResult', print_r($result, true));
                 }
         }
     }
