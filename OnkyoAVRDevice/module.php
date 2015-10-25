@@ -665,12 +665,14 @@ class OnkyoAVR extends IPSModule
         }
         try
         {
-            $this->SendDataToParent($APIData);
+            $ret = $this->SendDataToParent($APIData);
         } catch (Exception $exc)
         {
+            IPS_LogMessage('exc',print_r($ret,1));
             $this->unlock('RequestSendData');
             throw $exc;
         }
+        IPS_LogMessage('noexc',print_r($ret,1));
         if (!$needResponse)
         {
             $this->unlock('RequestSendData');

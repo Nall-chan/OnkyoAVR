@@ -107,7 +107,8 @@ class ISCPGateway extends IPSModule
             
         } catch (Exception $ex)
         {
-            throw new Exception($ex->getMessage(), $ex->getCode());
+            trigger_error($ex->getMessage(), $ex->getCode());
+            return false;
         }
 
     }
