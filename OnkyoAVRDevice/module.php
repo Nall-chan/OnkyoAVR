@@ -439,7 +439,7 @@ class OnkyoAVR extends IPSModule
             return false;
         }
         $APIData = new ISCP_API_Data();
-        $APIData->APICommand = $$Command;
+        $APIData->APICommand = $Command;
         $APIData->Data = $Value;
         try
         {
