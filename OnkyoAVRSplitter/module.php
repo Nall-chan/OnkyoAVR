@@ -151,14 +151,20 @@ class ISCPGateway extends IPSModule
         $data = json_decode($JSONString);
         //IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
         $this->CheckParents();
-        if ($this->Mode === false)
-            throw new Exception("Wrong IO-Parent",E_USER_ERROR);
-
+        if ($this->Mode === false){
+//            throw new Exception("Wrong IO-Parent",E_USER_ERROR);
+            echo "Wrong IO-Parent";
+            return false;
+        }
         $bufferID = $this->GetIDForIdent("BufferIN");
         // Empfangs Lock setzen
         if (!$this->lock("ReceiveLock"))
-            throw new Exception("ReceiveBuffer is locked",E_USER_WARNING);
+        {
+                        echo "ReceiveBuffer is locked";
+            return false;
 
+//            throw new Exception("ReceiveBuffer is locked",E_USER_WARNING);
+        }
         // Datenstream zusammenfügen
         $head = GetValueString($bufferID);
         SetValueString($bufferID, '');

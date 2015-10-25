@@ -108,7 +108,8 @@ class OnkyoAVR extends IPSModule
             $this->GetZone();
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(), $ex->getCode());
+//            trigger_error($ex->getMessage(), $ex->getCode());
+            echo $ex->getMessage();
             return false;
         }
         $APIData = new ISCP_API_Data();
@@ -116,8 +117,8 @@ class OnkyoAVR extends IPSModule
         $APIData->Data = $Value;
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
         {
-            trigger_error("Illegal Command in this Zone.", E_USER_WARNING);
-//            echo "Illegal Command in this Zone";
+//            trigger_error("Illegal Command in this Zone.", E_USER_WARNING);
+            echo "Illegal Command in this Zone";
             return false;
         }
         // Mapping holen
@@ -130,9 +131,9 @@ class OnkyoAVR extends IPSModule
             $this->SendAPIData($APIData);
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(), $ex->getCode());
+//            trigger_error($ex->getMessage(), $ex->getCode());
+            echo $ex->getMessage();
             return false;
-//            echo $exc->getMessage();
 //            return;
         }
 
@@ -357,7 +358,36 @@ class OnkyoAVR extends IPSModule
 
     public function SetSleep(integer $Value)
     {
-        
+        try
+        {
+            $this->GetZone();
+        } catch (Exception $ex)
+        {
+            trigger_error($ex->getMessage(), $ex->getCode());
+            return false;
+        }
+        if (($Value < 0) or ( $Value > 0x5))
+        {
+            trigger_error(E_USER_ERROR, 'Value not valid.');
+            return false;
+        }
+        $APIData = new ISCP_API_Data();
+        $APIData->Data = $Value;
+        if ($this->OnkyoZone->thisZone <> ONKYO_Zone::ZoneMain)
+        {
+            trigger_error(E_USER_ERROR, 'Command not available at this Zone.');
+            return false;
+        }
+        $APIData->APICommand = ISCP_API_Commands::SLP;
+        try
+        {
+            $this->SendAPIData($APIData);
+        } catch (Exception $ex)
+        {
+            trigger_error($ex->getMessage(), $ex->getCode());
+            return false;
+        }
+        return true;
     }
 
     public function SendTVCommand(string $Command)
@@ -670,7 +700,7 @@ class OnkyoAVR extends IPSModule
             $this->unlock('RequestSendData');
             throw new Exception('Instance has no active Parent Instance!', E_USER_WARNING);
         }
-        IPS_LogMessage('noexc',print_r($ret,1));
+        IPS_LogMessage('noexc', print_r($ret, 1));
         if (!$needResponse)
         {
             $this->unlock('RequestSendData');
@@ -697,7 +727,7 @@ class OnkyoAVR extends IPSModule
         $JSONString = $Data->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}');
 //        IPS_LogMessage('SendDataToSplitter:'.$this->InstanceID,$JSONString);
         // Daten senden
-            return @IPS_SendDataToParent($this->InstanceID, $JSONString);
+        return @IPS_SendDataToParent($this->InstanceID, $JSONString);
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
