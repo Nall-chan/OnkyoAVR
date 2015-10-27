@@ -42,9 +42,9 @@ class ISCPSplitter extends IPSModule
             $instance = IPS_GetInstance($this->InstanceID);
             $parentGUID = IPS_GetInstance($instance['ConnectionID'])['ModuleInfo']['ModuleID'];
             if ($parentGUID == '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}')
-                $this->Mode = ISCPGateway::LAN;
+                $this->Mode = ISCPSplitter::LAN;
             elseif ($parentGUID == '{6DC3D946-0D31-450F-A8C6-C42DB8D7D4F1}')
-                $this->Mode = ISCPGateway::COM;
+                $this->Mode = ISCPSplitter::COM;
             else
             {
                 IPS_LogMessage('ISCP Gateway', 'IO-Parent not supported.');
@@ -170,7 +170,7 @@ class ISCPSplitter extends IPSModule
         SetValueString($bufferID, '');
         // Stream in einzelne Pakete schneiden
         $stream = $head . utf8_decode($data->Buffer);
-        if ($this->Mode == ISCPGateway::LAN)
+        if ($this->Mode == ISCPSplitter::LAN)
         {
             $minTail = 24;
 
@@ -281,7 +281,7 @@ class ISCPSplitter extends IPSModule
         // Frame bauen
         // 
         // DATA aufüllen
-        if ($this->Mode == ISCPGateway::LAN)
+        if ($this->Mode == ISCPSplitter::LAN)
         {
             $eISCPlen = chr(0x00) . chr(0x00) . chr(floor(strlen($Data) / 256)) . chr(strlen($Data) % 256);
             $Frame = $eISCPlen . chr($this->eISCPVersion) . chr(0x00).chr(0x00).chr(0x00);
@@ -289,7 +289,7 @@ class ISCPSplitter extends IPSModule
             $eISCPHeaderlen = chr(0x00) . chr(0x00) . chr(floor($Len / 256)) . chr($Len % 256);
             $Frame = "ISCP" . $eISCPHeaderlen . $Frame . $Data;
         }
-        elseif ($this->Mode == ISCPGateway::COM)
+        elseif ($this->Mode == ISCPSplitter::COM)
         {
             $Frame = $Data;
         }
