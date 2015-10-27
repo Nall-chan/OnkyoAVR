@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . "/../OnkyoAVRClass.php");  // diverse Klassen
 
-class ISCPGateway extends IPSModule
+class ISCPSplitter extends IPSModule
 {
 
     const LAN = 1;
