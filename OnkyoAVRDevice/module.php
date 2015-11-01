@@ -342,7 +342,8 @@ class OnkyoAVR extends IPSModule
                 break;
             case ONKYO_Zone::Zone3:
             case ONKYO_Zone::Zone4:
-                trigger_error('Command not available at this Zone.',E_USER_ERROR);
+                trigger_error('Command not available at this Zone.',E_USER_NOTICE);
+                return false;
                 break;
         }
         try
@@ -368,14 +369,14 @@ class OnkyoAVR extends IPSModule
         }
         if (($Value < 0) or ( $Value > 0x5))
         {
-            trigger_error('Value not valid.',E_USER_WARNING);
+            trigger_error('Value not valid.',E_USER_NOTICE);
             return false;
         }
         $APIData = new ISCP_API_Data();
         $APIData->Data = $Value;
         if ($this->OnkyoZone->thisZone <> ONKYO_Zone::ZoneMain)
         {
-            trigger_error('Command not available at this Zone.',E_USER_ERROR);
+            trigger_error('Command not available at this Zone.',E_USER_NOTICE);
             return false;
         }
         $APIData->APICommand = ISCP_API_Commands::SLP;
@@ -413,7 +414,7 @@ class OnkyoAVR extends IPSModule
         }
         if ($APIResult == false)
         {
-                trigger_error("Error on send data.", E_USER_WARNING);
+                trigger_error("Error on send data.", E_USER_NOTICE);
                 return false;
         }
         return true;
@@ -442,7 +443,7 @@ class OnkyoAVR extends IPSModule
         }
         if ($APIResult == false)
         {
-                trigger_error("Error on send data.", E_USER_WARNING);
+                trigger_error("Error on send data.", E_USER_NOTICE);
                 return false;
         }
         return true;
@@ -473,19 +474,19 @@ class OnkyoAVR extends IPSModule
         {
             if ($APIResult->Data == "N/A")
             {
-                trigger_error("Command (temporally) not available.", E_USER_WARNING);
+                trigger_error("Command (temporally) not available.", E_USER_NOTICE);
                 return false;
             }
             if ($APIResult->Data <> $APIData->Data)
             {
-                trigger_error("Value not available.", E_USER_WARNING);
+                trigger_error("Value not available.", E_USER_NOTICE);
                 return false;
             }
         } else
         {
             if ($APIData === false)
             {
-                trigger_error("Error on send data.", E_USER_WARNING);
+                trigger_error("Error on send data.", E_USER_NOTICE);
                 return false;
             }
         }
@@ -543,7 +544,7 @@ class OnkyoAVR extends IPSModule
         $ReplyAPIData = $APIData->ToJSONString('');
 
         if (!$this->lock('ReplyAPIData'))
-            throw new Exception('ReplyAPIData is locked', E_USER_WARNING);
+            throw new Exception('ReplyAPIData is locked', E_USER_NOTICE);
         SetValueString($ReplyAPIDataID, $ReplyAPIData);
         $this->unlock('ReplyAPIData');
 //        IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
@@ -613,7 +614,7 @@ class OnkyoAVR extends IPSModule
             case IPSVarType::vtDualInteger:
                 if ($DualType === false)
                 {
-                    throw new Exception("Error on get DualInteger.", E_USER_WARNING);
+                    throw new Exception("Error on get DualInteger.", E_USER_NOTICE);
 //                    echo "Error on get DualInteger.";
 //                    return false;
                 }
@@ -675,20 +676,20 @@ class OnkyoAVR extends IPSModule
     private function Send(ISCP_API_Data $APIData, $needResponse = true)
     {
         if (!$this->OnkyoZone->CmdAvaiable($APIData))
-            throw new Exception("Command not available at this Zone.", E_USER_WARNING);
+            throw new Exception("Command not available at this Zone.", E_USER_NOTICE);
         if (!$this->HasActiveParent())
-            throw new Exception("Instance has no active Parent.", E_USER_WARNING);
+            throw new Exception("Instance has no active Parent.", E_USER_NOTICE);
 
         $ReplyAPIDataID = $this->GetIDForIdent('ReplyAPIData');
         if (!$this->lock('RequestSendData'))
-            throw new Exception('RequestSendData is locked', E_USER_WARNING);
+            throw new Exception('RequestSendData is locked', E_USER_NOTICE);
 
         if ($needResponse)
         {
             if (!$this->lock('ReplyAPIData'))
             {
                 $this->unlock('RequestSendData');
-                throw new Exception('ReplyAPIData is locked', E_USER_WARNING);
+                throw new Exception('ReplyAPIData is locked', E_USER_NOTICE);
             }
             SetValueString($ReplyAPIDataID, '');
             $this->unlock('ReplyAPIData');
@@ -698,7 +699,7 @@ class OnkyoAVR extends IPSModule
         {
 //            IPS_LogMessage('exc',print_r($ret,1));
             $this->unlock('RequestSendData');
-            throw new Exception('Instance has no active Parent Instance!', E_USER_WARNING);
+            throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
         }
 //        IPS_LogMessage('noexc', print_r($ret, 1));
         if (!$needResponse)
@@ -714,7 +715,7 @@ class OnkyoAVR extends IPSModule
         {
             //          Senddata('TX_Status','Timeout');
             $this->unlock('RequestSendData');
-            throw new Exception('Send Data Timeout', E_USER_WARNING);
+            throw new Exception('Send Data Timeout', E_USER_NOTICE);
         }
         //            Senddata('TX_Status','OK')
         $this->unlock('RequestSendData');
@@ -850,7 +851,7 @@ class OnkyoAVR extends IPSModule
         if ($id > 0)
         {
             if (!IPS_EventExists($id))
-                throw new Exception('Timer not present', E_USER_WARNING);
+                throw new Exception('Timer not present', E_USER_NOTICE);
             IPS_DeleteEvent($id);
         }
     }
@@ -859,9 +860,9 @@ class OnkyoAVR extends IPSModule
     {
         $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
         if ($id === false)
-            throw new Exception('Timer not present', E_USER_WARNING);
+            throw new Exception('Timer not present', E_USER_NOTICE);
         if (!IPS_EventExists($id))
-            throw new Exception('Timer not present', E_USER_WARNING);
+            throw new Exception('Timer not present', E_USER_NOTICE);
 
         $Event = IPS_GetEvent($id);
 

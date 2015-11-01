@@ -152,18 +152,18 @@ class ISCPSplitter extends IPSModule
         //IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
         $this->CheckParents();
         if ($this->Mode === false){
-//            throw new Exception("Wrong IO-Parent",E_USER_ERROR);
-            echo "Wrong IO-Parent";
+    trigger_error("Wrong IO-Parent",E_USER_WARNING);
+//            echo "Wrong IO-Parent";
             return false;
         }
         $bufferID = $this->GetIDForIdent("BufferIN");
         // Empfangs Lock setzen
         if (!$this->lock("ReceiveLock"))
         {
-                        echo "ReceiveBuffer is locked";
+            trigger_error("ReceiveBuffer is locked",E_USER_NOTICE);
             return false;
 
-//            throw new Exception("ReceiveBuffer is locked",E_USER_WARNING);
+//            throw new Exception("ReceiveBuffer is locked",E_USER_NOTICE);
         }
         // Datenstream zusammenfügen
         $head = GetValueString($bufferID);
@@ -230,7 +230,7 @@ class ISCPSplitter extends IPSModule
             if ($this->eISCPVersion <> ord($header[12]))
             {
                 $frame = false;
-                echo "Wrong eISCP Version";
+                trigger_error("Wrong eISCP Version",E_USER_NOTICE);
             }
         }
         else
@@ -277,7 +277,7 @@ class ISCPSplitter extends IPSModule
 //        IPS_LogMessage('SendDataToSerialPort:'.$this->InstanceID,$Data);
         //Parent ok ?
         if (!$this->CheckParents())
-            throw new Exception("Instance has no active Parent.",E_USER_WARNING);
+            throw new Exception("Instance has no active Parent.",E_USER_NOTICE);
         // Frame bauen
         // 
         // DATA aufüllen
@@ -295,14 +295,14 @@ class ISCPSplitter extends IPSModule
         }
         else
         {
-            throw new Exception("Wrong IO-Parent.",E_USER_ERROR);
+            throw new Exception("Wrong IO-Parent.",E_USER_WARNING);
         }
 
 
         //Semaphore setzen
         if (!$this->lock("ToParent"))
         {
-            throw new Exception("Can not send to Parent",E_USER_WARNING);
+            throw new Exception("Can not send to Parent",E_USER_NOTICE);
         }
         // Daten senden
         try
