@@ -27,7 +27,8 @@ class ISCPSplitter extends IPSModule
 //        IPS_SetHidden($this->GetIDForIdent('Nodes'), true);
         IPS_SetHidden($this->GetIDForIdent('CommandOut'), true);
         IPS_SetHidden($this->GetIDForIdent('BufferIN'), true);
-        $this->RegisterTimer('KeepAlive', 3600, 'ISCP_KeepAlive($_IPS[\'TARGET\']);');
+        //$this->RegisterTimer('KeepAlive', 3600, 'ISCP_KeepAlive($_IPS[\'TARGET\']);');
+        $this->UnregisterTimer('KeepAlive');
         if ($this->CheckParents())
             $this->RequestAVRState();
     }
