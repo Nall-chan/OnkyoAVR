@@ -1,9 +1,13 @@
 {
-	"id": "{2EAC185C-D34C-433A-A5A5-4B146C89D44C}",
-	"author": "Michael Tröger",
-	"name": "Onkyo AVR (ISCP) Library",
-	"url": "//github.com/Nall-chan/IPSOnkyoAVR/",
-	"version": "0.1",
-	"build": 0,
-	"date": 0
+    "id": "{2EAC185C-D34C-433A-A5A5-4B146C89D44C}",
+    "author": "Michael Tr\u00f6ger",
+    "name": "Onkyo AVR (ISCP) Library",
+    "url": "https://github.com/Nall-chan/IPSOnkyoAVR",
+    "version": "0.2",
+    "build": 103,
+    "date": 1485266485,
+    "title": "Onkyo AV-Receiver",
+    "description": "Ermöglicht das steuern und das empfangen von Statusänderungen, von AV-Receivern des Herstellers Onkyo über RS232 oder LAN. Direkte (eingeschränkte) Bedienung im WebFront möglich. Abbilden des gesamten Funktionsumfangs in PHP-Befehlen.",
+    "tags": ["Onkyo", "Receiver", "Multimedia", "AV", "ISCP"],
+    "req_ips_version": "4.0"
 }

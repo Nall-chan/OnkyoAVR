@@ -15,22 +15,22 @@ class ISCPSplitter extends IPSModule
     {
         parent::Create();
         $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
-//        $this->RegisterPropertyInteger("NDInterval", 60);
+        $this->RegisterTimer('KeepAlive', 0, 'ISCP_KeepAlive($_IPS[\'TARGET\']);');        
     }
 
     public function ApplyChanges()
     {
         parent::ApplyChanges();
-//        $this->RegisterVariableString("Nodes", "Nodes", "", -5);
         $this->RegisterVariableString("BufferIN", "BufferIN", "", -4);
         $this->RegisterVariableString("CommandOut", "CommandOut", "", -3);
-//        IPS_SetHidden($this->GetIDForIdent('Nodes'), true);
         IPS_SetHidden($this->GetIDForIdent('CommandOut'), true);
         IPS_SetHidden($this->GetIDForIdent('BufferIN'), true);
-        //$this->RegisterTimer('KeepAlive', 3600, 'ISCP_KeepAlive($_IPS[\'TARGET\']);');
-        $this->UnregisterTimer('KeepAlive');
+
         if ($this->CheckParents())
+        {
             $this->RequestAVRState();
+            //$this->SetTimerInterval('KeepAlive', 3600*1000);
+        }
     }
 
 ################## PRIVATE     
@@ -142,7 +142,7 @@ class ISCPSplitter extends IPSModule
     {
 //        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
         $Data = $APIData->ToJSONString('{43E4B48E-2345-4A9A-B506-3E8E7A964757}');
-        IPS_SendDataToChildren($this->InstanceID, $Data);
+        $this->SendDataToChildren($Data);
     }
 
 ################## DATAPOINTS PARENT
@@ -308,7 +308,7 @@ class ISCPSplitter extends IPSModule
         // Daten senden
         try
         {
-            IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Frame))));
+            $this->SendDataToParent(json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Frame))));
         }
         catch (Exception $exc)
         {
@@ -333,76 +333,6 @@ class ISCPSplitter extends IPSModule
                 return true;
         }
         return false;
-    }
-
-    protected function RegisterTimer($Name, $Interval, $Script)
-    {
-        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-        if ($id === false)
-            $id = 0;
-        if ($id > 0)
-        {
-            if (!IPS_EventExists($id))
-                throw new Exception("Ident with name " . $Name . " is used for wrong object type",E_USER_NOTICE);
-
-            if (IPS_GetEvent($id)['EventType'] <> 1)
-            {
-                IPS_DeleteEvent($id);
-                $id = 0;
-            }
-        }
-        if ($id == 0)
-        {
-            $id = IPS_CreateEvent(1);
-            IPS_SetParent($id, $this->InstanceID);
-            IPS_SetIdent($id, $Name);
-        }
-        IPS_SetName($id, $Name);
-        IPS_SetHidden($id, true);
-        IPS_SetEventScript($id, $Script);
-        if ($Interval > 0)
-        {
-            IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
-            IPS_SetEventActive($id, true);
-        }
-        else
-        {
-            IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
-            IPS_SetEventActive($id, false);
-        }
-    }
-
-    protected function UnregisterTimer($Name)
-    {
-        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-        if ($id > 0)
-        {
-            if (!IPS_EventExists($id))
-                throw new Exception('Timer not present',E_USER_WARNING);
-            IPS_DeleteEvent($id);
-        }
-    }
-
-    protected function SetTimerInterval($Name, $Interval)
-    {
-        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-        if ($id === false)
-            throw new Exception('Timer not present',E_USER_WARNING);
-        if (!IPS_EventExists($id))
-            throw new Exception('Timer not present',E_USER_WARNING);
-        $Event = IPS_GetEvent($id);
-        if ($Interval < 1)
-        {
-            if ($Event['EventActive'])
-                IPS_SetEventActive($id, false);
-        }
-        else
-        {
-            if ($Event['CyclicTimeValue'] <> $Interval)
-                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
-            if (!$Event['EventActive'])
-                IPS_SetEventActive($id, true);
-        }
     }
 
     protected function SetStatus($InstanceStatus)

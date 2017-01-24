@@ -17,7 +17,7 @@ Implementierung des Integra Serial Communication Protocol für Onkyo AV-Receiver
 
 ## 1. Funktionsumfang
 
- Ermöglicht das steuern und empfangen von Statusänderungen, von AV-Receivern des Herstellers Onkyo über RS232 oder LAN.
+ Ermöglicht das steuern und das empfangen von Statusänderungen, von AV-Receivern des Herstellers Onkyo über RS232 oder LAN.
  Direkte (eingeschränkte) Bedienung im WebFront möglich.
  Abbilden des gesamten Funktionsumfangs in PHP-Befehlen.
 
@@ -94,4 +94,8 @@ Eigenschaften des Devices für Get/SetProperty-Befehle:
 
 **Changlog:**
 
-0.1	:  Beginn
+ Version 0.2:  
+ - Bugfix Timer & Datenaustausch. Doku falsch / fehlt noch immer. Umbau auf RC Beta1 folgt.  
+
+ Version 0.1:  
+ - Testversion
