@@ -94,6 +94,9 @@ Eigenschaften des Devices für Get/SetProperty-Befehle:
 
 **Changlog:**
 
+ Version 0.3:  
+ - Bugfix Datenaustausch aus 0.2  
+
  Version 0.2:  
  - Bugfix Timer & Datenaustausch. Doku falsch / fehlt noch immer. Umbau auf RC Beta1 folgt.  
 

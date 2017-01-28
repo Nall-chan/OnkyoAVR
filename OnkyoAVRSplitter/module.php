@@ -108,7 +108,7 @@ class ISCPSplitter extends IPSModule
             
         } catch (Exception $ex)
         {
-            trigger_error($ex->getMessage(), $ex->getCode());
+            trigger_error($ex->getMessage(), E_USER_NOTICE);
             return false;
         }
         return true;
@@ -133,7 +133,7 @@ class ISCPSplitter extends IPSModule
             
         } catch (Exception $ex)
         {
-            throw new Exception($ex->getMessage(), $ex->getCode());
+            throw new Exception($ex->getMessage(), E_USER_NOTICE);
         }
 
     }
@@ -308,7 +308,7 @@ class ISCPSplitter extends IPSModule
         // Daten senden
         try
         {
-            $this->SendDataToParent(json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Frame))));
+            parent::SendDataToParent(json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Frame))));
         }
         catch (Exception $exc)
         {
