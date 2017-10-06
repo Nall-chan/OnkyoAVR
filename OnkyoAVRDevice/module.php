@@ -1,6 +1,6 @@
 <?
 
-require_once(__DIR__ . "/../OnkyoAVRClass.php");  // diverse Klassen
+require_once(__DIR__ . "/../libs/OnkyoAVRClass.php");  // diverse Klassen
 
 class OnkyoAVR extends IPSModule
 {
@@ -170,7 +170,7 @@ class OnkyoAVR extends IPSModule
         $this->RequestZoneState();
     }
 
-    public function Power(boolean $Value)
+    public function Power(bool $Value)
     {
         try
         {
@@ -210,7 +210,7 @@ class OnkyoAVR extends IPSModule
         return true;
     }
 
-    public function SetVolume(integer $Value)
+    public function SetVolume(int $Value)
     {
         try
         {
@@ -250,7 +250,7 @@ class OnkyoAVR extends IPSModule
         return true;
     }
 
-    public function SetMute(boolean $Value)
+    public function SetMute(bool $Value)
     {
         try
         {
@@ -290,7 +290,7 @@ class OnkyoAVR extends IPSModule
         return true;
     }
 
-    public function SelectInput(integer $Value)
+    public function SelectInput(int $Value)
     {
         try
         {
@@ -330,7 +330,7 @@ class OnkyoAVR extends IPSModule
         return true;
     }
 
-    public function SelectListingMode(integer $Value)
+    public function SelectListingMode(int $Value)
     {
         try
         {
@@ -369,7 +369,7 @@ class OnkyoAVR extends IPSModule
         return true;
     }
 
-    public function SetSleep(integer $Value)
+    public function SetSleep(int $Value)
     {
         try
         {
@@ -467,7 +467,7 @@ class OnkyoAVR extends IPSModule
         return true;
     }
 
-    public function SendCommand(string $Command, string $Value, boolean $needResponse)
+    public function SendCommand(string $Command, string $Value, bool $needResponse)
     {
         try
         {

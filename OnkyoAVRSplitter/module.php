@@ -1,6 +1,6 @@
 <?
 
-require_once(__DIR__ . "/../OnkyoAVRClass.php");  // diverse Klassen
+require_once(__DIR__ . "/../libs/OnkyoAVRClass.php");  // diverse Klassen
 
 class ISCPSplitter extends IPSModule
 {
