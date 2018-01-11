@@ -94,6 +94,9 @@ Eigenschaften des Devices für Get/SetProperty-Befehle:
 
 **Changlog:**
 
+ Version 0.4:  
+ - Bugfix für IPS 5.0  
+
  Version 0.3:  
  - Bugfix Datenaustausch aus 0.2  
 

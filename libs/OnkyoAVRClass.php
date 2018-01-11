@@ -7,16 +7,16 @@
  * @package       OnkyoAVR
  * @file          OnkyoAVRClass.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.0
+ * @version       0.4
  */
-if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind.
+if (!defined("IPS_BASE")) //Nur wenn Konstanten noch nicht bekannt sind.
 {
 // --- BASE MESSAGE
     define('IPS_BASE', 10000);                             //Base Message
-    define('IPS_KERNELSHUTDOWN', IPS_BASE + 1);            //Pre Shutdown Message, Runlevel UNINIT Follows
-    define('IPS_KERNELSTARTED', IPS_BASE + 2);             //Post Ready Message
+    define('IPS_KERNELSTARTED', IPS_BASE + 1);             //Post Ready Message
+    define('IPS_KERNELSHUTDOWN', IPS_BASE + 2);            //Pre Shutdown Message, Runlevel UNINIT Follows
 // --- KERNEL
     define('IPS_KERNELMESSAGE', IPS_BASE + 100);           //Kernel Message
     define('KR_CREATE', IPS_KERNELMESSAGE + 1);            //Kernel is beeing created
@@ -107,9 +107,9 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
     define('LM_DELETE', IPS_LINKMESSAGE + 2);             //On Link Delete
     define('LM_CHANGETARGET', IPS_LINKMESSAGE + 3);       //On Link TargetID change
 // --- DATA HANDLER
-    define('IPS_DATAMESSAGE', IPS_BASE + 1100);             //Data Handler Message
-    define('DM_CONNECT', IPS_DATAMESSAGE + 1);             //On Instance Connect
-    define('DM_DISCONNECT', IPS_DATAMESSAGE + 2);          //On Instance Disconnect
+    define('IPS_FLOWMESSAGE', IPS_BASE + 1100);             //Data Handler Message
+    define('FM_CONNECT', IPS_FLOWMESSAGE + 1);             //On Instance Connect
+    define('FM_DISCONNECT', IPS_FLOWMESSAGE + 2);          //On Instance Disconnect
 // --- SCRIPT ENGINE
     define('IPS_ENGINEMESSAGE', IPS_BASE + 1200);           //Script Engine Message
     define('SE_UPDATE', IPS_ENGINEMESSAGE + 1);             //On Library Refresh
@@ -133,6 +133,9 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
     define('TM_SETINTERVAL', IPS_TIMERMESSAGE + 3);
     define('TM_UPDATE', IPS_TIMERMESSAGE + 4);
     define('TM_RUNNING', IPS_TIMERMESSAGE + 5);
+}
+if (!defined("IS_ACTIVE")) //Nur wenn Konstanten noch nicht bekannt sind.
+{
 // --- STATUS CODES
     define('IS_SBASE', 100);
     define('IS_CREATING', IS_SBASE + 1); //module is being created
@@ -142,19 +145,14 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
 // --- ERROR CODES
     define('IS_EBASE', 200);          //default errorcode
     define('IS_NOTCREATED', IS_EBASE + 1); //instance could not be created
-// --- Search Handling
-    define('FOUND_UNKNOWN', 0);     //Undefined value
-    define('FOUND_NEW', 1);         //Device is new and not configured yet
-    define('FOUND_OLD', 2);         //Device is already configues (InstanceID should be set)
-    define('FOUND_CURRENT', 3);     //Device is already configues (InstanceID is from the current/searching Instance)
-    define('FOUND_UNSUPPORTED', 4); //Device is not supported by Module
+}
 
-    define('vtNone', -1);
+if (!defined("vtBoolean")) //Nur wenn Konstanten noch nicht bekannt sind.
+{
     define('vtBoolean', 0);
     define('vtInteger', 1);
     define('vtFloat', 2);
     define('vtString', 3);
-    define('vtDualInteger', 10);
 }
 
 //  API Datentypen
@@ -1589,6 +1587,7 @@ class ISCP_API_Command_Mapping extends stdClass
 
 class ISCP_API_Data_Mapping extends stdClass
 {
+
     static public function GetMapping($Cmd) //__construct($Cmd)
     {
         if (array_key_exists($Cmd, ISCP_API_Commands::$VarMapping))
@@ -1607,7 +1606,6 @@ class ISCP_API_Data_Mapping extends stdClass
                 $result->ValuePrefix = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValuePrefix];
 
             return $result;
-
         }
         else
             return null;
