@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * @addtogroup onkyoavr
@@ -12,16 +12,14 @@
  * @version       0.4
  */
 
-if (!defined("IPS_BASE"))
-{
-// --- BASE MESSAGE
+if (!defined("IPS_BASE")) {
+    // --- BASE MESSAGE
     define('IPS_BASE', 10000);                             //Base Message
     define('IPS_KERNELSTARTED', IPS_BASE + 1);             //Post Ready Message
     define('IPS_KERNELSHUTDOWN', IPS_BASE + 2);            //Pre Shutdown Message, Runlevel UNINIT Follows
 }
-if (!defined("IPS_KERNELMESSAGE"))
-{
-// --- KERNEL
+if (!defined("IPS_KERNELMESSAGE")) {
+    // --- KERNEL
     define('IPS_KERNELMESSAGE', IPS_BASE + 100);           //Kernel Message
     define('KR_CREATE', IPS_KERNELMESSAGE + 1);            //Kernel is beeing created
     define('KR_INIT', IPS_KERNELMESSAGE + 2);              //Kernel Components are beeing initialised, Modules loaded, Settings read
@@ -29,9 +27,8 @@ if (!defined("IPS_KERNELMESSAGE"))
     define('KR_UNINIT', IPS_KERNELMESSAGE + 4);            //Got Shutdown Message, unloading all stuff
     define('KR_SHUTDOWN', IPS_KERNELMESSAGE + 5);          //Uninit Complete, Destroying Kernel Inteface
 }
-if (!defined("IPS_LOGMESSAGE"))
-{
-// --- KERNEL LOGMESSAGE
+if (!defined("IPS_LOGMESSAGE")) {
+    // --- KERNEL LOGMESSAGE
     define('IPS_LOGMESSAGE', IPS_BASE + 200);              //Logmessage Message
     define('KL_MESSAGE', IPS_LOGMESSAGE + 1);              //Normal Message                      | FG: Black | BG: White  | STLYE : NONE
     define('KL_SUCCESS', IPS_LOGMESSAGE + 2);              //Success Message                     | FG: Black | BG: Green  | STYLE : NONE
@@ -41,16 +38,14 @@ if (!defined("IPS_LOGMESSAGE"))
     define('KL_DEBUG', IPS_LOGMESSAGE + 6);                //Debug Informations + Script Results | FG: Grey  | BG: White  | STLYE : NONE
     define('KL_CUSTOM', IPS_LOGMESSAGE + 7);               //User Message                        | FG: Black | BG: White  | STLYE : NONE
 }
-if (!defined("IPS_MODULEMESSAGE"))
-{
-// --- MODULE LOADER
+if (!defined("IPS_MODULEMESSAGE")) {
+    // --- MODULE LOADER
     define('IPS_MODULEMESSAGE', IPS_BASE + 300);           //ModuleLoader Message
     define('ML_LOAD', IPS_MODULEMESSAGE + 1);              //Module loaded
     define('ML_UNLOAD', IPS_MODULEMESSAGE + 2);            //Module unloaded
 }
-if (!defined("IPS_OBJECTMESSAGE"))
-{
-// --- OBJECT MANAGER
+if (!defined("IPS_OBJECTMESSAGE")) {
+    // --- OBJECT MANAGER
     define('IPS_OBJECTMESSAGE', IPS_BASE + 400);
     define('OM_REGISTER', IPS_OBJECTMESSAGE + 1);          //Object was registered
     define('OM_UNREGISTER', IPS_OBJECTMESSAGE + 2);        //Object was unregistered
@@ -67,9 +62,8 @@ if (!defined("IPS_OBJECTMESSAGE"))
     define('OM_CHILDREMOVED', IPS_OBJECTMESSAGE + 13);     //Child for Object was removed
     define('OM_CHANGEIDENT', IPS_OBJECTMESSAGE + 14);      //Ident was Changed
 }
-if (!defined("IPS_INSTANCEMESSAGE"))
-{
-// --- INSTANCE MANAGER
+if (!defined("IPS_INSTANCEMESSAGE")) {
+    // --- INSTANCE MANAGER
     define('IPS_INSTANCEMESSAGE', IPS_BASE + 500);         //Instance Manager Message
     define('IM_CREATE', IPS_INSTANCEMESSAGE + 1);          //Instance created
     define('IM_DELETE', IPS_INSTANCEMESSAGE + 2);          //Instance deleted
@@ -82,9 +76,8 @@ if (!defined("IPS_INSTANCEMESSAGE"))
     define('IM_SEARCHPROGRESS', IPS_INSTANCEMESSAGE + 9);  //Searching progress in %
     define('IM_SEARCHCOMPLETE', IPS_INSTANCEMESSAGE + 10); //Searching is complete
 }
-if (!defined("IPS_VARIABLEMESSAGE"))
-{
-// --- VARIABLE MANAGER
+if (!defined("IPS_VARIABLEMESSAGE")) {
+    // --- VARIABLE MANAGER
     define('IPS_VARIABLEMESSAGE', IPS_BASE + 600);              //Variable Manager Message
     define('VM_CREATE', IPS_VARIABLEMESSAGE + 1);               //Variable Created
     define('VM_DELETE', IPS_VARIABLEMESSAGE + 2);               //Variable Deleted
@@ -92,18 +85,16 @@ if (!defined("IPS_VARIABLEMESSAGE"))
     define('VM_CHANGEPROFILENAME', IPS_VARIABLEMESSAGE + 4);    //On Profile Name Change
     define('VM_CHANGEPROFILEACTION', IPS_VARIABLEMESSAGE + 5);  //On Profile Action Change
 }
-if (!defined("IPS_SCRIPTMESSAGE"))
-{
-// --- SCRIPT MANAGER
+if (!defined("IPS_SCRIPTMESSAGE")) {
+    // --- SCRIPT MANAGER
     define('IPS_SCRIPTMESSAGE', IPS_BASE + 700);           //Script Manager Message
     define('SM_CREATE', IPS_SCRIPTMESSAGE + 1);            //On Script Create
     define('SM_DELETE', IPS_SCRIPTMESSAGE + 2);            //On Script Delete
     define('SM_CHANGEFILE', IPS_SCRIPTMESSAGE + 3);        //On Script File changed
     define('SM_BROKEN', IPS_SCRIPTMESSAGE + 4);            //Script Broken Status changed
 }
-if (!defined("IPS_EVENTMESSAGE"))
-{
-// --- EVENT MANAGER
+if (!defined("IPS_EVENTMESSAGE")) {
+    // --- EVENT MANAGER
     define('IPS_EVENTMESSAGE', IPS_BASE + 800);             //Event Scripter Message
     define('EM_CREATE', IPS_EVENTMESSAGE + 1);             //On Event Create
     define('EM_DELETE', IPS_EVENTMESSAGE + 2);             //On Event Delete
@@ -120,9 +111,8 @@ if (!defined("IPS_EVENTMESSAGE"))
     define('EM_CHANGECYCLICTIMEFROM', IPS_EVENTMESSAGE + 13);
     define('EM_CHANGECYCLICTIMETO', IPS_EVENTMESSAGE + 14);
 }
-if (!defined("IPS_MEDIAMESSAGE"))
-{
-// --- MEDIA MANAGER
+if (!defined("IPS_MEDIAMESSAGE")) {
+    // --- MEDIA MANAGER
     define('IPS_MEDIAMESSAGE', IPS_BASE + 900);           //Media Manager Message
     define('MM_CREATE', IPS_MEDIAMESSAGE + 1);             //On Media Create
     define('MM_DELETE', IPS_MEDIAMESSAGE + 2);             //On Media Delete
@@ -130,32 +120,28 @@ if (!defined("IPS_MEDIAMESSAGE"))
     define('MM_AVAILABLE', IPS_MEDIAMESSAGE + 4);          //Media Available Status changed
     define('MM_UPDATE', IPS_MEDIAMESSAGE + 5);
 }
-if (!defined("IPS_LINKMESSAGE"))
-{
-// --- LINK MANAGER
+if (!defined("IPS_LINKMESSAGE")) {
+    // --- LINK MANAGER
     define('IPS_LINKMESSAGE', IPS_BASE + 1000);           //Link Manager Message
     define('LM_CREATE', IPS_LINKMESSAGE + 1);             //On Link Create
     define('LM_DELETE', IPS_LINKMESSAGE + 2);             //On Link Delete
     define('LM_CHANGETARGET', IPS_LINKMESSAGE + 3);       //On Link TargetID change
 }
-if (!defined("IPS_FLOWMESSAGE"))
-{
-// --- DATA HANDLER
+if (!defined("IPS_FLOWMESSAGE")) {
+    // --- DATA HANDLER
     define('IPS_FLOWMESSAGE', IPS_BASE + 1100);             //Data Handler Message
     define('FM_CONNECT', IPS_FLOWMESSAGE + 1);             //On Instance Connect
     define('FM_DISCONNECT', IPS_FLOWMESSAGE + 2);          //On Instance Disconnect
 }
-if (!defined("IPS_ENGINEMESSAGE"))
-{
-// --- SCRIPT ENGINE
+if (!defined("IPS_ENGINEMESSAGE")) {
+    // --- SCRIPT ENGINE
     define('IPS_ENGINEMESSAGE', IPS_BASE + 1200);           //Script Engine Message
     define('SE_UPDATE', IPS_ENGINEMESSAGE + 1);             //On Library Refresh
     define('SE_EXECUTE', IPS_ENGINEMESSAGE + 2);            //On Script Finished execution
     define('SE_RUNNING', IPS_ENGINEMESSAGE + 3);            //On Script Started execution
 }
-if (!defined("IPS_PROFILEMESSAGE"))
-{
-// --- PROFILE POOL
+if (!defined("IPS_PROFILEMESSAGE")) {
+    // --- PROFILE POOL
     define('IPS_PROFILEMESSAGE', IPS_BASE + 1300);
     define('PM_CREATE', IPS_PROFILEMESSAGE + 1);
     define('PM_DELETE', IPS_PROFILEMESSAGE + 2);
@@ -167,9 +153,8 @@ if (!defined("IPS_PROFILEMESSAGE"))
     define('PM_ASSOCIATIONREMOVED', IPS_PROFILEMESSAGE + 8);
     define('PM_ASSOCIATIONCHANGED', IPS_PROFILEMESSAGE + 9);
 }
-if (!defined("IPS_TIMERMESSAGE"))
-{
-// --- TIMER POOL
+if (!defined("IPS_TIMERMESSAGE")) {
+    // --- TIMER POOL
     define('IPS_TIMERMESSAGE', IPS_BASE + 1400);            //Timer Pool Message
     define('TM_REGISTER', IPS_TIMERMESSAGE + 1);
     define('TM_UNREGISTER', IPS_TIMERMESSAGE + 2);
@@ -178,8 +163,7 @@ if (!defined("IPS_TIMERMESSAGE"))
     define('TM_RUNNING', IPS_TIMERMESSAGE + 5);
 }
 
-if (!defined("IS_ACTIVE")) //Nur wenn Konstanten noch nicht bekannt sind.
-{
+if (!defined("IS_ACTIVE")) { //Nur wenn Konstanten noch nicht bekannt sind.
 // --- STATUS CODES
     define('IS_SBASE', 100);
     define('IS_CREATING', IS_SBASE + 1); //module is being created
@@ -191,8 +175,7 @@ if (!defined("IS_ACTIVE")) //Nur wenn Konstanten noch nicht bekannt sind.
     define('IS_NOTCREATED', IS_EBASE + 1); //instance could not be created
 }
 
-if (!defined("vtBoolean")) //Nur wenn Konstanten noch nicht bekannt sind.
-{
+if (!defined("vtBoolean")) { //Nur wenn Konstanten noch nicht bekannt sind.
     define('vtBoolean', 0);
     define('vtInteger', 1);
     define('vtFloat', 2);
@@ -202,25 +185,22 @@ if (!defined("vtBoolean")) //Nur wenn Konstanten noch nicht bekannt sind.
 //  API Datentypen
 class IPSVarType extends stdClass
 {
-
     const vtNone = -1;
     const vtBoolean = 0;
     const vtInteger = 1;
     const vtFloat = 2;
     const vtString = 3;
     const vtDualInteger = 10;
-
 }
 
 class IPSProfiles extends stdClass
 {
-
     const ptSwitch = '~Switch';
     const ptSpeakerLayout = 'SpeakerLayout.Onkyo';
     const ptVolume = '~Intensity.100';
     const ptToneOffset = 'ToneOffset.Onkyo';
     const ptSleep = 'Sleep.Onkyo';
-// SW & SW2 & CTL
+    // SW & SW2 & CTL
     const ptDisplayMode = 'DisplayMode.Onkyo';
     const ptDisplayDimmer = 'DisplayDimmer.Onkyo';
     const ptSelectInput = 'SelectInput.Onkyo';
@@ -237,17 +217,17 @@ class IPSProfiles extends stdClass
     const ptDolbyVolume = 'DolbyVolume.Onkyo';
 //    const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
     const ptRadioPreset = 'RadioPreset.Onkyo';
-//Main end    
+    //Main end
     const ptNetRadioPreset = 'NetRadioPreset.Onkyo';
     const ptNetTuneCommand = 'NetTuneCommand.Onkyo';
 
-    static $ProfilInteger = array(
+    public static $ProfilInteger = array(
         self::ptToneOffset => array(-10, 10, 2),
         self::ptSleep => array(0x00, 0x5A, 1),
         self::ptNetRadioPreset => array(0x01, 0x30, 1),
         self::ptRadioPreset => array(0x01, 0x30, 1)
     );
-    static $ProfilAssociations = array(
+    public static $ProfilAssociations = array(
 //      self::ptMute=> array(),
         self::ptSpeakerLayout => array(
             array(0x01, "Surround Back", "", -1),
@@ -427,12 +407,10 @@ class IPSProfiles extends stdClass
 //      self::ptTunerFrequenz => array(),
 //        self::ptNetTuneCommand => array()
     );
-
 }
 
 class ONKYO_Zone extends stdClass
 {
-
     const None = 0;
     const ZoneMain = 1;
     const Zone2 = 2;
@@ -440,7 +418,7 @@ class ONKYO_Zone extends stdClass
     const Zone4 = 4;
 
     public $thisZone;
-    static $ZoneCMDs = array(
+    public static $ZoneCMDs = array(
         ONKYO_Zone::ZoneMain => array(
             ISCP_API_Commands::PWR,
             ISCP_API_Commands::AMT,
@@ -565,7 +543,7 @@ class ONKYO_Zone extends stdClass
 //ENDE CMD BD via RIHD
 //START CMD TV via RIHD
             ISCP_API_Commands::CTV
-//ENDE CMD TV via RIHD            
+//ENDE CMD TV via RIHD
         ),
         ONKYO_Zone::Zone2 => array(
             ISCP_API_Commands::LMZ,
@@ -614,12 +592,13 @@ class ONKYO_Zone extends stdClass
 
 //        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand, 1));
 //        IPS_LogMessage('ZoneCMDs', print_r(self::$ZoneCMDs[$this->thisZone], 1));
-        if ($API_Data->APISubCommand <> null)
-            if (property_exists($API_Data->APISubCommand, $this->thisZone))
+        if ($API_Data->APISubCommand <> null) {
+            if (property_exists($API_Data->APISubCommand, $this->thisZone)) {
                 return (in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]));
+            }
+        }
         return false;
     }
-
 }
 
 class ISCP_API_Commands extends stdClass
@@ -631,7 +610,7 @@ class ISCP_API_Commands extends stdClass
     const SPA = "SPA"; //"SPA"/"SPB" - Speaker A/B Command
     const SPB = "SPB"; //"SPA"/"SPB" - Speaker A/B Command
     const SPL = "SPL"; //"SPL" - Speaker Layout Command
-    const MVL = "MVL"; //"MVL" - Master Volume Command 
+    const MVL = "MVL"; //"MVL" - Master Volume Command
     const TFR = "TFR"; //"TFR" - Tone(Front) Command
     const TFW = "TFW"; //"TFW" - Tone(Front Wide) Command
     const TFH = "TFH"; //"TFH" - Tone(Front High) Command
@@ -640,23 +619,23 @@ class ISCP_API_Commands extends stdClass
     const TSB = "TSB"; //"TSB" - Tone(Surround Back) Command
     const TSW = "TSW"; //"TSW" - Tone(Subwoofer) Command
     const PMB = "PMB"; //"PMB" - Phase Matching Bass Command
-    const SLP = "SLP"; //"SLP" - Sleep Set Command 
-    const SLC = "SLC"; //"SLC" - Speaker Level Calibration Command 
-    const SWL = "SWL"; //"SWL" - Subwoofer (temporary) Level Command 
-    const SW2 = "SW2"; //"SW2" - Subwoofer 2 (temporary) Level Command 
-    const CTL = "CTL"; //"CTL" - Center (temporary) Level Command 
-    const DIF = "DIF"; //"DIF" - Display Mode Command 
-    const DIM = "DIM"; //"DIM" - Dimmer Level Command 
-    const OSD = "OSD"; //"OSD" - Setup Operation Command 
-    const MEM = "MEM"; //"MEM" - Memory Setup Command 
+    const SLP = "SLP"; //"SLP" - Sleep Set Command
+    const SLC = "SLC"; //"SLC" - Speaker Level Calibration Command
+    const SWL = "SWL"; //"SWL" - Subwoofer (temporary) Level Command
+    const SW2 = "SW2"; //"SW2" - Subwoofer 2 (temporary) Level Command
+    const CTL = "CTL"; //"CTL" - Center (temporary) Level Command
+    const DIF = "DIF"; //"DIF" - Display Mode Command
+    const DIM = "DIM"; //"DIM" - Dimmer Level Command
+    const OSD = "OSD"; //"OSD" - Setup Operation Command
+    const MEM = "MEM"; //"MEM" - Memory Setup Command
     const IFA = "IFA"; //"IFA" - Audio Infomation Command
     const IFV = "IFV"; //"IFV" - Video Infomation Command
-    const SLI = "SLI"; // "SLI" - Input Selector Command 
+    const SLI = "SLI"; // "SLI" - Input Selector Command
 //    const SLR = "SLR";
-    const SLA = "SLA"; //"SLA" - Audio Selector Command 
-    const TGA = "TGA"; //"TGA" - 12V Trigger A Command 
-    const TGB = "TGB"; //"TGB" - 12V Trigger B Command 
-    const TGC = "TGC"; //"TGC" - 12V Trigger C Command 
+    const SLA = "SLA"; //"SLA" - Audio Selector Command
+    const TGA = "TGA"; //"TGA" - 12V Trigger A Command
+    const TGB = "TGB"; //"TGB" - 12V Trigger B Command
+    const TGC = "TGC"; //"TGC" - 12V Trigger C Command
 //    const VOS = "VOS";
     const HDO = "HDO"; //"HDO" - HDMI Output Selector
     const HAO = "HAO"; //"HAO" -HDMI Audio Out (Main)
@@ -667,15 +646,15 @@ class ISCP_API_Commands extends stdClass
     const VWM = "VWM"; //"VWM" - Video Wide Mode
     const VPM = "VPM"; //"VPM" -Video Picture Mode
     const LMD = "LMD"; //"LMD" - Listening Mode Command
-    const LTN = "LTN"; //"LTN" - Late Night Command 
-    const RAS = "RAS"; //"RAS" - Re-EQ Command 
+    const LTN = "LTN"; //"LTN" - Late Night Command
+    const RAS = "RAS"; //"RAS" - Re-EQ Command
     const ADY = "ADY"; //"ADY" - Audyssey 2EQ/MultEQ/MultEQ XT
     const ADQ = "ADQ"; //"ADQ" - Audyssey Dynamic EQ
     const ADV = "ADV"; //"ADV" - Audyssey Dynamic Volume
     const DVL = "DVL"; //"DVL" - Dolby Volume
     const MOT = "MOT"; //"MOT" - Music Optimizer
     const AVS = "AVS"; //"AVS" - A/V Sync
-    const ECO = "ECO"; //"ECO" - for Smart Grid Command 
+    const ECO = "ECO"; //"ECO" - for Smart Grid Command
     const TUN = "TUN"; //"TUN" - Tuning Command (Include Tuner Pack Model Only)
     const PRS = "PRS"; //"PRS" - Preset Command (Include Tuner Pack Model Only)
     const PRM = "PRM"; //"PRM" - Preset Memory Command (Include Tuner Pack Model Only)
@@ -692,7 +671,7 @@ class ISCP_API_Commands extends stdClass
       const HBL = "HBL";
       const HTS = "HTS";
      */
-//Start NET/USB
+    //Start NET/USB
     const NTC = "NTC"; //"NTC" - Network/USB Operation Command (Network Model Only after TX-NR905)
     const NAT = "NAT"; //NET/USB Artist Name Info
     const NAL = "NAL"; //NET/USB Album Name Info
@@ -723,17 +702,17 @@ class ISCP_API_Commands extends stdClass
     const AST = "AST"; //"AST" - Airplay Play Status (Airplay Model Only)
 //Ende Airplay
 //START CMD via RI
-    const CDS = "CDS"; //"CDS" - Command for Docking Station via RI  
-    const CCD = "CCD"; //"CCD" - CD Player Operation Command 
-    const CT1 = "CT1"; //"CT1" - TAPE1(A) Operation Command 
-    const CT2 = "CT2"; //"CT2" - TAPE2(B) Operation Command 
-    const CEQ = "CEQ"; //"CEQ" - Graphics Equalizer Operation Command 
-    const CDT = "CDT"; //"CDT" - DAT Recorder Operation Command 
-    const CMD = "CMD"; //"CMD" - MD Recorder Operation Command 
-    const CCR = "CCR"; //"CCR" - CD-R Recorder Operation Command 
+    const CDS = "CDS"; //"CDS" - Command for Docking Station via RI
+    const CCD = "CCD"; //"CCD" - CD Player Operation Command
+    const CT1 = "CT1"; //"CT1" - TAPE1(A) Operation Command
+    const CT2 = "CT2"; //"CT2" - TAPE2(B) Operation Command
+    const CEQ = "CEQ"; //"CEQ" - Graphics Equalizer Operation Command
+    const CDT = "CDT"; //"CDT" - DAT Recorder Operation Command
+    const CMD = "CMD"; //"CMD" - MD Recorder Operation Command
+    const CCR = "CCR"; //"CCR" - CD-R Recorder Operation Command
 //ENDE CMD via RI
 //START CMD via PORT
-    const CPT = "CPT"; //"CPT" - Universal PORT Operation Command 
+    const CPT = "CPT"; //"CPT" - Universal PORT Operation Command
 //"IAT" - iPod Artist Name Info (Universal Port Dock Only)
 //"IAL" - iPod Album Name Info (Universal Port Dock Only)
 //"ITI" - iPod Title Name (Universal Port Dock Only)
@@ -778,7 +757,7 @@ class ISCP_API_Commands extends stdClass
     const LMZ = "LMZ";
     const LTZ = "LTZ";
     const RAZ = "RAZ";
-//Zone3 Zone
+    //Zone3 Zone
     const PW3 = "PW3";  // Power
     const MT3 = "MT3";  // Mute
     const VL3 = "VL3";  // Volume
@@ -800,11 +779,11 @@ class ISCP_API_Commands extends stdClass
     const NP4 = "NP4";  // Net-Preset
     const Request = "QSTN";
 
-    static $BoolValueMapping = array(
-        FALSE => '00',
-        TRUE => '01',
-        '00' => FALSE,
-        '01' => TRUE
+    public static $BoolValueMapping = array(
+        false => '00',
+        true => '01',
+        '00' => false,
+        '01' => true
     );
 
     const IsVariable = 0;
@@ -818,8 +797,8 @@ class ISCP_API_Commands extends stdClass
 
 //    const ValuePrefix = 7;
 //    const ValueStepSize = 8;
-// Mapping von CMDs der Main auf identische CMDs der Zonen
-    static $CMDMapping = array(
+    // Mapping von CMDs der Main auf identische CMDs der Zonen
+    public static $CMDMapping = array(
         ISCP_API_Commands::TUN => array(
             ONKYO_Zone::ZoneMain => ISCP_API_Commands::TUN,
             ONKYO_Zone::Zone2 => ISCP_API_Commands::TUZ,
@@ -857,8 +836,8 @@ class ISCP_API_Commands extends stdClass
             ONKYO_Zone::Zone2 => ISCP_API_Commands::RAZ
         )
     );
-// Nur für alle CMDs, welche keine SubCommands sind.
-    static $VarMapping = array(
+    // Nur für alle CMDs, welche keine SubCommands sind.
+    public static $VarMapping = array(
         ISCP_API_Commands::PWR
         => array(
             self::VarType => IPSVarType::vtBoolean,
@@ -1613,29 +1592,25 @@ class ISCP_API_Commands extends stdClass
               ISCP_API_Commands::TSB,
               ISCP_API_Commands::TSW */
     );
-
 }
 
 class ISCP_API_Command_Mapping extends stdClass
 {
-
-    static public function GetMapping($Cmd) //__construct($Cmd)
+    public static function GetMapping($Cmd) //__construct($Cmd)
     {
-        if (array_key_exists($Cmd, ISCP_API_Commands::$CMDMapping))
+        if (array_key_exists($Cmd, ISCP_API_Commands::$CMDMapping)) {
             return ISCP_API_Commands::$CMDMapping[$Cmd];
-        else
+        } else {
             return null;
+        }
     }
-
 }
 
 class ISCP_API_Data_Mapping extends stdClass
 {
-
-    static public function GetMapping($Cmd) //__construct($Cmd)
+    public static function GetMapping($Cmd) //__construct($Cmd)
     {
-        if (array_key_exists($Cmd, ISCP_API_Commands::$VarMapping))
-        {
+        if (array_key_exists($Cmd, ISCP_API_Commands::$VarMapping)) {
             $result = new stdClass;
             $result->IsVariable = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::IsVariable];
             $result->VarType = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::VarType];
@@ -1646,20 +1621,19 @@ class ISCP_API_Data_Mapping extends stdClass
 
             $result->ValueMapping = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValueMapping];
 
-            if (array_key_exists(ISCP_API_Commands::ValuePrefix, ISCP_API_Commands::$VarMapping[$Cmd]))
+            if (array_key_exists(ISCP_API_Commands::ValuePrefix, ISCP_API_Commands::$VarMapping[$Cmd])) {
                 $result->ValuePrefix = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValuePrefix];
+            }
 
             return $result;
-        }
-        else
+        } else {
             return null;
+        }
     }
-
 }
 
 class ISCP_API_Data extends stdClass
 {
-
     public $APICommand;
     public $Data;
     public $Mapping = null;
@@ -1669,8 +1643,9 @@ class ISCP_API_Data extends stdClass
     {
         $this->APICommand = $Data->APICommand;
         $this->Data = utf8_decode($Data->Data);
-        if (property_exists($Data, 'APISubCommand'))
+        if (property_exists($Data, 'APISubCommand')) {
             $this->APISubCommand = $Data->APISubCommand;
+        }
     }
 
     public function ToJSONString($GUID)
@@ -1692,7 +1667,4 @@ class ISCP_API_Data extends stdClass
     {
         $this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
     }
-
 }
-
-?>
