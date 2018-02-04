@@ -11,7 +11,6 @@
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  * @version       0.4
  */
-
 if (!defined("IPS_BASE")) {
     // --- BASE MESSAGE
     define('IPS_BASE', 10000);                             //Base Message
@@ -191,6 +190,7 @@ class IPSVarType extends stdClass
     const vtFloat = 2;
     const vtString = 3;
     const vtDualInteger = 10;
+
 }
 
 class IPSProfiles extends stdClass
@@ -407,6 +407,7 @@ class IPSProfiles extends stdClass
 //      self::ptTunerFrequenz => array(),
 //        self::ptNetTuneCommand => array()
     );
+
 }
 
 class ONKYO_Zone extends stdClass
@@ -599,11 +600,11 @@ class ONKYO_Zone extends stdClass
         }
         return false;
     }
+
 }
 
 class ISCP_API_Commands extends stdClass
 {
-
 //MAIN Zone
     const PWR = "PWR"; // Power
     const AMT = "AMT"; // Mute
@@ -1592,6 +1593,7 @@ class ISCP_API_Commands extends stdClass
               ISCP_API_Commands::TSB,
               ISCP_API_Commands::TSW */
     );
+
 }
 
 class ISCP_API_Command_Mapping extends stdClass
@@ -1604,6 +1606,7 @@ class ISCP_API_Command_Mapping extends stdClass
             return null;
         }
     }
+
 }
 
 class ISCP_API_Data_Mapping extends stdClass
@@ -1630,6 +1633,7 @@ class ISCP_API_Data_Mapping extends stdClass
             return null;
         }
     }
+
 }
 
 class ISCP_API_Data extends stdClass
@@ -1667,4 +1671,5 @@ class ISCP_API_Data extends stdClass
     {
         $this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
     }
+
 }
