@@ -593,7 +593,7 @@ class ONKYO_Zone extends stdClass
 //        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand, 1));
 //        IPS_LogMessage('ZoneCMDs', print_r(self::$ZoneCMDs[$this->thisZone], 1));
         if ($API_Data->APISubCommand != null) {
-            if (property_exists($API_Data->APISubCommand, $this->thisZone)) {
+            if (property_exists($API_Data->APISubCommand, (string)$this->thisZone)) {
                 return in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]);
             }
         }
