@@ -164,7 +164,7 @@ if (!defined("IPS_TIMERMESSAGE")) {
 }
 
 if (!defined("IS_ACTIVE")) { //Nur wenn Konstanten noch nicht bekannt sind.
-// --- STATUS CODES
+    // --- STATUS CODES
     define('IS_SBASE', 100);
     define('IS_CREATING', IS_SBASE + 1); //module is being created
     define('IS_ACTIVE', IS_SBASE + 2); //module created and running
