@@ -12,5 +12,4 @@ disabled:
  - blank_line_before_return
  - no_useless_return
  - simplified_null_return   
- - declare_strict_types
  
