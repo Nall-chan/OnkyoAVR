@@ -1,9 +1,6 @@
 {
     "elements":
-            [{
-                    "type": "Label",
-                    "caption": "Enter Address in the parent Client-Socket."
-                }
+            [
             ],
     "actions":
             [

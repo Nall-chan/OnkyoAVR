@@ -1,0 +1,10 @@
+
+{
+    "translations": {
+        "de": {
+            "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
+            "Timeout:": "Zeitüberschreitung",
+            "ReplyBuffer is locked": "ReplyBuffer ist blockiert"
+        }
+    }
+}

@@ -2,10 +2,10 @@
     "id": "{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}",
     "name": "ISCPSplitter",
     "type": 2,
-    "vendor": "",
-    "aliases": ["Onkyo AVR Splitter"],
+    "vendor": "Onkyo & Pioneer",
+    "aliases": ["Onkyo AVR Splitter", "Pioneer AVR Splitter"],
     "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
     "childRequirements": ["{43E4B48E-2345-4A9A-B506-3E8E7A964757}"],
-    "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}","{8F47273A-0B69-489E-AF36-F391AE5FBEC0}"],
+    "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{8F47273A-0B69-489E-AF36-F391AE5FBEC0}"],
     "prefix": "ISCP"
 }

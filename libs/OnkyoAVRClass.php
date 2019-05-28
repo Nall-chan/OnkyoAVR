@@ -17,6 +17,57 @@ declare(strict_types=1);
 namespace OnkyoAVR;
 
 //  API Datentypen
+class Remotes
+{
+    const OSD = 0;
+    const CTV = 1;
+    const CDV = 2;
+    const CCD = 3;
+    const CAP = 4;
+    const TUN = 99;
+
+    static public function ToRemoteName($ID)
+    {
+        switch ($ID) {
+            case self::OSD:
+                return 'OSD Receiver Control';
+            case self::CTV:
+                return 'TV Control';
+            case self::CDV:
+                return 'DVD/BD Control';
+            case self::CCD:
+                return 'CD Control';
+            case self::CAP:
+                return 'ext. Amplifier Control';
+            case self::TUN:
+                return 'Tuner';
+        }
+    }
+
+    static public function ToRemoteID($Name)
+    {
+        $Parts = explode(' ', $Name);
+        switch (strtoupper($Parts[0])) {
+            case 'AMP':
+                return self::CAP;
+            case 'CD':
+                return self::CCD;
+            case 'BD':
+            case 'DVD':
+                return self::CDV;
+            case 'TV':
+                return self::CTV;
+            case 'OSD':
+                return self::OSD;
+            case 'TUNER':
+                return self::TUN;
+            default:
+                return -1;
+        }
+    }
+
+}
+
 class IPSVarType
 {
     const vtNone = -1;
@@ -31,48 +82,58 @@ class IPSVarType
 class IPSProfiles
 {
     const ptSwitch = '~Switch';
-    const ptSpeakerLayout = 'SpeakerLayout.Onkyo';
-    const ptVolume = '~Intensity.100';
-    const ptToneOffset = 'ToneOffset.Onkyo';
-    const ptSleep = 'Sleep.Onkyo';
-    // SW & SW2 & CTL
-    const ptDisplayMode = 'DisplayMode.Onkyo';
-    const ptDisplayDimmer = 'DisplayDimmer.Onkyo';
-    const ptSelectInput = 'SelectInput.Onkyo';
-    const ptSelectInputAudio = 'SelectInputAudio.Onkyo';
-    const ptHDMIOutput = 'HDMIOutput.Onkyo';
-    const ptHDMIAudioOutput = 'HDMIAudioOutput.Onkyo';
-    const ptVideoResolution = 'VideoResolution.Onkyo';
-    const ptVideoWideMode = 'VideoWideMode.Onkyo';
-    const ptVideoPictureMode = 'VideoPictureMode.Onkyo';
-    const ptListeningMode = 'LMD.Onkyo';
-    const ptLateNight = 'LateNight.Onkyo';
-    const ptAudyssey = 'Audyssey.Onkyo';
-    const ptAudysseyDynamic = 'AudysseyDynamic.Onkyo';
-    const ptDolbyVolume = 'DolbyVolume.Onkyo';
-//    const ptTunerFrequenz = 'TunerFrequenz.Onkyo';
-    const ptRadioPreset = 'RadioPreset.Onkyo';
-    //Main end
-    const ptNetRadioPreset = 'NetRadioPreset.Onkyo';
-    const ptNetTuneCommand = 'NetTuneCommand.Onkyo';
+    const ptVolume = 'Onkyo.Volume.%d';
+    const ptToneOffset = 'Onkyo.ToneOffset.%d';
+    const ptCenterLevel = 'Onkyo.CenterLevel.%d'; //CTL
+    const ptSubwooferLevel = 'Onkyo.SubwooferLevel.%d'; //SWL
+    const ptSubwoofer2Level = 'Onkyo.Subwoofer2Level.%d'; //SW2
+    const ptSleep = 'Onkyo.Sleep';
+    const ptDisplayMode = 'Onkyo.DisplayMode';
+    const ptDisplayDimmer = 'Onkyo.DisplayDimmer';
+    const ptSelectInput = 'Onkyo.SelectInput.%d';
+    const ptSelectInputAudio = 'Onkyo.SelectInputAudio';
+    const ptSelectLMD = 'Onkyo.SelectLMD.%d';
+    const ptHDMIOutput = 'Onkyo.HDMIOutput';
+    const ptHDMIAudioOutput = 'Onkyo.HDMIAudioOutput';
+    const ptVideoResolution = 'Onkyo.VideoResolution';
+    const ptVideoWideMode = 'Onkyo.VideoWideMode';
+    const ptVideoPictureMode = 'Onkyo.VideoPictureMode';
+    const ptListeningMode = 'Onkyo.LMD';
+    const ptLateNight = 'Onkyo.LateNight';
+    const ptAudyssey = 'Onkyo.Audyssey';
+    const ptAudysseyDynamic = 'Onkyo.AudysseyDynamic';
 
+    //Main end
+    //const ptNetRadioPreset = 'Onkyo.NetRadioPreset';
+    //const ptNetTuneCommand = 'Onkyo.NetTuneCommand';
+
+    public static $ProfileListIndexToProfile = [
+        'Bass'             => self::ptToneOffset,
+        'Center Level'     => self::ptCenterLevel,
+        'Subwoofer Level'  => self::ptSubwooferLevel,
+        'Subwoofer1 Level' => self::ptSubwooferLevel,
+        'Subwoofer2 Level' => self::ptSubwoofer2Level
+    ];
     public static $ProfilInteger = [
-        self::ptToneOffset     => [-10, 10, 2],
-        self::ptSleep          => [0x00, 0x5A, 1],
-        self::ptNetRadioPreset => [0x01, 0x30, 1],
-        self::ptRadioPreset    => [0x01, 0x30, 1]
+        self::ptToneOffset => [-10, 10, 2],
+        self::ptSleep      => [0x00, 0x5A, 1],
+//        self::ptNetRadioPreset => [0x01, 0x28, 1],
+    ];
+    public static $ProfilFloat = [
+        self::ptCenterLevel     => [-12, 12, 1],
+        self::ptSubwooferLevel  => [-15, 12, 1],
+        self::ptSubwoofer2Level => [-15, 12, 1]
     ];
     public static $ProfilAssociations = [
-//      self::ptMute=> array(),
-        self::ptSpeakerLayout    => [
-            [0x01, 'Surround Back', '', -1],
-            [0x02, 'Front High', '', -1],
-            [0x03, 'Front Wide', '', -1],
-            [0x04, 'Front High & Front Wide', '', -1]
+        self::ptSelectLMD        => [
+            [0x01, 'Movie/TV', '', -1],
+            [0x02, 'Music', '', -1],
+            [0x03, 'Game', '', -1],
+            [0x04, 'Direct', '', -1]
         ],
         self::ptDisplayMode      => [
-            [0x00, 'Selector & Volume', '', -1],
-            [0x01, 'Selector & Listening Mode', '', -1],
+            [0x00, 'Input & Volume', '', -1],
+            [0x01, 'Input & Listening Mode', '', -1],
             [0x02, 'Digital Format', '', -1],
             [0x03, 'Video Format', '', -1]
         ],
@@ -90,27 +151,28 @@ class IPSProfiles
             [0x03, 'Video 4 AUX1(AUX)', '', -1],
             [0x04, 'Video 5 AUX2', '', -1], //not z
             [0x05, 'Video 6 PC', '', -1],
-//"Video 7", //not z
+//'Video 7', //not z
             [0x10, 'BD/DVD', '', -1],
-            [0x20, 'TV', '', -1], // not z
-//"TAPE2", // not z
+            [0x12, 'TV', '', -1],
+            [0x20, 'TAPE 1', '', -1], // not z
+//'TAPE2', // not z
             [0x22, 'PHONO', '', -1],
             [0x23, 'TV/CD', '', -1],
             [0x24, 'Tuner (FM)', '', -1],
             [0x25, 'Tuner (AM)', '', -1],
-//            array(0x26, "TUNER", "", -1), // not z
-//"MUSIC SERVER DLNA",
-//"INTERNET RADIO",
+//            array(0x26, 'TUNER', '', -1), // not z
+//'MUSIC SERVER DLNA',
+//'INTERNET RADIO',
             [0x29, 'USB(Front)', '', -1],
-//"USB(Rear)", // not z
+//'USB(Rear)', // not z
             [0x2B, 'NETWORK', '', -1],
-//"USB(toggle)", //lol
+//'USB(toggle)', //lol
             [0x2D, 'Aiplay', '', -1], //?
             [0x2E, 'Bluetooth', '', -1], //?
-//0x30 => "MULTI CH", //not z
-//"XM", //not z
-//"SIRIUS", // not z
-//"DAB", // not z
+//0x30 => 'MULTI CH', //not z
+//'XM', //not z
+//'SIRIUS', // not z
+//'DAB', // not z
             [0x40, 'Universal PORT', '', -1] //not z
         ],
         self::ptSelectInputAudio => [
@@ -126,8 +188,8 @@ class IPSProfiles
         ],
         self::ptHDMIOutput       => [
             [0x00, 'OFF (Analog)', '', -1],
-            [0x01, 'Main Out', '', -1],
-            [0x02, 'Sub Out', '', -1],
+            [0x01, 'Main', '', -1],
+            [0x02, 'Sub', '', -1],
             [0x03, 'Both', '', -1],
             [0x04, 'Both (Main)', '', -1],
             [0x05, 'Both (Sub)', '', -1]
@@ -143,10 +205,10 @@ class IPSProfiles
             [0x02, '480p', '', -1],
             [0x03, '720p', '', -1],
             [0x04, '1080i', '', -1],
-            [0x05, '1080p(HDMI Output Only)', '', -1],
+            [0x05, '1080p', '', -1],
             [0x06, 'Source', '', -1],
-            [0x07, '1080p/24fs(HDMI Output Only)', '', -1],
-            [0x08, '4K Upcaling(HDMI Output Only)', '', -1]
+            [0x07, '1080p/24fs', '', -1],
+            [0x08, '4K Upcaling', '', -1]
         ],
         self::ptVideoWideMode    => [
             [0x00, 'Auto', '', -1],
@@ -184,9 +246,9 @@ class IPSProfiles
             [0x0F, 'MONO', '', -1],
             [0x11, 'PURE AUDIO', '', -1],
             [0x13, 'FULL MONO', '', -1],
-            [0x16, 'Audyssey DSX', '', -1],
+            //[0x16, 'Audyssey DSX', '', -1],
             [0x40, 'Straight Decode', '', -1],
-            [0x41, 'Dolby EX', '', -1],
+            //[0x41, 'Dolby EX', '', -1],
             [0x42, 'THX Cinema', '', -1],
             [0x43, 'THX Surround EX', '', -1],
             [0x44, 'THX Music', '', -1],
@@ -194,26 +256,17 @@ class IPSProfiles
             [0x50, 'THX Cinema Mode, THX U2/S2/I/S Cinema', '', -1],
             [0x51, 'THX Music Mode, THX U2/S2/I/S Music', '', -1],
             [0x52, 'THX Games Mode, THX U2/S2/I/S Games', '', -1],
-            [0x84, 'PLII/PLIIx THX Cinema', '', -1],
             [0x80, 'PLII/PLIIx Movie', '', -1],
             [0x81, 'PLII/PLIIx Music', '', -1],
             [0x82, 'Neo:6 Cinema/Neo:X Cinema', '', -1],
-            [0x83, 'Neo:6 Music/Neo:X Music', '', -1]
-//            array(0x85,"Neo:6/Neo:X THX Cinema", "" ,-1)
-        /*
-          array(0x86,"PLII/PLIIx Game", "" ,-1),
-          array(0x89,"PLII/PLIIx THX Games", "" ,-1),
-          "Neo:6/Neo:X THX Games", "" ,-1),
-          "PLII/PLIIx THX Music", "" ,-1),
-          "Neo:6/Neo:X THX Music", "" ,-1),
-          0x90 => "PLIIz Height", "" ,-1),
-          0x94 => "PLIIz Height + THX Cinema", "" ,-1),
-          "PLIIz Height + THX Music", "" ,-1),
-          "PLIIz Height + THX Games", "" ,-1),
-          0xA0 => "PLIIx/PLII Movie + Audyssey DSX", "" ,-1),
-          "PLIIx/PLII Music + Audyssey DSX", "" ,-1),
-          "PLIIx/PLII Game + Audyssey DSX", "" ,-1), */
-        ],
+            [0x83, 'Neo:6 Music/Neo:X Music', '', -1],
+            [0x84, 'PLII/PLIIx THX Cinema', '', -1],
+            [0x85, 'Neo:6/Neo:X THX Cinema', '', -1],
+            [0x86, 'PLII/PLIIx Game', '', -1],
+            [0x89, 'PLII/PLIIx THX Games', '', -1],
+            [0x8A, 'Neo:6/Neo:X THX Games', '', -1],
+            [0x8B, 'PLII/PLIIx THX Music', '', -1],
+            [0x8C, 'Neo:6/Neo:X THX Music', '', -1]],
         self::ptLateNight        => [
             [0x00, 'Off', '', -1],
             [0x01, 'Low', '', -1],
@@ -230,17 +283,91 @@ class IPSProfiles
             [0x01, 'Light', '', -1],
             [0x02, 'Medium', '', -1],
             [0x03, 'Heavy', '', -1]
-        ],
-        self::ptDolbyVolume      => [
-            [0x00, 'Off', '', -1],
-            [0x01, 'Low', '', -1],
-            [0x02, 'Medium', '', -1],
-            [0x03, 'High', '', -1]
         ]
-
-//      self::ptTunerFrequenz => array(),
-//        self::ptNetTuneCommand => array()
     ];
+
+}
+
+class ONKYO_Zone_Tuner
+{
+    const ZoneMain = 1;
+    const Zone2 = 2;
+    const Zone3 = 3;
+    const Zone4 = 4;
+    const SLI_FM = 0x24;
+    const SLI_AM = 0x25;
+    const FM = 'FM';
+    const AM = 'AM';
+
+    public $thisZone = self::ZoneMain;
+
+    public function __construct($Zone = self::ZoneMain)
+    {
+        $this->thisZone = $Zone;
+    }
+
+    public function GetName()
+    {
+        switch ($this->thisZone) {
+            case 1:
+                return 'Tuner Main';
+            case 2:
+                return 'Tuner Zone 2';
+            case 3:
+                return 'Tuner Zone 3';
+            case 4:
+                return 'Tuner Zone 4';
+        }
+    }
+
+    public static $TunerProfile = [
+        self::FM => [
+            'SLI'    => self::SLI_FM,
+            'Min'    => 87,
+            'Max'    => 108,
+            'Step'   => 0.5,
+            'Suffix' => ' MHz',
+            'Digits' => 1
+        ],
+        self::AM => [
+            'SLI'    => self::SLI_AM,
+            'Min'    => 522,
+            'Max'    => 1629,
+            'Step'   => 9,
+            'Suffix' => ' kHz',
+            'Digits' => 0
+        ]
+    ];
+    public static $ZoneCMDs = [
+        self::ZoneMain => [
+            ISCP_API_Commands::TUN,
+            ISCP_API_Commands::PRS,
+            ISCP_API_Commands::SLI
+        ], self::Zone2    => [
+            ISCP_API_Commands::TUZ,
+            ISCP_API_Commands::PRZ,
+            ISCP_API_Commands::SLZ
+        ], self::Zone3    => [
+            ISCP_API_Commands::TU3,
+            ISCP_API_Commands::PR3,
+            ISCP_API_Commands::SL3
+        ], self::Zone4    => [
+            ISCP_API_Commands::TU4,
+            ISCP_API_Commands::PR4,
+            ISCP_API_Commands::SL4
+        ]
+    ];
+
+    public function GetReadAPICommands()
+    {
+        return self::$ZoneCMDs[$this->thisZone];
+    }
+
+    public function GetZoneCommand(string $APICommand)
+    {
+        $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
+        return self::$ZoneCMDs[$this->thisZone][$key];
+    }
 
 }
 
@@ -251,15 +378,33 @@ class ONKYO_Zone
     const Zone2 = 2;
     const Zone3 = 3;
     const Zone4 = 4;
+    const Tuner = 5;
+    const Netplayer = 6;
 
     public $thisZone = self::None;
+
+    public function GetName()
+    {
+        switch ($this->thisZone) {
+            case 1:
+                return 'Main';
+            case 2:
+                return 'Zone 2';
+            case 3:
+                return 'Zone 3';
+            case 4:
+                return 'Zone 4';
+            default:
+                return 'Zone not set';
+        }
+    }
+
     public static $ZoneCMDs = [
-        self::ZoneMain => [
+        self::None      => [
+        ],
+        self::ZoneMain  => [
             ISCP_API_Commands::PWR,
             ISCP_API_Commands::AMT,
-            ISCP_API_Commands::SPA,
-            ISCP_API_Commands::SPB,
-            ISCP_API_Commands::SPL,
             ISCP_API_Commands::MVL,
             ISCP_API_Commands::TFR,
             ISCP_API_Commands::TFW,
@@ -290,6 +435,7 @@ class ONKYO_Zone
             ISCP_API_Commands::HAS,
             ISCP_API_Commands::CEC,
             ISCP_API_Commands::RES,
+            ISCP_API_Commands::ISF,
             ISCP_API_Commands::VWM,
             ISCP_API_Commands::VPM,
             ISCP_API_Commands::LMD,
@@ -298,16 +444,86 @@ class ONKYO_Zone
             ISCP_API_Commands::ADY,
             ISCP_API_Commands::ADQ,
             ISCP_API_Commands::ADV,
-            ISCP_API_Commands::DVL,
             ISCP_API_Commands::MOT,
-            ISCP_API_Commands::AVS,
-            ISCP_API_Commands::ECO,
+//Start Airplay
+            /*
+              ISCP_API_Commands::AAT,
+              ISCP_API_Commands::AAL,
+              ISCP_API_Commands::ATI,
+              ISCP_API_Commands::ATM,
+              ISCP_API_Commands::AST,
+             */
+            //Ende Airplay
+//START CMD via PORT
+            ISCP_API_Commands::CPT,
+//'IAT' - iPod Artist Name Info (Universal Port Dock Only)
+//'IAL' - iPod Album Name Info (Universal Port Dock Only)
+//'ITI' - iPod Title Name (Universal Port Dock Only)
+//'ITM' - iPod Time Info (Universal Port Dock Only)
+//'ITR' - iPod Track Info (Universal Port Dock Only)
+//'IST' - iPod Play Status (Universal Port Dock Only)
+//'ILS' - iPod List Info (Universal Port Dock Extend Mode Only)
+//'IMD' - iPod Mode Change (Universal Port Dock Only)
+//'UTN' - Tuning Command (Universal Port Dock Only)
+//'UPR' - Preset Command (Universal Port Dock Only)
+//'UPM' - Preset Memory Command (Universal Port Dock Only)
+//'UHP' - HD Radio Channel Program Command (Universal Port Dock Only)
+//'UHB' - HD Radio Blend Mode Command (Universal Port Dock Only)
+//'UHA' - HD Radio Artist Name Info (Universal Port Dock Only)
+//'UHC' - HD Radio Channel Name Info (Universal Port Dock Only)
+//'UHT' - HD Radio Title Info (Universal Port Dock Only)
+//'UHD' - HD Radio Detail Info (Universal Port Dock Only)
+//'UHS' - HD Radio Tuner Status (Universal Port Dock Only)
+//'UPR' - DAB Preset Command (Universal Port Dock Only)
+//'UPM' - Preset Memory Command (Universal Port Dock Only)
+//'UDS' - DAB Sation Name (Universal Port Dock Only)
+//'UDD' - DAB Display Info (Universal Port Dock Only)
+//ENDE CMD via PORT
+        ],
+        self::Zone2     => [
+            ISCP_API_Commands::ZPW,
+            ISCP_API_Commands::ZMT,
+            ISCP_API_Commands::ZVL,
+            ISCP_API_Commands::ZTN,
+            ISCP_API_Commands::SLZ,
+//            ISCP_API_Commands::NTZ,
+//            ISCP_API_Commands::NPZ
+        ],
+        self::Zone3     => [
+            ISCP_API_Commands::PW3,
+            ISCP_API_Commands::MT3,
+            ISCP_API_Commands::VL3,
+            ISCP_API_Commands::TN3,
+            ISCP_API_Commands::SL3
+//            ISCP_API_Commands::NT3,
+//            ISCP_API_Commands::NP3,
+        ],
+        self::Zone4     => [
+            ISCP_API_Commands::PW4,
+            ISCP_API_Commands::MT4,
+            ISCP_API_Commands::VL4,
+            ISCP_API_Commands::SL4
+//            ISCP_API_Commands::NT4,
+//            ISCP_API_Commands::NP4
+        ],
+        self::Tuner     => [
             ISCP_API_Commands::TUN,
+            ISCP_API_Commands::TUZ,
+            ISCP_API_Commands::TU3,
+            ISCP_API_Commands::TU4,
             ISCP_API_Commands::PRS,
+            ISCP_API_Commands::PRZ,
+            ISCP_API_Commands::PR3,
+            ISCP_API_Commands::PR4,
             ISCP_API_Commands::PRM,
             ISCP_API_Commands::RDS,
             ISCP_API_Commands::PTS,
-            ISCP_API_Commands::TPS,
+            ISCP_API_Commands::SLI,
+            ISCP_API_Commands::SLZ,
+            ISCP_API_Commands::SL3,
+            ISCP_API_Commands::SL4
+        ],
+        self::Netplayer => [
             //Start NET/USB
             ISCP_API_Commands::NTC,
             ISCP_API_Commands::NAT,
@@ -330,90 +546,7 @@ class ONKYO_Zone
             ISCP_API_Commands::NMD,
             ISCP_API_Commands::NSB,
             ISCP_API_Commands::NRI,
-            //ENDE Net/USB
-//Start Airplay
-            ISCP_API_Commands::AAT,
-            ISCP_API_Commands::AAL,
-            ISCP_API_Commands::ATI,
-            ISCP_API_Commands::ATM,
-            ISCP_API_Commands::AST,
-            //Ende Airplay
-//START CMD via RI
-            ISCP_API_Commands::CDS,
-            ISCP_API_Commands::CCD,
-            ISCP_API_Commands::CT1,
-            ISCP_API_Commands::CT2,
-            ISCP_API_Commands::CEQ,
-            ISCP_API_Commands::CDT,
-            ISCP_API_Commands::CMD,
-            ISCP_API_Commands::CCR,
-            //ENDE CMD via RI
-//START CMD via PORT
-            ISCP_API_Commands::CPT,
-//"IAT" - iPod Artist Name Info (Universal Port Dock Only)
-//"IAL" - iPod Album Name Info (Universal Port Dock Only)
-//"ITI" - iPod Title Name (Universal Port Dock Only)
-//"ITM" - iPod Time Info (Universal Port Dock Only)
-//"ITR" - iPod Track Info (Universal Port Dock Only)
-//"IST" - iPod Play Status (Universal Port Dock Only)
-//"ILS" - iPod List Info (Universal Port Dock Extend Mode Only)
-//"IMD" - iPod Mode Change (Universal Port Dock Only)
-//"UTN" - Tuning Command (Universal Port Dock Only)
-//"UPR" - Preset Command (Universal Port Dock Only)
-//"UPM" - Preset Memory Command (Universal Port Dock Only)
-//"UHP" - HD Radio Channel Program Command (Universal Port Dock Only)
-//"UHB" - HD Radio Blend Mode Command (Universal Port Dock Only)
-//"UHA" - HD Radio Artist Name Info (Universal Port Dock Only)
-//"UHC" - HD Radio Channel Name Info (Universal Port Dock Only)
-//"UHT" - HD Radio Title Info (Universal Port Dock Only)
-//"UHD" - HD Radio Detail Info (Universal Port Dock Only)
-//"UHS" - HD Radio Tuner Status (Universal Port Dock Only)
-//"UPR" - DAB Preset Command (Universal Port Dock Only)
-//"UPM" - Preset Memory Command (Universal Port Dock Only)
-//"UDS" - DAB Sation Name (Universal Port Dock Only)
-//"UDD" - DAB Display Info (Universal Port Dock Only)
-//ENDE CMD via PORT
-//START CMD BD via RIHD
-            ISCP_API_Commands::CDV,
-//ENDE CMD BD via RIHD
-//START CMD TV via RIHD
-            ISCP_API_Commands::CTV
-//ENDE CMD TV via RIHD
-        ],
-        self::Zone2    => [
-            ISCP_API_Commands::LMZ,
-            ISCP_API_Commands::ZPW,
-            ISCP_API_Commands::ZMT,
-            ISCP_API_Commands::ZVL,
-            ISCP_API_Commands::ZTN,
-            ISCP_API_Commands::ZBL,
-            ISCP_API_Commands::SLZ,
-            ISCP_API_Commands::TUZ,
-            ISCP_API_Commands::PRZ,
-            ISCP_API_Commands::NTZ,
-            ISCP_API_Commands::NPZ
-        ],
-        self::Zone3    => [
-            ISCP_API_Commands::PW3,
-            ISCP_API_Commands::MT3,
-            ISCP_API_Commands::VL3,
-            ISCP_API_Commands::SL3,
-            ISCP_API_Commands::TU3,
-            ISCP_API_Commands::PR3,
-            ISCP_API_Commands::NT3,
-            ISCP_API_Commands::NP3,
-            ISCP_API_Commands::BL3,
-            ISCP_API_Commands::TN3
-        ],
-        self::Zone4    => [
-            ISCP_API_Commands::PW4,
-            ISCP_API_Commands::MT4,
-            ISCP_API_Commands::VL4,
-            ISCP_API_Commands::SL4,
-            ISCP_API_Commands::TU4,
-            ISCP_API_Commands::PR4,
-            ISCP_API_Commands::NT4,
-            ISCP_API_Commands::NP4
+        //ENDE Net/USB
         ]
     ];
 
@@ -427,29 +560,33 @@ class ONKYO_Zone
         return ['thisZone'];
     }
 
-    public function CmdAvaiable(ISCP_API_Data $API_Data)
+    public function CmdAvaiable(string $APICommand)
     {
-        return in_array($API_Data->APICommand, self::$ZoneCMDs[$this->thisZone]);
+        return in_array($APICommand, self::$ZoneCMDs[$this->thisZone]);
     }
 
-    public function SubCmdAvaiable(ISCP_API_Data $API_Data)
+    public function GetAPICommands()
     {
-
-//        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand, 1));
-//        IPS_LogMessage('ZoneCMDs', print_r(self::$ZoneCMDs[$this->thisZone], 1));
-        if ($API_Data->APISubCommand != null) {
-            if (property_exists($API_Data->APISubCommand, (string) $this->thisZone)) {
-                return in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]);
-            }
-        }
-        return false;
+        return self::$ZoneCMDs[$this->thisZone];
     }
 
+    /*  public function SubCmdAvaiable(ISCP_API_Data $API_Data)
+      {
+
+      //        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand, 1));
+      //        IPS_LogMessage('ZoneCMDs', print_r(self::$ZoneCMDs[$this->thisZone], 1));
+      if ($API_Data->APISubCommand != null) {
+      if (property_exists($API_Data->APISubCommand, (string) $this->thisZone)) {
+      return in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]);
+      }
+      }
+      return false;
+      }
+     */
 }
 
 class ISCP_API_Mode
 {
-    const NONE = false;
     const LAN = 1;
     const COM = 2;
 
@@ -457,75 +594,79 @@ class ISCP_API_Mode
 
 class ISCP_API_Commands
 {
+    //Special
+    const GetBuffer = 'BBB';
+    const SelectorList = 'SelectorList';
+    const ControlList = 'ControlList';
+    const ProfileList = 'ProfileList';
+    const LMDList = 'LMDList';
+    const NetserviceList = 'NetserviceList';
+    const PresetList = 'PresetList';
+    const TunerList = 'TunerList';
+    const ZoneList = 'ZoneList';
+    const PhaseMatchingBass = 'PhaseMatchingBass';
     //MAIN Zone
     const PWR = 'PWR'; // Power
     const AMT = 'AMT'; // Mute
-    const SPA = 'SPA'; //"SPA"/"SPB" - Speaker A/B Command
-    const SPB = 'SPB'; //"SPA"/"SPB" - Speaker A/B Command
-    const SPL = 'SPL'; //"SPL" - Speaker Layout Command
-    const MVL = 'MVL'; //"MVL" - Master Volume Command
-    const TFR = 'TFR'; //"TFR" - Tone(Front) Command
-    const TFW = 'TFW'; //"TFW" - Tone(Front Wide) Command
-    const TFH = 'TFH'; //"TFH" - Tone(Front High) Command
-    const TCT = 'TCT'; //"TCT" - Tone(Center) Command
-    const TSR = 'TSR'; //"TSR" - Tone(Surround) Command
-    const TSB = 'TSB'; //"TSB" - Tone(Surround Back) Command
-    const TSW = 'TSW'; //"TSW" - Tone(Subwoofer) Command
-    const PMB = 'PMB'; //"PMB" - Phase Matching Bass Command
-    const SLP = 'SLP'; //"SLP" - Sleep Set Command
-    const SLC = 'SLC'; //"SLC" - Speaker Level Calibration Command
-    const SWL = 'SWL'; //"SWL" - Subwoofer (temporary) Level Command
-    const SW2 = 'SW2'; //"SW2" - Subwoofer 2 (temporary) Level Command
-    const CTL = 'CTL'; //"CTL" - Center (temporary) Level Command
-    const DIF = 'DIF'; //"DIF" - Display Mode Command
-    const DIM = 'DIM'; //"DIM" - Dimmer Level Command
-    const OSD = 'OSD'; //"OSD" - Setup Operation Command
-    const MEM = 'MEM'; //"MEM" - Memory Setup Command
-    const IFA = 'IFA'; //"IFA" - Audio Infomation Command
-    const IFV = 'IFV'; //"IFV" - Video Infomation Command
-    const SLI = 'SLI'; // "SLI" - Input Selector Command
-//    const SLR = "SLR";
-    const SLA = 'SLA'; //"SLA" - Audio Selector Command
-    const TGA = 'TGA'; //"TGA" - 12V Trigger A Command
-    const TGB = 'TGB'; //"TGB" - 12V Trigger B Command
-    const TGC = 'TGC'; //"TGC" - 12V Trigger C Command
-//    const VOS = "VOS";
-    const HDO = 'HDO'; //"HDO" - HDMI Output Selector
-    const HAO = 'HAO'; //"HAO" -HDMI Audio Out (Main)
-    const HAS = 'HAS'; //"HAS" -HDMI Audio Out (Sub)
-    const CEC = 'CEC'; //"CEC" - HDMI CEC
-    const RES = 'RES'; //"RES" - Monitor Out Resolution
-//    const ISF = "ISF";
-    const VWM = 'VWM'; //"VWM" - Video Wide Mode
-    const VPM = 'VPM'; //"VPM" -Video Picture Mode
-    const LMD = 'LMD'; //"LMD" - Listening Mode Command
-    const LTN = 'LTN'; //"LTN" - Late Night Command
-    const RAS = 'RAS'; //"RAS" - Re-EQ Command
-    const ADY = 'ADY'; //"ADY" - Audyssey 2EQ/MultEQ/MultEQ XT
-    const ADQ = 'ADQ'; //"ADQ" - Audyssey Dynamic EQ
-    const ADV = 'ADV'; //"ADV" - Audyssey Dynamic Volume
-    const DVL = 'DVL'; //"DVL" - Dolby Volume
-    const MOT = 'MOT'; //"MOT" - Music Optimizer
-    const AVS = 'AVS'; //"AVS" - A/V Sync
-    const ECO = 'ECO'; //"ECO" - for Smart Grid Command
-    const TUN = 'TUN'; //"TUN" - Tuning Command (Include Tuner Pack Model Only)
-    const PRS = 'PRS'; //"PRS" - Preset Command (Include Tuner Pack Model Only)
-    const PRM = 'PRM'; //"PRM" - Preset Memory Command (Include Tuner Pack Model Only)
-    const RDS = 'RDS'; //"RDS" - RDS Information Command (RDS Model Only)
-    const PTS = 'PTS'; //"PTS" - PTY Scan Command (RDS Model Only)
-    const TPS = 'TPS'; //"TPS" - TP Scan Command (RDS Model Only)
+    const MVL = 'MVL'; //'MVL' - Master Volume Command
+    const TFR = 'TFR'; //'TFR' - Tone(Front) Command
+    const TFW = 'TFW'; //'TFW' - Tone(Front Wide) Command
+    const TFH = 'TFH'; //'TFH' - Tone(Front High) Command
+    const TCT = 'TCT'; //'TCT' - Tone(Center) Command
+    const TSR = 'TSR'; //'TSR' - Tone(Surround) Command
+    const TSB = 'TSB'; //'TSB' - Tone(Surround Back) Command
+    const TSW = 'TSW'; //'TSW' - Tone(Subwoofer) Command
+    const PMB = 'PMB'; //'PMB' - Phase Matching Bass Command
+    const SLP = 'SLP'; //'SLP' - Sleep Set Command
+    const SLC = 'SLC'; //'SLC' - Speaker Level Calibration Command
+    const SWL = 'SWL'; //'SWL' - Subwoofer (temporary) Level Command
+    const SW2 = 'SW2'; //'SW2' - Subwoofer 2 (temporary) Level Command
+    const CTL = 'CTL'; //'CTL' - Center (temporary) Level Command
+    const DIF = 'DIF'; //'DIF' - Display Mode Command
+    const DIM = 'DIM'; //'DIM' - Dimmer Level Command
+    const OSD = 'OSD'; //'OSD' - Setup Operation Command
+    const MEM = 'MEM'; //'MEM' - Memory Setup Command
+    const IFA = 'IFA'; //'IFA' - Audio Infomation Command
+    const IFV = 'IFV'; //'IFV' - Video Infomation Command
+    const SLI = 'SLI'; // 'SLI' - Input Selector Command
+    const SLA = 'SLA'; //'SLA' - Audio Selector Command
+    const TGA = 'TGA'; //'TGA' - 12V Trigger A Command
+    const TGB = 'TGB'; //'TGB' - 12V Trigger B Command
+    const TGC = 'TGC'; //'TGC' - 12V Trigger C Command
+    const HDO = 'HDO'; //'HDO' - HDMI Output Selector
+    const HAO = 'HAO'; //'HAO' -HDMI Audio Out (Main)
+    const HAS = 'HAS'; //'HAS' -HDMI Audio Out (Sub)
+    const CEC = 'CEC'; //'CEC' - HDMI CEC
+    const RES = 'RES'; //'RES' - Monitor Out Resolution
+    const ISF = 'ISF';
+    const VWM = 'VWM'; //'VWM' - Video Wide Mode
+    const VPM = 'VPM'; //'VPM' -Video Picture Mode
+    const LMD = 'LMD'; //'LMD' - Listening Mode Command
+    const LTN = 'LTN'; //'LTN' - Late Night Command
+    const RAS = 'RAS'; //'RAS' - Re-EQ Command
+    const ADY = 'ADY'; //'ADY' - Audyssey 2EQ/MultEQ/MultEQ XT
+    const ADQ = 'ADQ'; //'ADQ' - Audyssey Dynamic EQ
+    const ADV = 'ADV'; //'ADV' - Audyssey Dynamic Volume
+    const MOT = 'MOT'; //'MOT' - Music Optimizer
+    const ECO = 'ECO'; //'ECO' - for Smart Grid Command
+    const TUN = 'TUN'; //'TUN' - Tuning Command (Include Tuner Pack Model Only)
+    const PRS = 'PRS'; //'PRS' - Preset Command (Include Tuner Pack Model Only)
+    const PRM = 'PRM'; //'PRM' - Preset Memory Command (Include Tuner Pack Model Only)
+    const RDS = 'RDS'; //'RDS' - RDS Information Command (RDS Model Only)
+    const PTS = 'PTS'; //'PTS' - PTY Scan Command (RDS Model Only)
 // HD Radio
     /*
-      const HAT = "HAT";
-      const HCN = "HCN";
-      const HTI = "HTI";
-      const HDS = "HDS";
-      const HPR = "HPR";
-      const HBL = "HBL";
-      const HTS = "HTS";
+      const HAT = 'HAT';
+      const HCN = 'HCN';
+      const HTI = 'HTI';
+      const HDS = 'HDS';
+      const HPR = 'HPR';
+      const HBL = 'HBL';
+      const HTS = 'HTS';
      */
     //Start NET/USB
-    const NTC = 'NTC'; //"NTC" - Network/USB Operation Command (Network Model Only after TX-NR905)
+    const NTC = 'NTC'; //'NTC' - Network/USB Operation Command (Network Model Only after TX-NR905)
+    const NPR = 'NPR'; //'NPR' - Internet Radio Preset Command
     const NAT = 'NAT'; //NET/USB Artist Name Info
     const NAL = 'NAL'; //NET/USB Album Name Info
     const NTI = 'NTI'; // NET/USB Title Name
@@ -533,8 +674,7 @@ class ISCP_API_Commands
     const NTR = 'NTR'; // NET/USB Track Info
     const NST = 'NST'; // NET/USB Play Status
     const NMS = 'NMS'; // NET/USB Menu Status
-    const NTS = 'NTS'; // "NTS" - NET/USB Time Seek
-    const NPR = 'NPR'; //"NPR" - Internet Radio Preset Command
+    const NTS = 'NTS'; // 'NTS' - NET/USB Time Seek
     const NDS = 'NDS'; // NET Connection/USB Device Status
     const NLS = 'NLS'; // NET/USB List Info
     const NLA = 'NLA'; // NET/USB List Info(All item, need processing XML data, for Network Control Only)
@@ -548,88 +688,68 @@ class ISCP_API_Commands
     const NRI = 'NRI'; // Receiver Information (for Network Control Only)
 //ENDE Net/USB
 //Start Airplay
-    const AAT = 'AAT'; //"AAT" - Airplay Artist Name Info (Airplay Model Only)
-    const AAL = 'AAL'; //"AAL" - Airplay Album Name Info (Airplay Model Only)
-    const ATI = 'ATI'; //"ATI" - Airplay Title Name (Airplay Model Only)
-    const ATM = 'ATM'; //"ATM" - Airplay Time Info (Airplay Model Only)
-    const AST = 'AST'; //"AST" - Airplay Play Status (Airplay Model Only)
+    /* const AAT = 'AAT'; //'AAT' - Airplay Artist Name Info (Airplay Model Only)
+      const AAL = 'AAL'; //'AAL' - Airplay Album Name Info (Airplay Model Only)
+      const ATI = 'ATI'; //'ATI' - Airplay Title Name (Airplay Model Only)
+      const ATM = 'ATM'; //'ATM' - Airplay Time Info (Airplay Model Only)
+      const AST = 'AST'; //'AST' - Airplay Play Status (Airplay Model Only)
+     */
 //Ende Airplay
-//START CMD via RI
-    const CDS = 'CDS'; //"CDS" - Command for Docking Station via RI
-    const CCD = 'CCD'; //"CCD" - CD Player Operation Command
-    const CT1 = 'CT1'; //"CT1" - TAPE1(A) Operation Command
-    const CT2 = 'CT2'; //"CT2" - TAPE2(B) Operation Command
-    const CEQ = 'CEQ'; //"CEQ" - Graphics Equalizer Operation Command
-    const CDT = 'CDT'; //"CDT" - DAT Recorder Operation Command
-    const CMD = 'CMD'; //"CMD" - MD Recorder Operation Command
-    const CCR = 'CCR'; //"CCR" - CD-R Recorder Operation Command
-//ENDE CMD via RI
 //START CMD via PORT
-    const CPT = 'CPT'; //"CPT" - Universal PORT Operation Command
-//"IAT" - iPod Artist Name Info (Universal Port Dock Only)
-//"IAL" - iPod Album Name Info (Universal Port Dock Only)
-//"ITI" - iPod Title Name (Universal Port Dock Only)
-//"ITM" - iPod Time Info (Universal Port Dock Only)
-//"ITR" - iPod Track Info (Universal Port Dock Only)
-//"IST" - iPod Play Status (Universal Port Dock Only)
-//"ILS" - iPod List Info (Universal Port Dock Extend Mode Only)
-//"IMD" - iPod Mode Change (Universal Port Dock Only)
-//"UTN" - Tuning Command (Universal Port Dock Only)
-//"UPR" - Preset Command (Universal Port Dock Only)
-//"UPM" - Preset Memory Command (Universal Port Dock Only)
-//"UHP" - HD Radio Channel Program Command (Universal Port Dock Only)
-//"UHB" - HD Radio Blend Mode Command (Universal Port Dock Only)
-//"UHA" - HD Radio Artist Name Info (Universal Port Dock Only)
-//"UHC" - HD Radio Channel Name Info (Universal Port Dock Only)
-//"UHT" - HD Radio Title Info (Universal Port Dock Only)
-//"UHD" - HD Radio Detail Info (Universal Port Dock Only)
-//"UHS" - HD Radio Tuner Status (Universal Port Dock Only)
-//"UPR" - DAB Preset Command (Universal Port Dock Only)
-//"UPM" - Preset Memory Command (Universal Port Dock Only)
-//"UDS" - DAB Sation Name (Universal Port Dock Only)
-//"UDD" - DAB Display Info (Universal Port Dock Only)
+    const CPT = 'CPT'; //'CPT' - Universal PORT Operation Command
+//'IAT' - iPod Artist Name Info (Universal Port Dock Only)
+//'IAL' - iPod Album Name Info (Universal Port Dock Only)
+//'ITI' - iPod Title Name (Universal Port Dock Only)
+//'ITM' - iPod Time Info (Universal Port Dock Only)
+//'ITR' - iPod Track Info (Universal Port Dock Only)
+//'IST' - iPod Play Status (Universal Port Dock Only)
+//'ILS' - iPod List Info (Universal Port Dock Extend Mode Only)
+//'IMD' - iPod Mode Change (Universal Port Dock Only)
+//'UTN' - Tuning Command (Universal Port Dock Only)
+//'UPR' - Preset Command (Universal Port Dock Only)
+//'UPM' - Preset Memory Command (Universal Port Dock Only)
+//'UHP' - HD Radio Channel Program Command (Universal Port Dock Only)
+//'UHB' - HD Radio Blend Mode Command (Universal Port Dock Only)
+//'UHA' - HD Radio Artist Name Info (Universal Port Dock Only)
+//'UHC' - HD Radio Channel Name Info (Universal Port Dock Only)
+//'UHT' - HD Radio Title Info (Universal Port Dock Only)
+//'UHD' - HD Radio Detail Info (Universal Port Dock Only)
+//'UHS' - HD Radio Tuner Status (Universal Port Dock Only)
+//'UPR' - DAB Preset Command (Universal Port Dock Only)
+//'UPM' - Preset Memory Command (Universal Port Dock Only)
+//'UDS' - DAB Sation Name (Universal Port Dock Only)
+//'UDD' - DAB Display Info (Universal Port Dock Only)
 //ENDE CMD via PORT
-//START CMD BD via RIHD
-    const CDV = 'CDV'; //"CDV" - DVD/BD Player Operation Command (via RIHD only after TX-NR509)
-//ENDE CMD BD via RIHD
-//START CMD TV via RIHD
-    const CTV = 'CTV'; //"CTV" - TV Operation Command (via RIHD)
-//ENDE CMD TV via RIHD
 //MAIN end
 //Zone2 Zone
     const ZPW = 'ZPW';
     const ZMT = 'ZMT';
     const ZVL = 'ZVL';
     const ZTN = 'ZTN';
-    const ZBL = 'ZBL';
     const SLZ = 'SLZ';
     const TUZ = 'TUZ';
     const PRZ = 'PRZ';
-    const NTZ = 'NTZ';
-    const NPZ = 'NPZ';
-    const LMZ = 'LMZ';
-    const LTZ = 'LTZ';
-    const RAZ = 'RAZ';
+    const NTZ = 'NTZ'; // Network Zone
+    const NPZ = 'NPZ'; //Network Zone
     //Zone3 Zone
     const PW3 = 'PW3';  // Power
     const MT3 = 'MT3';  // Mute
     const VL3 = 'VL3';  // Volume
-    const SL3 = 'SL3';  // Selector
-    const TU3 = 'TU3';  // Tune
-    const PR3 = 'PR3';  // Preset
-    const NT3 = 'NT3';  // Net-Tune
-    const NP3 = 'NP3';  // Net-Preset
-    const BL3 = 'BL3';  // Balance
     const TN3 = 'TN3';  // Tone
+    const SL3 = 'SL3';  // Selector
+    const TU3 = 'TU3';  // Tune Tuner Zone
+    const PR3 = 'PR3';  // Preset Tuner Zone
+    const NT3 = 'NT3';  // Net-Tune Network Zone
+    const NP3 = 'NP3';  // Net-Preset Network Zone
 //Zone4 Zone
     const PW4 = 'PW4';  // Power
     const MT4 = 'MT4';  // Mute
     const VL4 = 'VL4';  // Volume
     const SL4 = 'SL4';  // Selector
-    const TU4 = 'TU4';  // Tune
-    const PR4 = 'PR4';  // Preset
-    const NT4 = 'NT4';  // Net-Tune
-    const NP4 = 'NP4';  // Net-Preset
+    const TU4 = 'TU4';  // Tuner Zone
+    const PR4 = 'PR4';  // Preset Tuner Zone
+    const NT4 = 'NT4';  // Net-Tune Network Zone
+    const NP4 = 'NP4';  // Net-Preset Network Zone
     const Request = 'QSTN';
 
     public static $BoolValueMapping = [
@@ -648,48 +768,6 @@ class ISCP_API_Commands
     const ValueMapping = 6;
     const ValuePrefix = 7;
 
-//    const ValuePrefix = 7;
-//    const ValueStepSize = 8;
-    // Mapping von CMDs der Main auf identische CMDs der Zonen
-    public static $CMDMapping = [
-        self::TUN => [
-            ONKYO_Zone::ZoneMain => self::TUN,
-            ONKYO_Zone::Zone2    => self::TUZ,
-            ONKYO_Zone::Zone3    => self::TU3,
-            ONKYO_Zone::Zone4    => self::TU4
-        ],
-        self::PRS => [
-            ONKYO_Zone::ZoneMain => self::PRS,
-            ONKYO_Zone::Zone2    => self::PRZ,
-            ONKYO_Zone::Zone3    => self::PR3,
-            ONKYO_Zone::Zone4    => self::PR4
-        ],
-        self::NTC => [
-            ONKYO_Zone::ZoneMain => self::NTC,
-            ONKYO_Zone::Zone2    => self::NTZ,
-            ONKYO_Zone::Zone3    => self::NT3,
-            ONKYO_Zone::Zone4    => self::NT4
-        ],
-        self::NPR => [
-            ONKYO_Zone::ZoneMain => self::NPR,
-            ONKYO_Zone::Zone2    => self::NPZ,
-            ONKYO_Zone::Zone3    => self::NP3,
-            ONKYO_Zone::Zone4    => self::NP4
-        ],
-        self::LMD => [
-            ONKYO_Zone::ZoneMain => self::LMD,
-            ONKYO_Zone::Zone2    => self::LMZ
-        ],
-        self::LTN => [
-            ONKYO_Zone::ZoneMain => self::LTN,
-            ONKYO_Zone::Zone2    => self::LTZ
-        ],
-        self::RAS => [
-            ONKYO_Zone::ZoneMain => self::RAS,
-            ONKYO_Zone::Zone2    => self::RAZ
-        ]
-    ];
-    // Nur für alle CMDs, welche keine SubCommands sind.
     public static $VarMapping = [
         self::PWR => [
             self::VarType      => IPSVarType::vtBoolean,
@@ -708,34 +786,25 @@ class ISCP_API_Commands
             self::VarName      => 'Mute',
             self::RequestValue => true,
             self::ValueMapping => null
-        ],
-        self::SPA => [
-            self::VarType      => IPSVarType::vtBoolean,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSwitch,
-            self::IsVariable   => true,
-            self::VarName      => 'Speaker A',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
-        self::SPB => [
-            self::VarType      => IPSVarType::vtBoolean,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSwitch,
-            self::IsVariable   => true,
-            self::VarName      => 'Speaker B',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
-        self::SPL => [/* TODO */
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSpeakerLayout,
-            self::IsVariable   => true,
-            self::VarName      => 'Speaker Layout',
-            self::RequestValue => true,
-            self::ValueMapping => ['SB' => 1, 'FH' => 2, 'FW' => 3, 'HW' => 4] //, 1 => "SB", 2 => "FH", 3 => "FW", 4 => "HW")
-        ],
+        ], /*
+          self::SPA => [
+          self::VarType      => IPSVarType::vtBoolean,
+          self::EnableAction => true,
+          self::Profile      => IPSProfiles::ptSwitch,
+          self::IsVariable   => true,
+          self::VarName      => 'Speaker A',
+          self::RequestValue => true,
+          self::ValueMapping => null
+          ],
+          self::SPB => [
+          self::VarType      => IPSVarType::vtBoolean,
+          self::EnableAction => true,
+          self::Profile      => IPSProfiles::ptSwitch,
+          self::IsVariable   => true,
+          self::VarName      => 'Speaker B',
+          self::RequestValue => true,
+          self::ValueMapping => null
+          ], */
         self::MVL => [
             self::VarType      => IPSVarType::vtInteger,
             self::EnableAction => true,
@@ -822,7 +891,7 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptToneOffset,
             self::IsVariable   => true,
-            self::VarName      => ['B' => 'Subwoofer Bass'],
+            self::VarName      => ['B' => 'Subwoofer Level'],
             self::RequestValue => true,
             self::ValuePrefix  => ['B' => 0],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
@@ -843,11 +912,37 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSleep,
             self::IsVariable   => true,
-            self::VarName      => 'Sleep Set',
+            self::VarName      => 'Sleeptimer',
             self::RequestValue => true,
             self::ValueMapping => ['OFF' => 0]
         ],
-        // TODO SWL SW2 CTL
+        self::CTL => [
+            self::VarType      => IPSVarType::vtFloat,
+            self::EnableAction => true,
+            self::Profile      => IPSProfiles::ptCenterLevel,
+            self::IsVariable   => true,
+            self::VarName      => 'Center Level',
+            self::RequestValue => true,
+            self::ValueMapping => 'Level'
+        ],
+        self::SWL => [
+            self::VarType      => IPSVarType::vtFloat,
+            self::EnableAction => true,
+            self::Profile      => IPSProfiles::ptSubwooferLevel,
+            self::IsVariable   => true,
+            self::VarName      => 'Subwoofer Level',
+            self::RequestValue => true,
+            self::ValueMapping => 'Level'
+        ],
+        self::SW2 => [
+            self::VarType      => IPSVarType::vtFloat,
+            self::EnableAction => true,
+            self::Profile      => IPSProfiles::ptSubwoofer2Level,
+            self::IsVariable   => true,
+            self::VarName      => 'Subwoofer 2 Level',
+            self::RequestValue => true,
+            self::ValueMapping => 'Level'
+        ],
         self::DIF => [
             self::VarType      => IPSVarType::vtInteger,
             self::EnableAction => true,
@@ -855,7 +950,7 @@ class ISCP_API_Commands
             self::IsVariable   => true,
             self::VarName      => 'Display Mode',
             self::RequestValue => true,
-            self::ValueMapping => null
+            self::ValueMapping => ['TG' => 0xFF]
         ],
         self::DIM => [
             self::VarType      => IPSVarType::vtInteger,
@@ -864,32 +959,32 @@ class ISCP_API_Commands
             self::IsVariable   => true,
             self::VarName      => 'Display Dimmer',
             self::RequestValue => true,
-            self::ValueMapping => null
+            self::ValueMapping => ['DIM' => 0xFF]
         ],
         self::IFA => [
             self::VarType      => IPSVarType::vtString,
             self::EnableAction => false,
-            self::Profile      => '',
+            self::Profile      => '~TextBox',
             self::IsVariable   => true,
             self::VarName      => 'Audio Information',
             self::RequestValue => true,
-            self::ValueMapping => null
+            self::ValueMapping => ','
         ],
         self::IFV => [
             self::VarType      => IPSVarType::vtString,
             self::EnableAction => false,
-            self::Profile      => '',
+            self::Profile      => '~TextBox',
             self::IsVariable   => true,
             self::VarName      => 'Video Information',
             self::RequestValue => true,
-            self::ValueMapping => null
+            self::ValueMapping => ','
         ],
         self::SLI => [
             self::VarType      => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSelectInput,
             self::IsVariable   => true,
-            self::VarName      => 'Input Selector',
+            self::VarName      => 'Input',
             self::RequestValue => true,
             self::ValueMapping => null
         ],
@@ -898,7 +993,7 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSelectInputAudio,
             self::IsVariable   => true,
-            self::VarName      => 'Audio Input Selector',
+            self::VarName      => 'Audio Input',
             self::RequestValue => true,
             self::ValueMapping => null
         ],
@@ -948,9 +1043,9 @@ class ISCP_API_Commands
             self::ValueMapping => null
         ],
         self::HAS => [
-            self::VarType      => IPSVarType::vtInteger,
+            self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptHDMIAudioOutput,
+            self::Profile      => IPSProfiles::ptSwitch,
             self::IsVariable   => true,
             self::VarName      => 'HDMI Audio Output (Sub)',
             self::RequestValue => true,
@@ -979,7 +1074,7 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptVideoWideMode,
             self::IsVariable   => true,
-            self::VarName      => 'Video Wide Mode',
+            self::VarName      => 'Video Mode',
             self::RequestValue => true,
             self::ValueMapping => null
         ],
@@ -1046,15 +1141,6 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValueMapping => null
         ],
-        self::DVL => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptDolbyVolume,
-            self::IsVariable   => true,
-            self::VarName      => 'Dolby Volume',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
         self::MOT => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
@@ -1064,28 +1150,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValueMapping => null
         ],
-        // MORE TODO AVS -> ECO
-        self::TUN => [
-//            self::VarType => IPSVarType::vtFloat,
-            self::VarType      => IPSVarType::vtString,
-            self::EnableAction => false,
-            self::Profile      => '',
-            self::IsVariable   => true,
-            self::VarName      => 'Tuner Frequenz',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
-        self::PRS => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Radio Preset',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
-        //Main end
-//Zone2 start
+        // Main end
+        // Zone2 start
         self::ZPW => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
@@ -1125,64 +1191,17 @@ class ISCP_API_Commands
                 '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
                 '+A' => 10]
         ],
-//ZBL
         self::SLZ => [
             self::VarType      => IPSVarType::vtInteger,
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSelectInput,
             self::IsVariable   => true,
-            self::VarName      => 'Input Selector',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
-        self::LMZ => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptListeningMode,
-            self::IsVariable   => true,
-            self::VarName      => 'Listening Mode',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::LTZ => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptLateNight,
-            self::IsVariable   => true,
-            self::VarName      => 'Late Night',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::RAZ => [
-            self::VarType      => IPSVarType::vtBoolean,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSwitch,
-            self::IsVariable   => true,
-            self::VarName      => 'Re-EQ or Cinema Filter',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::TUZ => [
-//            self::VarType => IPSVarType::vtFloat,
-            self::VarType      => IPSVarType::vtString,
-            self::EnableAction => false,
-            self::Profile      => '',
-            self::IsVariable   => true,
-            self::VarName      => 'Tuner Frequenz',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
-        self::PRZ => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Radio Preset',
+            self::VarName      => 'Input',
             self::RequestValue => true,
             self::ValueMapping => null
         ],
         // Zone 2 end
-// Zone 3 start
+        // Zone 3 start
         self::PW3 => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
@@ -1210,6 +1229,15 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValueMapping => null
         ],
+        self::SL3 => [
+            self::VarType      => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile      => IPSProfiles::ptSelectInput,
+            self::IsVariable   => true,
+            self::VarName      => 'Input',
+            self::RequestValue => true,
+            self::ValueMapping => null
+        ],
         self::TN3 => [
             self::VarType      => IPSVarType::vtDualInteger,
             self::EnableAction => true,
@@ -1222,37 +1250,8 @@ class ISCP_API_Commands
                 '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
                 '+A' => 10]
         ],
-//BL3
-        self::SL3 => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSelectInput,
-            self::IsVariable   => true,
-            self::VarName      => 'Input Selector',
-            self::RequestValue => true,
-            self::ValueMapping => null
-        ],
-        self::TU3 => [
-//            self::VarType => IPSVarType::vtFloat,
-            self::VarType      => IPSVarType::vtString,
-            self::EnableAction => false,
-            self::Profile      => '',
-            self::IsVariable   => true,
-            self::VarName      => 'Tuner Frequenz',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::PR3 => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Radio Preset',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        //Zone 3 end
-// Zone 4 start
+        // Zone 3 end
+        // Zone 4 start
         self::PW4 => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
@@ -1285,126 +1284,85 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSelectInput,
             self::IsVariable   => true,
-            self::VarName      => 'Input Selector',
+            self::VarName      => 'Input',
             self::RequestValue => true,
             self::ValueMapping => null
         ],
-        self::TU4 => [
-//            self::VarType => IPSVarType::vtFloat,
-            self::VarType      => IPSVarType::vtString,
-            self::EnableAction => false,
-            self::Profile      => '',
-            self::IsVariable   => true,
-            self::VarName      => 'Tuner Frequenz',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::PR4 => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Radio Preset',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        //Zone 4 end
-        // MORE TODO Network all
-        self::NTC => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetTuneCommand,
-            self::IsVariable   => false,
-            self::VarName      => null,
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::NTZ => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetTuneCommand,
-            self::IsVariable   => false,
-            self::VarName      => null,
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::NT3 => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetTuneCommand,
-            self::IsVariable   => false,
-            self::VarName      => null,
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::NT4 => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetTuneCommand,
-            self::IsVariable   => false,
-            self::VarName      => null,
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::NPR => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Network Radio Preset',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::NPZ => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Network Radio Preset',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::NP3 => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Network Radio Preset',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ],
-        self::NP4 => [
-            self::VarType      => IPSVarType::vtInteger,
-            self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptNetRadioPreset,
-            self::IsVariable   => true,
-            self::VarName      => 'Network Radio Preset',
-            self::RequestValue => false,
-            self::ValueMapping => null
-        ]
-
-            /*
-              ISCP_API_Commands::TFR,
-              ISCP_API_Commands::TFW,
-              ISCP_API_Commands::TFH,
-              ISCP_API_Commands::TCT,
-              ISCP_API_Commands::TSR,
-              ISCP_API_Commands::TSB,
-              ISCP_API_Commands::TSW */
+            // Zone 4 end
+            // MORE TODO Network all
+            /* self::NTC => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetTuneCommand,
+              self::IsVariable   => false,
+              self::VarName      => null,
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ], */
+            /* self::NTZ => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetTuneCommand,
+              self::IsVariable   => false,
+              self::VarName      => null,
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ],
+              self::NT3 => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetTuneCommand,
+              self::IsVariable   => false,
+              self::VarName      => null,
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ],
+              self::NT4 => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetTuneCommand,
+              self::IsVariable   => false,
+              self::VarName      => null,
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ], */
+            /*        self::NPR => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetRadioPreset,
+              self::IsVariable   => true,
+              self::VarName      => 'Network Radio Preset',
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ], */
+            /* self::NPZ => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetRadioPreset,
+              self::IsVariable   => true,
+              self::VarName      => 'Network Radio Preset',
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ],
+              self::NP3 => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetRadioPreset,
+              self::IsVariable   => true,
+              self::VarName      => 'Network Radio Preset',
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ],
+              self::NP4 => [
+              self::VarType      => IPSVarType::vtInteger,
+              self::EnableAction => true,
+              self::Profile      => IPSProfiles::ptNetRadioPreset,
+              self::IsVariable   => true,
+              self::VarName      => 'Network Radio Preset',
+              self::RequestValue => false,
+              self::ValueMapping => null
+              ] */
     ];
-
-}
-
-class ISCP_API_Command_Mapping
-{
-    public static function GetMapping($Cmd) //__construct($Cmd)
-    {
-        if (array_key_exists($Cmd, ISCP_API_Commands::$CMDMapping)) {
-            return ISCP_API_Commands::$CMDMapping[$Cmd];
-        } else {
-            return null;
-        }
-    }
 
 }
 
@@ -1431,19 +1389,45 @@ class ISCP_API_Data_Mapping
 
 }
 
+/**
+ * @property ISCP_API_Commands $APICommand 
+ * @property mixed $Data 
+ * @property \stdClass $Mapping 
+ * @property bool $needResponse
+ */
 class ISCP_API_Data
 {
     public $APICommand;
     public $Data;
-    public $Mapping = null;
-    public $APISubCommand = null;
+    public $Mapping;
+    public $SubIndex;
+    public $needResponse;
 
-    public function GetDataFromJSONObject($Data)
+    public function __construct(string $Command = null, $Data = null, bool $needResponse = true)
     {
-        $this->APICommand = $Data->APICommand;
-        $this->Data = utf8_decode($Data->Data);
-        if (property_exists($Data, 'APISubCommand')) {
-            $this->APISubCommand = $Data->APISubCommand;
+        $this->Mapping = null;
+        $this->needResponse = $needResponse;
+
+        if ($Data !== null) {
+            $this->APICommand = substr($Command, 0, 3);
+            if (strlen($Command) == 4) {
+                $this->SubIndex = substr($Command, -1);
+            }
+            $this->Data = $Data;
+            //$this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
+            return;
+        }
+        if ($Command === null) {
+            return;
+        }
+        if ($Command[strlen($Command) - 1] === "\x1A") {
+            $this->APICommand = substr($Command, 2, 3);
+            $this->Data = substr($Command, 5, -1);
+        } else {
+            $json = json_decode($Command);
+            $this->APICommand = $json->APICommand;
+            $this->Data = utf8_decode($json->Data);
+            $this->needResponse = $json->needResponse;
         }
     }
 
@@ -1453,18 +1437,39 @@ class ISCP_API_Data
         $SendData->DataID = $GUID;
         $SendData->APICommand = $this->APICommand;
         $SendData->Data = utf8_encode($this->Data);
-        $SendData->APISubCommand = $this->APISubCommand;
+        $SendData->needResponse = $this->needResponse;
         return json_encode($SendData);
+    }
+
+    public function ToISCPString($Mode)
+    {
+        if (is_bool($this->Data)) {
+            $Value = \OnkyoAVR\ISCP_API_Commands::$BoolValueMapping($this->Data);
+        } elseif (is_int($this->Data)) {
+            $Value = sprintf('%02X', $this->Data);
+        } else {
+            $Value = $this->Data;
+        }
+        $Payload = '!1' . $this->APICommand . $Value . "\r\n";
+        if ($Mode == \OnkyoAVR\ISCP_API_Mode::LAN) {
+            $PayloadLen = pack('N', strlen($Payload));
+            $eSICPHeader = $PayloadLen . "\x01\x00\x00\x00";
+            $eISCPHeaderlen = pack('N', strlen($eSICPHeader) + 8);
+            $Frame = 'ISCP' . $eISCPHeaderlen . $eSICPHeader . $Payload;
+        } else {
+            $Frame = $Payload;
+        }
+        return $Frame;
     }
 
     public function GetMapping()
     {
-        $this->Mapping = ISCP_API_Data_Mapping::GetMapping($this->APICommand);
+        return ISCP_API_Data_Mapping::GetMapping($this->APICommand);
     }
 
-    public function GetSubCommand()
-    {
-        $this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
-    }
-
+    /*
+      public function GetSubCommand()
+      {
+      $this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
+      } */
 }

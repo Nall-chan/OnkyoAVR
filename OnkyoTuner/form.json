@@ -1,0 +1,41 @@
+{
+    "elements":
+            [{
+                    "type": "Label",
+                    "caption": "When send commands the following zone is used for"
+                },
+                {
+                    "name": "Zone",
+                    "type": "Select",
+                    "caption": "Zone",
+                    "options": [
+                        {
+                            "label": "Tuner Main Zone",
+                            "value": 1
+                        },
+                        {
+                            "label": "Tuner Zone 2",
+                            "value": 2
+                        },
+                        {
+                            "label": "Tuner Zone 3",
+                            "value": 3
+                        },
+                        {
+                            "label": "Tuner Zone 4",
+                            "value": 4
+                        }
+                    ]
+                }
+            ],
+    "actions":
+            [{
+                    "type": "TestCenter"
+                },
+                {
+                    "type": "Button",
+                    "label": "Request State",
+                    "onClick": "OAVR_RequestState($id,'ALL');"
+                }
+            ]
+}

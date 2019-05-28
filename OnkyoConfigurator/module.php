@@ -1,0 +1,268 @@
+<?php
+
+declare(strict_types=1);
+require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+
+class OnkyoConfigurator extends IPSModule
+{
+
+    use \OnkyoConfigurator\DebugHelper;
+    /**
+     * Interne Funktion des SDK.
+     */
+    public function Create()
+    {
+        parent::Create();
+        $this->ConnectParent('{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}');
+        $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
+    }
+
+    /**
+     * Interne Funktion des SDK.
+     */
+    public function ApplyChanges()
+    {
+        parent::ApplyChanges();
+    }
+
+    private function GetInstanceList(string $GUID, int $Parent, string $ConfigParam)
+    {
+        $InstanceIDList = [];
+        foreach (IPS_GetInstanceListByModuleID($GUID) as $InstanceID) {
+            // Fremde Geräte überspringen
+            if (IPS_GetInstance($InstanceID)['ConnectionID'] == $Parent) {
+                $InstanceIDList[] = $InstanceID;
+            }
+        }
+        if ($ConfigParam != '') {
+            $InstanceIDList = array_flip(array_values($InstanceIDList));
+            array_walk($InstanceIDList, [$this, 'GetConfigParam'], $ConfigParam);
+        }
+        return $InstanceIDList;
+    }
+
+    private function GetConfigParam(&$item1, $InstanceID, $ConfigParam)
+    {
+        $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
+    }
+
+    /**
+     * Interne Funktion des SDK.
+     */
+    private function GetZoneConfigFormValues(int $Splitter)
+    {
+
+        $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
+        $FoundZones = $this->Send($APIDataZoneList);
+        $this->SendDebug('Found Zones', $FoundZones, 0);
+        $InstanceIDListZones = $this->GetInstanceList('{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}', $Splitter, 'Zone');
+        $this->SendDebug('IPS Zones', $InstanceIDListZones, 0);
+        $ZoneValues = [];
+        foreach ($FoundZones as $ZoneID => $Zone) {
+            $InstanceIDZone = array_search($ZoneID, $InstanceIDListZones);
+            if ($InstanceIDZone !== false) {
+                $AddValue = [
+                    'instanceID' => $InstanceIDZone,
+                    'name'       => IPS_GetName($InstanceIDZone),
+                    'type'       => 'Zone',
+                    'zone'       => $Zone['Name'],
+                    'location'   => stristr(IPS_GetLocation($InstanceIDZone), IPS_GetName($InstanceIDZone), true)
+                ];
+                unset($InstanceIDListZones[$InstanceIDZone]);
+            } else {
+                $AddValue = [
+                    'instanceID' => 0,
+                    'name'       => $Zone['Name'],
+                    'type'       => 'Zone',
+                    'zone'       => $Zone['Name'],
+                    'location'   => ''
+                ];
+            }
+            $AddValue['create'] = [
+                'moduleID'      => '{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}',
+                'configuration' => ['Zone' => $ZoneID]
+            ];
+
+            $ZoneValues[] = $AddValue;
+        }
+
+        foreach ($InstanceIDListZones as $InstanceIDZone => $Zone) {
+            $ZoneValues[] = [
+                'instanceID' => $InstanceIDZone,
+                'name'       => IPS_GetName($InstanceIDZone),
+                'type'       => 'Zone',
+                'zone'       => $Zone,
+                'location'   => stristr(IPS_GetLocation($InstanceIDZone), IPS_GetName($InstanceIDZone), true)
+            ];
+        }
+        return $ZoneValues;
+    }
+
+    private function GetRemoteConfigFormValues(int $Splitter)
+    {
+        $APIDataRemoteList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ControlList);
+        $FoundRemotes = $this->Send($APIDataRemoteList);
+        $this->SendDebug('Found Remotes', $FoundRemotes, 0);
+        $InstanceIDListRemotes = $this->GetInstanceList('{C7EA583D-2BAC-41B7-A85A-AD0DF648E514}', $Splitter, 'Type');
+        $this->SendDebug('IPS Remotes', $InstanceIDListRemotes, 0);
+        $RemoteValues = [];
+        $HasTuner = false;
+        foreach ($FoundRemotes as $RemoteName) {
+            $RemoteID = \OnkyoAVR\Remotes::ToRemoteID($RemoteName);
+            if ($RemoteID < 0) {
+                continue;
+            }
+            if ($RemoteID == \OnkyoAVR\Remotes::TUN) {
+                $HasTuner = true;
+                continue;
+            }
+            $InstanceIDRemote = array_search($RemoteID, $InstanceIDListRemotes);
+            if ($InstanceIDRemote !== false) {
+                $AddValue = [
+                    'instanceID' => $InstanceIDRemote,
+                    'name'       => IPS_GetName($InstanceIDRemote),
+                    'type'       => 'Remote',
+                    'zone'       => $RemoteName,
+                    'location'   => stristr(IPS_GetLocation($InstanceIDRemote), IPS_GetName($InstanceIDRemote), true)
+                ];
+                unset($InstanceIDListRemotes[$InstanceIDRemote]);
+            } else {
+                $AddValue = [
+                    'instanceID' => 0,
+                    'name'       => $RemoteName,
+                    'type'       => 'Remote',
+                    'zone'       => $RemoteName,
+                    'location'   => ''
+                ];
+            }
+            $AddValue['create'] = [
+                'moduleID'      => '{C7EA583D-2BAC-41B7-A85A-AD0DF648E514}',
+                'configuration' => ['Type' => $RemoteID]
+            ];
+            $RemoteValues[] = $AddValue;
+        }
+        foreach ($InstanceIDListRemotes as $InstanceIDRemote => $RemoteID) {
+            $RemoteName = \OnkyoAVR\Remotes::ToRemoteName($RemoteID);
+            $RemoteValues[] = [
+                'instanceID' => $InstanceIDRemote,
+                'name'       => IPS_GetName($InstanceIDRemote),
+                'type'       => 'Remote',
+                'zone'       => $RemoteName,
+                'location'   => stristr(IPS_GetLocation($InstanceIDRemote), IPS_GetName($InstanceIDRemote), true)
+            ];
+        }
+        $TunerValues = $this->GetTunerConfigFormValues($Splitter, $HasTuner);
+
+        return array_merge($RemoteValues, $TunerValues);
+    }
+
+    private function GetTunerConfigFormValues(int $Splitter, bool $HasTuner)
+    {
+        $InstanceIDListTuner = $this->GetInstanceList('{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}', $Splitter, 'Zone');
+        $this->SendDebug('IPS Tuner', $InstanceIDListTuner, 0);
+        $TunerValues = [];
+        foreach ($InstanceIDListTuner as $InstanceIDTuner => $ZoneID) {
+            $AddValue = [
+                'instanceID' => $InstanceIDTuner,
+                'name'       => IPS_GetName($InstanceIDTuner),
+                'type'       => 'Tuner',
+                'zone'       => '',
+                'location'   => stristr(IPS_GetLocation($InstanceIDTuner), IPS_GetName($InstanceIDTuner), true)
+            ];
+            if ($HasTuner) {
+                $AddValue['create'] = [
+                    'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
+                    'configuration' => ['Zone' => $ZoneID]
+                ];
+            }
+            $TunerValues[] = $AddValue;
+        }
+        if ($HasTuner and ( count($TunerValues) == 0)) {
+            $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
+            $FoundZones = $this->Send($APIDataZoneList);
+            foreach ($FoundZones as $ZoneID => $Zone) {
+                $Create['Tuner ' . $Zone['Name']] = [
+                    'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
+                    'configuration' => ['Zone' => $ZoneID]
+                ];
+            }
+            $TunerValues[] = [
+                'instanceID' => 0,
+                'name'       => 'Tuner',
+                'type'       => 'Tuner',
+                'zone'       => '',
+                'location'   => '',
+                'create'     => $Create
+            ];
+        }
+        return $TunerValues;
+    }
+
+    public function GetConfigurationForm()
+    {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+        if (!$this->HasActiveParent()) {
+            $Form['actions'][] = [
+                'type'  => 'PopupAlert',
+                'popup' => [
+                    'items' => [[
+                    'type'    => 'Label',
+                    'caption' => 'Instance has no active parent.'
+                        ]]
+                ]
+            ];
+            $this->SendDebug('FORM', json_encode($Form), 0);
+            $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+            return json_encode($Form);
+        }
+        $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        $IO = IPS_GetInstance($Splitter)['ConnectionID'];
+        if ($IO == 0) {
+            $Form['actions'][] = [
+                'type'  => 'PopupAlert',
+                'popup' => [
+                    'items' => [[
+                    'type'    => 'Label',
+                    'caption' => 'Splitter has no IO instance.'
+                        ]]
+                ]
+            ];
+            $this->SendDebug('FORM', json_encode($Form), 0);
+            $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+            return json_encode($Form);
+        }
+        $ZoneValues = $this->GetZoneConfigFormValues($Splitter);
+        $RemoteValues = $this->GetRemoteConfigFormValues($Splitter);
+        $Form['actions'][0]['values'] = array_merge($ZoneValues, $RemoteValues);
+
+        $this->SendDebug('FORM', json_encode($Form), 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+        return json_encode($Form);
+    }
+
+    private function Send(\OnkyoAVR\ISCP_API_Data $APIData)
+    {
+        $this->SendDebug('ForwardData', $APIData, 0);
+        try {
+            if (!$this->HasActiveParent()) {
+                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
+            }
+            $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
+            if ($ret === false) {
+                $this->SendDebug('Response', 'No answer', 0);
+                return null;
+            }
+            $result = unserialize($ret);
+            $this->SendDebug('Response', $result, 0);
+            return $result;
+        } catch (Exception $exc) {
+            $this->SendDebug('Error', $exc->getMessage(), 0);
+            return null;
+        }
+    }
+
+}

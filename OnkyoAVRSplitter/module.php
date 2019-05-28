@@ -14,6 +14,15 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
  * @property string $Buffer Empfangsbuffer
  * @property int $ParentID Die InstanzeID des IO-Parent
  * @property \OnkyoAVR\ISCP_API_Mode $Mode 
+ * @property array $NetserviceList
+ * @property array $ZoneList
+ * @property array $SelectorList
+ * @property array $PresetList
+ * @property array $ControlList
+ * @property array $LMDList
+ * @property array $ProfileList
+ * @property array $TunerList
+ * @property bool $PhaseMatchingBass
  */
 class ISCPSplitter extends IPSModule
 {
@@ -27,7 +36,7 @@ class ISCPSplitter extends IPSModule
         \ISCPSplitter\InstanceStatus::RegisterParent as IORegisterParent;
         \ISCPSplitter\InstanceStatus::RequestAction as IORequestAction;
     }
-    private $eISCPVersion = 1;
+    private $eISCPVersion = "\x01";
 
     public function Create()
     {
@@ -37,7 +46,16 @@ class ISCPSplitter extends IPSModule
         $this->ReplyISCPData = [];
         $this->Buffer = '';
         $this->ParentID = 0;
-        $this->Mode = \OnkyoAVR\ISCP_API_Mode::NONE;
+        $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
+        $this->SelectorList = [];
+        $this->ControlList = [];
+        $this->ProfileList = [];
+        $this->LMDList = [];
+        $this->PhaseMatchingBass = false;
+        $this->NetserviceList = [];
+        $this->PresetList = [];
+        $this->TunerList = [];
+        $this->ZoneList = [];
     }
 
     public function ApplyChanges()
@@ -48,8 +66,16 @@ class ISCPSplitter extends IPSModule
         $this->ReplyISCPData = [];
         $this->Buffer = '';
         $this->ParentID = 0;
-        $this->Mode = \OnkyoAVR\ISCP_API_Mode::NONE;
-
+        $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
+        $this->SelectorList = [];
+        $this->ControlList = [];
+        $this->ProfileList = [];
+        $this->LMDList = [];
+        $this->PhaseMatchingBass = false;
+        $this->NetserviceList = [];
+        $this->PresetList = [];
+        $this->TunerList = [];
+        $this->ZoneList = [];
         parent::ApplyChanges();
 
         $this->UnregisterVariable('BufferIN');
@@ -99,12 +125,27 @@ class ISCPSplitter extends IPSModule
                 $this->SetSummary(IPS_GetProperty($IOId, 'Port'));
                 $this->Mode = \OnkyoAVR\ISCP_API_Mode::COM;
             } else {
-                $this->LogMessage('IO-Parent not supported.', KL_ERROR);
-                $this->Mode = \OnkyoAVR\ISCP_API_Mode::NONE;
+                $this->Mode = \OnkyoAVR\ISCP_API_Mode::COM;
             }
             return;
         }
         $this->SetSummary(('none'));
+    }
+
+    public function GetConfigurationForParent()
+    {
+
+        $parentGUID = IPS_GetInstance($this->ParentID)['ModuleInfo']['ModuleID'];
+        if ($parentGUID == '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}') {
+            return json_encode(['Port' => 60128]);
+        } elseif ($parentGUID == '{6DC3D946-0D31-450F-A8C6-C42DB8D7D4F1}') {
+            $Config['StopBits'] = '1';
+            $Config['BaudRate'] = '9600';
+            $Config['Parity'] = 'None';
+            $Config['DataBits'] = '8';
+            return json_encode($Config);
+        }
+        return [];
     }
 
     /**
@@ -114,11 +155,14 @@ class ISCPSplitter extends IPSModule
     {
         if ($State == IS_ACTIVE) {
             if ($this->HasActiveParent()) {
+                $this->RefreshCapas();
                 $this->SetStatus(IS_ACTIVE);
+                $this->SetTimerInterval('KeepAlive', 360000);
                 return;
             }
         }
-        $this->SetStatus(IS_INACTIVE); // Setzen wir uns auf inactive, weil wir vorher eventuell im Fehlerzustand waren.
+        $this->SetTimerInterval('KeepAlive', 0);
+        $this->SetStatus(IS_INACTIVE);
     }
 
     public function RequestAction($Ident, $Value)
@@ -129,85 +173,192 @@ class ISCPSplitter extends IPSModule
         return false;
     }
 
-    private function RequestAVRState()
+    public function KeepAlive()
     {
-//if fKernelRunlevel <> KR_READY then exit;
-// TODO
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PWR, \OnkyoAVR\ISCP_API_Commands::Request);
+        $ret = $this->Send($APIData);
+        if (is_null($ret)) {
+            $this->LogMessage('Error in KeepAlive', KL_ERROR);
+        }
+    }
+
+    private function RefreshCapas()
+    {
+        $ret = $this->Send(new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NRI, \OnkyoAVR\ISCP_API_Commands::Request));
+        if (is_null($ret)) {
+            $this->SelectorList = [];
+            $this->ControlList = [];
+            $this->ProfileList = [];
+            $this->LMDList = [];
+            $this->PhaseMatchingBass = true;
+            $this->NetserviceList = [];
+            $this->PresetList = [];
+            $this->TunerList = [];
+            $this->ZoneList = [];
+            return;
+        }
+        $Xml = new SimpleXMLElement($ret, LIBXML_NOBLANKS + LIBXML_NONET);
+        foreach ($Xml->xpath('//model') as $model) {
+            $this->RegisterVariableString('Model', $this->Translate('Model'), '', 0);
+            $this->SetValue(('Model'), (string) $model);
+            $this->LogMessage('Connected to ' . (string) $model, KL_NOTIFY);
+        }
+
+        foreach ($Xml->xpath('//firmwareversion') as $firmwareversion) {
+            $this->RegisterVariableString('Firmware', $this->Translate('Firmware'), '', 0);
+            $this->SetValue('Firmware', (string) $firmwareversion);
+            $this->LogMessage('Firmware: ' . (string) $firmwareversion, KL_NOTIFY);
+        }
+        $NetserviceList = [];
+        foreach ($Xml->xpath('//netservice') as $Netservice) {
+            if ((string) $Netservice['value'] == '0') {
+                continue;
+            }
+            $NetserviceList[(int) hexdec((string) $Netservice['id'])] = trim((string) $Netservice['name']);
+        }
+        $this->LogMessage('Netservices: ' . count($NetserviceList), KL_NOTIFY);
+        $this->NetserviceList = $NetserviceList;
+
+        $SelectorList = [];
+        foreach ($Xml->xpath('//selector') as $Selector) {
+            if ((string) $Selector['value'] == '0') {
+                continue;
+            }
+            $SelectorList[(int) hexdec($Selector['id'])] = [
+                'Name' => trim((string) $Selector['name']),
+                'Zone' => (int) $Selector['zone'],
+            ];
+        }
+        $this->LogMessage('Input Selector: ' . count($SelectorList), KL_NOTIFY);
+        $this->SelectorList = $SelectorList;
+
+        $ZoneList = [];
+        foreach ($Xml->xpath('//zone') as $Zone) {
+            if ((string) $Zone['value'] == '0') {
+                continue;
+            }
+            $ZoneList[(int) hexdec($Zone['id'])] = [
+                'Name'     => trim((string) $Zone['name']),
+                'Volmax'   => (int) $Zone['volmax'],
+                'Volsetep' => (int) $Zone['volstep'],
+            ];
+        }
+        $this->LogMessage('Zones: ' . count($ZoneList), KL_NOTIFY);
+        $this->ZoneList = $ZoneList;
+        $PresetList = [];
+        foreach ($Xml->xpath('//presetlist') as $Presetlist) {
+            $PresetList['MaxPreset'] = (int) $Presetlist['count'];
+        }
+        foreach ($Xml->xpath('//preset') as $Preset) {
+            $Name = trim((string) $Preset['name']);
+            if ($Name != '') {
+                $PresetList[(int) hexdec((string) $Preset['id'])] = $Name;
+            }
+        }
+        $this->LogMessage('Presets: ' . count($PresetList), KL_NOTIFY);
+        $this->PresetList = $PresetList;
+
+        $TunerList = [];
+        foreach ($Xml->xpath('//tuners') as $Tuner) {
+            $TunerList[(string) $Tuner['band']] = [
+                'Min'    => (int) $Tuner['min'],
+                'Max'    => (int) $Tuner['max'],
+                'Step'   => (int) $Tuner['step'],
+                'Suffix' => '',
+                'Digits' => 0
+            ];
+        }
+        $this->LogMessage('Tuners: ' . count($TunerList), KL_NOTIFY);
+        $this->TunerList = $TunerList;
+
+        $ControlList = [];
+        $ProfileList = [];
+        $LMDList = [];
+        foreach ($Xml->xpath('//control') as $Control) {
+            if ((string) $Control['id'] == 'Phase Matching Bass') {
+                $this->PhaseMatchingBass = ((string) $Control['value'] == '1');
+                continue;
+            }
+            if ((string) $Control['value'] == '0') {
+                continue;
+            }
+            if (strpos((string) $Control['id'], 'Control') > 0) {
+                $ControlList[] = (string) $Control['id'];
+                continue;
+            }
+            if (array_key_exists('step', ((array) $Control)["@attributes"])) {
+                $ProfileList[(string) $Control['id']] = [
+                    0      => (int) $Control['min'],
+                    1      => (int) $Control['max'],
+                    2      => (float) $Control['step'],
+                    'Zone' => (int) $Control['zone']
+                ];
+            }
+            if (strpos((string) $Control['id'], 'LMD') === 0) {
+                $LMDList[(int) $Control['position']] = [
+                    'Name' => substr((string) $Control['id'], 4),
+                    'Code' => (string) $Control['code']
+                ];
+                continue;
+            }
+        }
+        $ControlList[] = 'OSD Control';
+        $this->LogMessage('Controls: ' . count($ControlList), KL_NOTIFY);
+        $this->ControlList = $ControlList;
+        $this->ProfileList = $ProfileList;
+        $this->LMDList = $LMDList;
+        $this->SendDebug('SelectorList', $this->SelectorList, 0);
+        $this->SendDebug('ControlList', $this->ControlList, 0);
+        $this->SendDebug('ProfileList', $this->ProfileList, 0);
+        $this->SendDebug('LMDList', $this->LMDList, 0);
+        $this->SendDebug('NetserviceList', $this->NetserviceList, 0);
+        $this->SendDebug('PresetList', $this->PresetList, 0);
+        $this->SendDebug('TunerList', $this->TunerList, 0);
+        $this->SendDebug('ZoneList', $this->ZoneList, 0);
     }
 
     private function DecodeData($Frame)
     {
         if ($Frame[0] != '!') {
-            echo 'ISCP Frame without !';
-            return;
+            $this->SendDebug('Error', 'ISCP Frame without !', 0);
+            return false;
         }
         if ($Frame[1] != '1') {
-            echo 'Device Typ ' . $Frame[1] . ' not implemented';
-            return;
+            $this->SendDebug('Error', 'Device Typ ' . $Frame[1] . ' not implemented', 0);
+            return false;
         }
-        $APIData = new \OnkyoAVR\ISCP_API_Data();
-        $APIData->APICommand = substr($Frame, 2, 3);
-        $APIData->Data = substr($Frame, 5);
-        $APIData->GetSubCommand();
-        $this->SendDataToZone($APIData);
-    }
+        if ($Frame[strlen($Frame) - 1] != "\x1A") {
+            $this->SendDebug('Error', 'ISCP Frame have no EOT ' . bin2hex($Frame[strlen($Frame) - 1]), 0);
+            return false;
+        }
 
-//################# PUBLIC
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
-     */
-    public function RequestState()
-    {
-        $this->RequestAVRState();
+        return new \OnkyoAVR\ISCP_API_Data($Frame);
     }
 
 //################# DATAPOINT RECEIVE FROM CHILD
 
     public function ForwardData($JSONString)
     {
-        $Data = json_decode($JSONString);
-        $this->SendDebug('Forward', $Data, 0);
-        /* if ($Data->DataID != '{8F47273A-0B69-489E-AF36-F391AE5FBEC0}') {
-          return false;
-          } */
-        $APIData = new \OnkyoAVR\ISCP_API_Data();
-        $APIData->GetDataFromJSONObject($Data);
-        //$this->SendDebug('Forward', $APIData, 0);
-        try {
-            $this->ForwardDataFromDevice($APIData);
-        } catch (Exception $ex) {
-            trigger_error($ex->getMessage(), E_USER_NOTICE);
-            return false;
+        $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
+
+        if ($APIData->APICommand == \OnkyoAVR\ISCP_API_Commands::GetBuffer) {
+            return serialize($this->{$APIData->Data});
         }
-        return true;
-        // todo, Antwort abwarten und zurückmelden
+
+        $ret = $this->Send($APIData);
+        if (!is_null($ret)) {
+            $this->SendDebug('Response', $ret, 0);
+            return serialize($ret);
+        }
+        return false;
     }
 
 //################# DATAPOINTS DEVICE
 
-    private function ForwardDataFromDevice(\OnkyoAVR\ISCP_API_Data $APIData)
-    {
-        if (is_bool($APIData->Data)) {
-            $APIData->Data = \OnkyoAVR\ISCP_API_Commands::$BoolValueMapping($APIData->Data);
-        } elseif (is_int($APIData->Data)) {
-            $APIData->Data = strlen(dechex($APIData->Data)) == 1 ? '0' . dechex($APIData->Data) : dechex($APIData->Data);
-        }
-        $Frame = '!1' . $APIData->APICommand . $APIData->Data . chr(0x0D) . chr(0x0A);
-        $this->SendDebug('Forward Frame', $Frame, 0);
-        try {
-            $this->SendDataToParent($Frame);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage(), E_USER_NOTICE);
-        }
-    }
-
     private function SendDataToZone(\OnkyoAVR\ISCP_API_Data $APIData)
     {
-//        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
         $this->SendDebug('SendDataToZone', $APIData, 0);
         $Data = $APIData->ToJSONString('{43E4B48E-2345-4A9A-B506-3E8E7A964757}');
-        $this->SendDebug('SendDataToZone', $Data, 0);
         $this->SendDataToChildren($Data);
     }
 
@@ -215,158 +366,180 @@ class ISCPSplitter extends IPSModule
 
     public function ReceiveData($JSONString)
     {
-        if ($this->Mode === \OnkyoAVR\ISCP_API_Mode::NONE) {
-            $this->LogMessage($this->Translate('Wrong IO-Parent'), KL_ERROR);
-            return false;
-        }
-        $data = json_decode($JSONString);
-// Empfangs Lock setzen
-        if (!$this->lock('ReceiveLock')) {
-            trigger_error('ReceiveBuffer is locked', E_USER_NOTICE);
-            return false;
-        }
-// Datenstream zusammenfügen
-        $head = $this->Buffer;
-// Stream in einzelne Pakete schneiden
-        $stream = $head . utf8_decode($data->Buffer);
-        if ($this->Mode == \OnkyoAVR\ISCP_API_Mode::LAN) {
-            $minTail = 24;
 
+        $stream = $this->Buffer;
+        $stream .= utf8_decode(json_decode($JSONString)->Buffer);
+        $this->SendDebug('Receive', $stream, 0);
+        if ($this->Mode == \OnkyoAVR\ISCP_API_Mode::LAN) {
+            $minTail = 12;
             $start = strpos($stream, 'ISCP');
             if ($start === false) {
-                $this->SendDebug('Error', 'LANFrame without ISCP', 0);
-                $stream = '';
+                $this->SendDebug('Error', 'eISCP Frame without ISCP', 0);
+                $this->Buffer = '';
+                return;
             } elseif ($start > 0) {
-                $this->SendDebug('Error', 'LANFrame start not with ISCP', 0);
+                $this->SendDebug('Warning', 'eISCP Frame start not with ISCP', 0);
                 $stream = substr($stream, $start);
             }
-//Paket suchen
             if (strlen($stream) < $minTail) {
-                $this->SendDebug('Error', 'LANFrame to short', 0);
+                $this->SendDebug('Waiting', 'eISCP Frame incomplete', 0);
                 $this->Buffer = $stream;
-                $this->unlock('ReceiveLock');
                 return;
             }
-            $header_len = ord($stream[6]) * 256 + ord($stream[7]);
-            $frame_len = ord($stream[10]) * 256 + ord($stream[11]);
-            $this->SendDebug('LANFrame info ', $header_len . '+' . $frame_len . ' Bytes.', 0);
-            if (strlen($stream) < $header_len + $frame_len) {
-                $this->SendDebug('Error', 'LANFrame must have ' . $header_len . '+' . $frame_len . ' Bytes. ' . strlen($stream) . ' Bytes given.', 0);
+            $len = unpack('N*', substr($stream, 4, 8));
+            //$this->SendDebug('eISCP Frame Lenght', $len, 0);
+            $eISCPHeaderlen = $len[1];
+            $PayloadLen = $len[2];
+            if (strlen($stream) < $eISCPHeaderlen + $PayloadLen) {
+                $this->SendDebug('Waiting', 'eISCP Frame must have ' . $eISCPHeaderlen . '+' . $PayloadLen . ' Bytes. ' . strlen($stream) . ' Bytes given.', 0);
                 $this->Buffer = $stream;
-                $this->unlock('ReceiveLock');
                 return;
             }
-            $header = substr($stream, 0, $header_len);
-            $frame = substr($stream, $header_len, $frame_len);
-//EOT wegschneiden von rechts, aber nur wenn es einer der letzten drei zeichen ist
-            $end = strrpos($frame, chr(0x1A));
-            if ($end >= $frame_len - 3) {
-                $frame = substr($frame, 0, $end);
-            }
-//EOT wegschneiden von rechts, aber nur wenn es einer der letzten drei zeichen ist
-            $end = strrpos($frame, chr(0x0D));
-            if ($end >= $frame_len - 3) {
-                $frame = substr($frame, 0, $end);
-            }
-//EOT wegschneiden von reschts, aber nur wenn es einer der letzten drei zeichen ist
-            $end = strrpos($frame, chr(0x0A));
-            if ($end >= $frame_len - 3) {
-                $frame = substr($frame, 0, $end);
-            }
-//                IPS_LogMessage('ISCP Gateway', 'LAN $header:' . $header);
-//                IPS_LogMessage('ISCP Gateway', 'LAN $frame:' . $frame);
-// 49 53 43 50  // ISCP
-// 00 00 00 10  // HEADERLEN
-// 00 00 00 0B  // DATALEN
-// 01 00 00 00  // Version
-// 21 31 4E 4C  // !1NL
-// 53 43 2D 50  // SC-P
-// 1A 0D 0A     // EOT CR LF
-            $tail = substr($stream, $header_len + $frame_len);
-            if ($this->eISCPVersion != ord($header[12])) {
+            $header = substr($stream, 0, $eISCPHeaderlen);
+            $frame = substr($stream, $eISCPHeaderlen, $PayloadLen);
+            $tail = substr($stream, $eISCPHeaderlen + $PayloadLen);
+            if ($this->eISCPVersion != $header[12]) {
                 $frame = false;
-                $this->SendDebug('Error', 'Wrong eISCP Version', 0);
-                $this->LogMessage('Wrong eISCP Version', KL_ERROR);
+                $this->SendDebug('Error', 'eISCP Version not supportet: ' . ord($header[12]), 0);
+                $this->LogMessage('eISCP Version not supportet:' . ord($header[12]), KL_ERROR);
             }
         } else {
-            $minTail = 6;
+            $minTail = 7;
             $start = strpos($stream, '!');
             if ($start === false) {
-                $this->SendDebug('Error', 'eISCP Frame without !', 0);
-                $stream = '';
+                $this->SendDebug('Error', 'ISCP Frame without "!"', 0);
+                $this->Buffer = '';
+                return;
             } elseif ($start > 0) {
-                $this->SendDebug('Error', 'eISCP Frame do not start with !', 0);
+                $this->SendDebug('Warning', 'ISCP Frame do not start with "!"', 0);
                 $stream = substr($stream, $start);
             }
-//Paket suchen
-            $end = strpos($stream, chr(0x1A));
-            if (($end === false) or ( strlen($stream) < $minTail)) { // Kein EOT oder zu klein
-                $this->SendDebug('Error', 'eISCP Frame to short', 0);
+            $len = strpos($stream, "\x1A");
+            if (($len === false) or ( strlen($stream) < $minTail)) { // Kein EOT oder zu klein
+                $this->SendDebug('Waiting', 'ISCP Frame incomplete', 0);
                 $this->Buffer = $stream;
-                $this->unlock('ReceiveLock');
                 return;
             }
-            $frame = substr($stream, $start, $end - $start);
-// Ende wieder in den Buffer werfen
-            $tail = ltrim(substr($stream, $end));
-        }
-        if ($tail === false) {
-            $tail = '';
+            $frame = substr($stream, 0, $len);
+            $tail = ltrim(substr($stream, $len));
         }
         $this->Buffer = $tail;
-        $this->unlock('ReceiveLock');
-        if ($frame !== false) {
-            $this->DecodeData($frame);
+        if ($frame != '') {
+            $APIData = $this->DecodeData(rtrim($frame));
+            if ($APIData !== false) {
+                if (!$this->SendQueueUpdate($APIData->APICommand, $APIData->Data)) {
+                    $this->SendDataToZone($APIData);
+                }
+            }
         }
-// Ende war länger als 6 / 23 ? Dann nochmal Packet suchen.
         if (strlen($tail) >= $minTail) {
             $this->ReceiveData(json_encode(['Buffer' => '']));
         }
-        return true;
+        return;
     }
 
-    protected function SendDataToParent($Data)
+    protected function Send(\OnkyoAVR\ISCP_API_Data $APIData)
     {
-//        IPS_LogMessage('SendDataToSerialPort:'.$this->InstanceID,$Data);
-//Parent ok ?
-        if (!$this->HasActiveParent()) {
-            throw new Exception('Instance has no active Parent.', E_USER_NOTICE);
-        }
-        $this->SendDebug('SendDataToParent', $Data, 0);
-// Frame bauen
-//
-// DATA aufüllen
-        if ($this->Mode == \OnkyoAVR\ISCP_API_Mode::LAN) {
-            $eISCPlen = chr(0x00) . chr(0x00) . chr(floor(strlen($Data) / 256)) . chr(strlen($Data) % 256);
-            $Frame = $eISCPlen . chr($this->eISCPVersion) . chr(0x00) . chr(0x00) . chr(0x00);
-            $Len = strlen($Frame) + 8;
-            $eISCPHeaderlen = chr(0x00) . chr(0x00) . chr(floor($Len / 256)) . chr($Len % 256);
-            $Frame = 'ISCP' . $eISCPHeaderlen . $Frame . $Data;
-        } elseif ($this->Mode == \OnkyoAVR\ISCP_API_Mode::COM) {
-            $Frame = $Data;
-        } else {
-
-            //throw new Exception('Wrong IO-Parent.', E_USER_WARNING);
-            $this->SendDebug('Error', 'Wrong IO-Parent.', 0);
-            $this->LogMessage('Wrong IO-Parent in SendDataToParent.', KL_ERROR);
-            return false;
-        }
-        $this->SendDebug('SendDataToParent', $Frame, 0);
-//Semaphore setzen
-        if (!$this->lock('ToParent')) {
-            throw new Exception('Can not send to Parent', E_USER_NOTICE);
-        }
-// Daten senden
         try {
-            parent::SendDataToParent(json_encode(['DataID' => '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}', 'Buffer' => utf8_encode($Frame)]));
-        } catch (Exception $exc) {
-// Senden fehlgeschlagen
-            $this->unlock('ToParent');
-
-            throw new Exception($exc);
+            if (!$this->HasActiveParent()) {
+                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
+            }
+            $this->SendDebug('Send APIData', $APIData, 0);
+            $Frame = $APIData->ToISCPString($this->Mode);
+            $Data = json_encode(['DataID' => '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}', 'Buffer' => utf8_encode($Frame)]);
+            if (!$APIData->needResponse) {
+                $this->SendDataToParent($Data);
+                return true;
+            }
+            $this->SendQueuePush($APIData->APICommand);
+            $this->SendDataToParent($Data);
+            $ReplyData = $this->WaitForResponse($APIData->APICommand);
+            if ($ReplyData === null) {
+                throw new Exception($this->Translate('Timeout') . ' ' . $APIData->APICommand, E_USER_NOTICE);
+            }
+            return $ReplyData;
+        } catch (Exception $ex) {
+            $this->SendDebug('Error', $ex->getMessage(), 0);
+            trigger_error($ex->getMessage(), $ex->getCode());
         }
-        $this->unlock('ToParent');
-        return true;
+        return null;
+    }
+
+    /**
+     * Wartet auf eine Antwort einer Anfrage an den LMS.
+     *
+     * @param string $APICommand
+     * @result mixed 
+     */
+    private function WaitForResponse(string $APICommand)
+    {
+        for ($i = 0; $i < 500; $i++) {
+            $Buffer = $this->ReplyISCPData;
+            if (!array_key_exists($APICommand, $Buffer)) {
+                return null;
+            }
+            if (!is_null($Buffer[$APICommand])) {
+                $this->SendQueueRemove($APICommand);
+                return $Buffer[$APICommand];
+            }
+            usleep(5000);
+        }
+        $this->SendQueueRemove($APICommand);
+        return null;
+    }
+
+    //################# SENDQUEUE
+    /**
+     * Fügt eine Anfrage in die SendQueue ein.
+     */
+    private function SendQueuePush(string $APICommand)
+    {
+        if (!$this->lock('ReplyISCPData')) {
+            throw new Exception($this->Translate('ReplyBuffer is locked'), E_USER_NOTICE);
+        }
+        $Buffer = $this->ReplyISCPData;
+        $Buffer[$APICommand] = null;
+        $this->ReplyISCPData = $Buffer;
+        $this->unlock('ReplyISCPData');
+    }
+
+    /**
+     * Fügt eine Antwort in die SendQueue ein.
+     *
+     * @param string $APICommand
+     * @param mixed $Data
+     * @return bool True wenn Anfrage zur Antwort gefunden wurde, sonst false.
+     */
+    private function SendQueueUpdate(string $APICommand, $Data)
+    {
+        if (!$this->lock('ReplyISCPData')) {
+            throw new Exception($this->Translate('ReplyISCPData is locked'), E_USER_NOTICE);
+        }
+        $Buffer = $this->ReplyISCPData;
+        if (array_key_exists($APICommand, $Buffer)) {
+            $Buffer[$APICommand] = $Data;
+            $this->ReplyISCPData = $Buffer;
+            $this->unlock('ReplyISCPData');
+            return true;
+        }
+        $this->unlock('ReplyISCPData');
+        return false;
+    }
+
+    /**
+     * Löscht einen Eintrag aus der SendQueue.
+     *
+     * @param string $APICommand Der Index des zu löschenden Eintrags.
+     */
+    private function SendQueueRemove(string $APICommand)
+    {
+        if (!$this->lock('ReplyISCPData')) {
+            throw new Exception($this->Translate('ReplyISCPData is locked'), E_USER_NOTICE);
+        }
+        $Buffer = $this->ReplyISCPData;
+        unset($Buffer[$APICommand]);
+        $this->ReplyISCPData = $Buffer;
+        $this->unlock('ReplyISCPData');
     }
 
 }

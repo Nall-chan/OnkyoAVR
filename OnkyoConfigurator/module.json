@@ -1,0 +1,11 @@
+{
+    "id": "{251DAC2C-5B1F-4B1F-B843-B22D518F553E}",
+    "name": "OnkyoConfigurator",
+    "type": 4,
+    "vendor": "Onkyo & Pioneer",
+    "aliases": ["Onkyo Configurator", "Pioneer Configurator"],
+    "parentRequirements": ["{8F47273A-0B69-489E-AF36-F391AE5FBEC0}"],
+    "childRequirements": [],
+    "implemented": ["{43E4B48E-2345-4A9A-B506-3E8E7A964757}"],
+    "prefix": "OAVR"
+}

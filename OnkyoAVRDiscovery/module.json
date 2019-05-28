@@ -1,0 +1,11 @@
+{
+    "id": "{7A3A7067-253F-4270-AC6D-55790FB12F53}",
+    "name": "Onkyo AVR Discovery",
+    "type": 5,
+    "vendor": "Onkyo & Pioneer",
+    "aliases": ["Onkyo AVR Discovery", "Pioneer AVR Discovery"],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "OAVR"
+}

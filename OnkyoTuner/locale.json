@@ -1,0 +1,14 @@
+
+{
+    "translations": {
+        "de": {
+            "Sending commands uses the following zone:": "Bei dem senden von Befehlen wird die folgende Zone verwendet:",
+            "Request State": "Status lesen",
+            "Radio Stations": "Radiosender",
+            "Tuner Frequency": "Tuner-Frequenz",
+            "Command not available.": "Kommando nicht verfügbar.",
+            "%s out of range.": "%s außerhalb des zulässigen Bereiches.",
+            "Instance has no active parent.": "Instanz hat keinen aktiven Parent."
+        }
+    }
+}

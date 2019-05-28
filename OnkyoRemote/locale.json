@@ -1,0 +1,29 @@
+{
+    "translations": {
+        "de": {
+            "Type": "Typ",
+            "ext. Amplifier": "ext. Verstärker",
+            "Show SVG-Remotecontrol": "SVG-Fernsteuerung anzeigen",
+            "Remote:": "Fernsteuerung:",
+            "vertical": "vertikal",
+            "horizontal": "horizontal",
+            "Show Action-Variable for navigate": "Aktions-Variable zum navigieren anlegen",
+            "Show Action-Variable for control": "Aktions-Variable zum steuern anlegen",
+            "up": "Hoch",
+            "down": "Runter",
+            "left": "Links",
+            "right": "Rechts",
+            "menu": "Menü",
+            "Menu": "Menü",
+            "enter": "Enter",
+            "exit": "Exit",
+            "home": "Home",
+            "Illegal hook": "Ungültiger Hook",
+            "Invalid Value.": "Ungültiger Wert.",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Error on execute action.": "Fehler beim ausführen der Aktion.",
+            "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
+            "Command not available.": "Kommando nicht verfügbar."
+        }
+    }
+}

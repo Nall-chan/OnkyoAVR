@@ -1,0 +1,338 @@
+{
+    "elements":
+            [
+                {
+                    "name": "Zone",
+                    "type": "Select",
+                    "caption": "Zone",
+                    "options": [
+                        {
+                            "label": "not set",
+                            "value": 0
+                        },
+                        {
+                            "label": "Main",
+                            "value": 1
+                        },
+                        {
+                            "label": "Zone 2",
+                            "value": 2
+                        },
+                        {
+                            "label": "Zone 3",
+                            "value": 3
+                        },
+                        {
+                            "label": "Zone 4",
+                            "value": 4
+                        }
+                    ]
+                }, {
+                    "type": "ExpansionPanel",
+                    "caption": "Default variables",
+                    "items": [
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "MVL",
+                                    "caption": "volume control"
+                                }, 
+                                {
+                                    "type": "CheckBox",
+                                    "name": "AMT",
+                                    "caption": "mute control"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "SLI",
+                                    "caption": "input control"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "ExpansionPanel",
+                    "caption": "Speaker sound variables",
+                    "items": [
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TFR",
+                                    "caption": "front speaker"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TFW",
+                                    "caption": "front wide speaker"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TFH",
+                                    "caption": "front high speaker"
+                                }
+                            ]
+                        }, 
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TSR",
+                                    "caption": "surround speaker"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TSB",
+                                    "caption": "surround back speaker"
+                                }
+                            ]
+                        },
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TCT",
+                                    "caption": "center speaker"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TSW",
+                                    "caption": "subwoofer"
+                                }
+                            ]
+                        }
+                    ]
+                }, {
+                    "type": "ExpansionPanel",
+                    "caption": "Speaker level variables",
+                    "items": [
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "CTL",
+                                    "caption": "center speaker"
+                                }, 
+                                {
+                                    "type": "CheckBox",
+                                    "name": "SWL",
+                                    "caption": "subwoofer"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "SW2",
+                                    "caption": "subwoofer 2"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "ExpansionPanel",
+                    "caption": "HDMI and video variables",
+                    "items": [
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "HDO",
+                                    "caption": "HDMI output"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "CEC",
+                                    "caption": "HDMI-CEC"
+                                }
+                            ]
+                        }, 
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "HAO",
+                                    "caption": "main HDMI audio out"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "HAS",
+                                    "caption": "sub HDMI audio out"
+                                }
+                            ]
+                        }, 
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "RES",
+                                    "caption": "monitor resolution"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "VWM",
+                                    "caption": "video mode"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "VPM",
+                                    "caption": "video picture mode"
+                                }
+                            ]
+                        }
+                    ]
+                }, {
+                    "type": "ExpansionPanel",
+                    "caption": "display variables",
+                    "items": [
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DIF",
+                                    "caption": "mode"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DIM",
+                                    "caption": "dimmer"
+                                }
+                            ]
+                        }
+                    ]
+                }, {
+                    "type": "ExpansionPanel",
+                    "caption": "Audyssey variables",
+                    "items": [
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "ADQ",
+                                    "caption": "control"
+                                }, 
+                                {
+                                    "type": "CheckBox",
+                                    "name": "ADY",
+                                    "caption": "mode"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "ADV",
+                                    "caption": "volume"
+                                }
+                            ]
+                        }
+                    ]
+                }, {
+                    "type": "ExpansionPanel",
+                    "caption": "miscellaneous",
+                    "items": [
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+
+                                {
+                                    "type": "CheckBox",
+                                    "name": "LMD",
+                                    "caption": "listing mode control"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "LMD2",
+                                    "caption": "listing mode buttons"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "SLA",
+                                    "caption": "audio input control"
+                                }
+                            ]
+                        },
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "IFA",
+                                    "caption": "show audio information"
+                                }, 
+                                {
+                                    "type": "CheckBox",
+                                    "name": "IFV",
+                                    "caption": "show video information"
+                                }
+                            ]
+                        }, 
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+
+                                {
+                                    "type": "CheckBox",
+                                    "name": "SLP",
+                                    "caption": "sleeptimer control"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "LTN",
+                                    "caption": "Late-Nigh control"
+                                }
+                            ]
+                        },
+                        { 
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "CheckBox",
+                                    "name": "MOT",
+                                    "caption": "music optimizer control"
+                                }, 
+                                {
+                                    "type": "CheckBox",
+                                    "name": "RAS",
+                                    "caption": "Re-EQ or cinema filter control"
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "PMB",
+                                    "caption": "phase matching bass sontrol"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+    "actions":
+            [{
+                    "type": "PopupAlert",
+                    "popup": {
+                        "closeCaption": "I understand",
+                        "items": [
+                            {
+                                "type": "Label",
+                                "caption": "Be careful when configuring the zone and checkboxes. Modification may delete variables!"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "TestCenter"
+                },
+                {
+                    "type": "Button",
+                    "label": "Request State",
+                    "onClick": "OAVR_RequestState($id,'ALL');"
+                }
+            ]
+}

@@ -1,0 +1,12 @@
+{
+    "translations": {
+        "de": {
+            "Type": "Typ",
+            "Zone": "Zone",
+            "Name": "Name",
+            "Location": "Lokation",
+            "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
+            "Splitter has no IO instance.": "Splitter hat keine IO Instanz."
+        }
+    }
+}
