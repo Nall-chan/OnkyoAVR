@@ -9,11 +9,10 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
 eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/UTF8Helper.php') . '}');
 
 /**
- * 
  * @property array $ReplyISCPData Enthält die versendeten Befehle und buffert die Antworten.
  * @property string $Buffer Empfangsbuffer
  * @property int $ParentID Die InstanzeID des IO-Parent
- * @property \OnkyoAVR\ISCP_API_Mode $Mode 
+ * @property \OnkyoAVR\ISCP_API_Mode $Mode
  * @property array $NetserviceList
  * @property array $ZoneList
  * @property array $SelectorList
@@ -26,7 +25,6 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
  */
 class ISCPSplitter extends IPSModule
 {
-
     use \ISCPSplitter\DebugHelper,
         \ISCPSplitter\BufferHelper,
         \ISCPSplitter\InstanceStatus,
@@ -134,7 +132,6 @@ class ISCPSplitter extends IPSModule
 
     public function GetConfigurationForParent()
     {
-
         $parentGUID = IPS_GetInstance($this->ParentID)['ModuleInfo']['ModuleID'];
         if ($parentGUID == '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}') {
             return json_encode(['Port' => 60128]);
@@ -286,7 +283,7 @@ class ISCPSplitter extends IPSModule
                 $ControlList[] = (string) $Control['id'];
                 continue;
             }
-            if (array_key_exists('step', ((array) $Control)["@attributes"])) {
+            if (array_key_exists('step', ((array) $Control)['@attributes'])) {
                 $ProfileList[(string) $Control['id']] = [
                     0      => (int) $Control['min'],
                     1      => (int) $Control['max'],
@@ -335,7 +332,7 @@ class ISCPSplitter extends IPSModule
         return new \OnkyoAVR\ISCP_API_Data($Frame);
     }
 
-//################# DATAPOINT RECEIVE FROM CHILD
+    //################# DATAPOINT RECEIVE FROM CHILD
 
     public function ForwardData($JSONString)
     {
@@ -353,7 +350,7 @@ class ISCPSplitter extends IPSModule
         return false;
     }
 
-//################# DATAPOINTS DEVICE
+    //################# DATAPOINTS DEVICE
 
     private function SendDataToZone(\OnkyoAVR\ISCP_API_Data $APIData)
     {
@@ -362,11 +359,10 @@ class ISCPSplitter extends IPSModule
         $this->SendDataToChildren($Data);
     }
 
-//################# DATAPOINTS PARENT
+    //################# DATAPOINTS PARENT
 
     public function ReceiveData($JSONString)
     {
-
         $stream = $this->Buffer;
         $stream .= utf8_decode(json_decode($JSONString)->Buffer);
         $this->SendDebug('Receive', $stream, 0);
@@ -415,7 +411,7 @@ class ISCPSplitter extends IPSModule
                 $stream = substr($stream, $start);
             }
             $len = strpos($stream, "\x1A");
-            if (($len === false) or ( strlen($stream) < $minTail)) { // Kein EOT oder zu klein
+            if (($len === false) or (strlen($stream) < $minTail)) { // Kein EOT oder zu klein
                 $this->SendDebug('Waiting', 'ISCP Frame incomplete', 0);
                 $this->Buffer = $stream;
                 return;
@@ -469,7 +465,7 @@ class ISCPSplitter extends IPSModule
      * Wartet auf eine Antwort einer Anfrage an den LMS.
      *
      * @param string $APICommand
-     * @result mixed 
+     * @result mixed
      */
     private function WaitForResponse(string $APICommand)
     {
@@ -489,6 +485,7 @@ class ISCPSplitter extends IPSModule
     }
 
     //################# SENDQUEUE
+
     /**
      * Fügt eine Anfrage in die SendQueue ein.
      */
@@ -507,7 +504,8 @@ class ISCPSplitter extends IPSModule
      * Fügt eine Antwort in die SendQueue ein.
      *
      * @param string $APICommand
-     * @param mixed $Data
+     * @param mixed  $Data
+     *
      * @return bool True wenn Anfrage zur Antwort gefunden wurde, sonst false.
      */
     private function SendQueueUpdate(string $APICommand, $Data)
@@ -541,5 +539,4 @@ class ISCPSplitter extends IPSModule
         $this->ReplyISCPData = $Buffer;
         $this->unlock('ReplyISCPData');
     }
-
 }

@@ -11,13 +11,12 @@ eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/V
 
 /**
  * @property int $ParentID Die InstanzeID des IO-Parent
- * @property int $MaxPreset 
- * @property int $TunerProfile 
+ * @property int $MaxPreset
+ * @property int $TunerProfile
  * @property \OnkyoAVR\ONKYO_Zone_Tuner $OnkyoZone
  */
 class OnkyoTuner extends IPSModule
 {
-
     use \OnkyoTuner\DebugHelper,
         \OnkyoTuner\BufferHelper,
         \OnkyoTuner\InstanceStatus,
@@ -26,6 +25,7 @@ class OnkyoTuner extends IPSModule
         \OnkyoTuner\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoTuner\InstanceStatus::RequestAction as IORequestAction;
     }
+
     public function Create()
     {
         parent::Create();
@@ -38,12 +38,10 @@ class OnkyoTuner extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function Destroy()
     {
-        if (IPS_GetKernelRunlevel() <> KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return parent::Destroy();
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
@@ -139,7 +137,6 @@ class OnkyoTuner extends IPSModule
 
     //################# PRIVATE
 
-
     private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
     {
         switch ($APIData->APICommand) {
@@ -204,6 +201,7 @@ class OnkyoTuner extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -232,7 +230,7 @@ class OnkyoTuner extends IPSModule
         $ValueValid = false;
         $NewBand = 0;
         foreach ($this->TunerProfile as $Profile) {
-            if (($Value >= $Profile['Min']) and ( $Value <= $Profile['Max'])) {
+            if (($Value >= $Profile['Min']) and ($Value <= $Profile['Max'])) {
                 $ValueValid = true;
                 $NewBand = $Profile['SLI'];
             }
@@ -278,7 +276,7 @@ class OnkyoTuner extends IPSModule
 
     public function CallPreset(int $Value)
     {
-        if (($Value < 1) or ( $Value > $this->MaxPreset)) {
+        if (($Value < 1) or ($Value > $this->MaxPreset)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -289,7 +287,7 @@ class OnkyoTuner extends IPSModule
 
     public function SetPreset(int $Value)
     {
-        if (($Value < 1) or ( $Value > $this->MaxPreset)) {
+        if (($Value < 1) or ($Value > $this->MaxPreset)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -367,6 +365,7 @@ class OnkyoTuner extends IPSModule
     private function Send(\OnkyoAVR\ISCP_API_Data $APIData)
     {
         $this->SendDebug('ForwardData', $APIData, 0);
+
         try {
             if (!$this->HasActiveParent()) {
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
@@ -385,5 +384,4 @@ class OnkyoTuner extends IPSModule
             return null;
         }
     }
-
 }

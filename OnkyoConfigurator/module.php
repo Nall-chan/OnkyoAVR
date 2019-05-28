@@ -6,8 +6,8 @@ eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/h
 
 class OnkyoConfigurator extends IPSModule
 {
-
     use \OnkyoConfigurator\DebugHelper;
+
     /**
      * Interne Funktion des SDK.
      */
@@ -52,7 +52,6 @@ class OnkyoConfigurator extends IPSModule
      */
     private function GetZoneConfigFormValues(int $Splitter)
     {
-
         $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
         $FoundZones = $this->Send($APIDataZoneList);
         $this->SendDebug('Found Zones', $FoundZones, 0);
@@ -178,7 +177,7 @@ class OnkyoConfigurator extends IPSModule
             }
             $TunerValues[] = $AddValue;
         }
-        if ($HasTuner and ( count($TunerValues) == 0)) {
+        if ($HasTuner and (count($TunerValues) == 0)) {
             $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
             $FoundZones = $this->Send($APIDataZoneList);
             foreach ($FoundZones as $ZoneID => $Zone) {
@@ -247,6 +246,7 @@ class OnkyoConfigurator extends IPSModule
     private function Send(\OnkyoAVR\ISCP_API_Data $APIData)
     {
         $this->SendDebug('ForwardData', $APIData, 0);
+
         try {
             if (!$this->HasActiveParent()) {
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
@@ -264,5 +264,4 @@ class OnkyoConfigurator extends IPSModule
             return null;
         }
     }
-
 }

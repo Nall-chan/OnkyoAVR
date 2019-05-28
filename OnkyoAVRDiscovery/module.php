@@ -10,9 +10,9 @@ eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>' . file_get_conten
  */
 class OnkyoAVRDiscovery extends ipsmodule
 {
-
     use \OnkyoAVRDiscovery\DebugHelper,
         \OnkyoAVRDiscovery\BufferHelper;
+
     /**
      * Interne Funktion des SDK.
      */
@@ -140,7 +140,7 @@ class OnkyoAVRDiscovery extends ipsmodule
         socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 1, 'usec' => 100000]);
         socket_bind($socket, '0.0.0.0', 0);
-        $message = hex2bin("49534350000000100000000b01000000217845434e5153544e0d0a");
+        $message = hex2bin('49534350000000100000000b01000000217845434e5153544e0d0a');
         if (@socket_sendto($socket, $message, strlen($message), 0, '255.255.255.255', 60128) === false) {
             return [];
         }
@@ -177,7 +177,6 @@ class OnkyoAVRDiscovery extends ipsmodule
         $this->Devices = $this->DiscoverDevices();
         // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
-
 }
 
 /* @} */
