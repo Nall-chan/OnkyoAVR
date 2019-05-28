@@ -19,6 +19,7 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  */
 class OnkyoAVR extends IPSModule
 {
+
     use \OnkyoAVR\DebugHelper,
         \OnkyoAVR\BufferHelper,
         \OnkyoAVR\InstanceStatus,
@@ -27,7 +28,6 @@ class OnkyoAVR extends IPSModule
         \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
     }
-
     public function Create()
     {
         parent::Create();
@@ -235,9 +235,9 @@ class OnkyoAVR extends IPSModule
         $OldVariables = [
             \OnkyoAVR\ISCP_API_Commands::TUN,
             \OnkyoAVR\ISCP_API_Commands::PRS,
-            \OnkyoAVR\ISCP_API_Commands::LMZ,
-            \OnkyoAVR\ISCP_API_Commands::LTZ,
-            \OnkyoAVR\ISCP_API_Commands::RAZ,
+            'LMZ',
+            'LTZ',
+            'RAZ',
             \OnkyoAVR\ISCP_API_Commands::TUZ,
             \OnkyoAVR\ISCP_API_Commands::PRZ,
             \OnkyoAVR\ISCP_API_Commands::TU3,
@@ -487,7 +487,6 @@ class OnkyoAVR extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -652,7 +651,7 @@ class OnkyoAVR extends IPSModule
         if (!$this->CheckZone()) {
             return false;
         }
-        if (($Duration < 0) or ($Duration > 0x5A)) {
+        if (($Duration < 0) or ( $Duration > 0x5A)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
             return false;
         }
@@ -948,4 +947,5 @@ class OnkyoAVR extends IPSModule
             return null;
         }
     }
+
 }
