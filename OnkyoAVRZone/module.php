@@ -310,7 +310,7 @@ class OnkyoAVR extends IPSModule
                 $this->SendDebug('Update Profile', $Object, 0);
                 $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
                 // Hat sich der Variabletyp verändert?
-                if ($Variable['VariableType '] == $Mapping->VarType) {
+                if ($Variable['VariableType'] == $Mapping->VarType) {
                     $ObjectID = $this->GetIDForIdent($Object['ObjectIdent']); //neue VariableID
                 }
                 //Name ist unverändert
