@@ -305,7 +305,7 @@ class OnkyoAVR extends IPSModule
                 }
                 if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
                     $Mapping->VarType = \OnkyoAVR\IPSVarType::vtInteger;
-                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$Object['ObjectIdent'][4]];
+                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$Object['ObjectIdent'][3]];
                     $Mapping->VarName = $Mapping->VarName[$ISCP_ValuePrefix];
                 }
                 //Profile neu setzen
