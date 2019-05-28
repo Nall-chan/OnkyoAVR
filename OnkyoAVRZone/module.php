@@ -11,7 +11,7 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
 
 /**
  * @property int $ParentID Die InstanzeID des IO-Parent
- * @property \OnkyoAVR\ONKYO_Zone $OnkyoZone 
+ * @property \OnkyoAVR\ONKYO_Zone $OnkyoZone
  * @property bool $PhaseMatchingBass
  * @property array $ToneProfile
  * @property array $MyConfig
@@ -19,7 +19,6 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  */
 class OnkyoAVR extends IPSModule
 {
-
     use \OnkyoAVR\DebugHelper,
         \OnkyoAVR\BufferHelper,
         \OnkyoAVR\InstanceStatus,
@@ -28,6 +27,7 @@ class OnkyoAVR extends IPSModule
         \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
     }
+
     public function Create()
     {
         parent::Create();
@@ -92,7 +92,7 @@ class OnkyoAVR extends IPSModule
 
     public function Destroy()
     {
-        if (IPS_GetKernelRunlevel() <> KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return parent::Destroy();
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
@@ -487,6 +487,7 @@ class OnkyoAVR extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -651,7 +652,7 @@ class OnkyoAVR extends IPSModule
         if (!$this->CheckZone()) {
             return false;
         }
-        if (($Duration < 0) or ( $Duration > 0x5A)) {
+        if (($Duration < 0) or ($Duration > 0x5A)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
             return false;
         }
@@ -928,6 +929,7 @@ class OnkyoAVR extends IPSModule
     private function Send(\OnkyoAVR\ISCP_API_Data $APIData)
     {
         $this->SendDebug('ForwardData', $APIData, 0);
+
         try {
             if (!$this->HasActiveParent()) {
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
@@ -946,5 +948,4 @@ class OnkyoAVR extends IPSModule
             return null;
         }
     }
-
 }

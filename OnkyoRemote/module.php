@@ -21,11 +21,10 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
 /**
- * @property int $Type 
+ * @property int $Type
  */
 class OnkyoRemote extends IPSModule
 {
-
     use \OnkyoRemote\DebugHelper,
         \OnkyoRemote\WebhookHelper,
         \OnkyoRemote\Bufferhelper,
@@ -218,8 +217,6 @@ class OnkyoRemote extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function Create()
     {
@@ -235,12 +232,10 @@ class OnkyoRemote extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function Destroy()
     {
-        if (IPS_GetKernelRunlevel() <> KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return parent::Destroy();
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
@@ -252,8 +247,6 @@ class OnkyoRemote extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function ApplyChanges()
     {
@@ -304,15 +297,14 @@ class OnkyoRemote extends IPSModule
             $this->UnregisterVariable('ctrlremote');
         }
 
-
         parent::ApplyChanges();
     }
 
-    ################## PRIVATE
+    //################# PRIVATE
+
     /**
      * Verarbeitet Daten aus dem Webhook.
      *
-     * @access protected
      * @global array $_GET
      */
     protected function ProcessHookdata()
@@ -340,12 +332,12 @@ class OnkyoRemote extends IPSModule
         }
     }
 
-    ################## ActionHandler
+    //################# ActionHandler
+
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      *
-     * @access public
-     * @param string $Ident Der Ident der Statusvariable.
+     * @param string                $Ident Der Ident der Statusvariable.
      * @param bool|float|int|string $Value Der angeforderte neue Wert.
      */
     public function RequestAction($Ident, $Value)
@@ -411,11 +403,11 @@ class OnkyoRemote extends IPSModule
         }
     }
 
-    ################## PUBLIC
+    //################# PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'OAVR_Up'. Tastendruck 'Hoch' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Up()
@@ -426,7 +418,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Down'. Tastendruck 'Runter' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Down()
@@ -437,7 +428,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Left'. Tastendruck 'Links' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Left()
@@ -448,7 +438,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Right'. Tastendruck 'Rechts' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Right()
@@ -459,7 +448,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Menu'. Tastendruck 'Zurück' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Menu()
@@ -470,7 +458,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Enter'. Tastendruck 'ContextMenu' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Enter()
@@ -481,7 +468,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Home'. Tastendruck 'Home' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Home()
@@ -492,7 +478,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Info'. Tastendruck 'Info' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Exit()
@@ -503,7 +488,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_Select'. Tastendruck 'Select' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Quick()
@@ -514,7 +498,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_ShowOSD'. Tastendruck 'ShowOSD' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function Power()
@@ -525,7 +508,6 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_ShowCodec'. Tastendruck 'ShowCodec' ausführen.
      *
-     * @access public
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function PowerOn()
@@ -536,8 +518,8 @@ class OnkyoRemote extends IPSModule
     /**
      * IPS-Instanz-Funktion 'OAVR_ExecuteAction'. Als Parameter übergebenen Tastendruck ausführen.
      *
-     * @access public
      * @param string $Action Auszuführende Aktion.
+     *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
     public function PowerOff()
@@ -641,7 +623,6 @@ class OnkyoRemote extends IPSModule
             return false;
         }
     }
-
 }
 
-/** @} */
+/* @} */

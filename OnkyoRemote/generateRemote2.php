@@ -1,5 +1,7 @@
 <?php
-$remote =  '<svg id="svgrc'. $this->InstanceID . '" version="1.2" baseProfile="tiny" width="150mm" height="80mm" viewBox="252.56529536505553 182.26596069335938 10755.958856291374 7071.93408203125" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" ><rect id="svgEditorBackground" x="0" y="0" width="8000" height="14800" style="fill: none; stroke: none;"/>
+
+declare(strict_types=1);
+$remote = '<svg id="svgrc' . $this->InstanceID . '" version="1.2" baseProfile="tiny" width="150mm" height="80mm" viewBox="252.56529536505553 182.26596069335938 10755.958856291374 7071.93408203125" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" ><rect id="svgEditorBackground" x="0" y="0" width="8000" height="14800" style="fill: none; stroke: none;"/>
   <defs>
   <font id="EmbeddedFont_1" horiz-adv-x="2048">
    <font-face font-family="Arial embedded" units-per-em="2048" font-weight="bold" font-style="normal" ascent="1879" descent="476"/>
