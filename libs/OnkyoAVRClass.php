@@ -65,7 +65,6 @@ class Remotes
                 return -1;
         }
     }
-
 }
 
 class IPSVarType
@@ -76,7 +75,6 @@ class IPSVarType
     const vtFloat = 2;
     const vtString = 3;
     const vtDualInteger = 10;
-
 }
 
 class IPSProfiles
@@ -286,7 +284,6 @@ class IPSProfiles
             [0x03, 'Heavy', '', -1]
         ]
     ];
-
 }
 
 class ONKYO_Zone_Tuner
@@ -369,7 +366,6 @@ class ONKYO_Zone_Tuner
         $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
         return self::$ZoneCMDs[$this->thisZone][$key];
     }
-
 }
 
 class ONKYO_Zone
@@ -590,7 +586,6 @@ class ISCP_API_Mode
 {
     const LAN = 1;
     const COM = 2;
-
 }
 
 class ISCP_API_Commands
@@ -824,8 +819,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TFW => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -836,8 +831,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TFH => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -848,8 +843,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TCT => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -860,8 +855,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TSR => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -872,8 +867,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TSB => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -884,8 +879,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TSW => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -896,8 +891,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['B' => 0],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::PMB => [
             self::VarType      => IPSVarType::vtBoolean,
@@ -1189,8 +1184,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::SLZ => [
             self::VarType      => IPSVarType::vtInteger,
@@ -1248,8 +1243,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         // Zone 3 end
         // Zone 4 start
@@ -1364,7 +1359,6 @@ class ISCP_API_Commands
               self::ValueMapping => null
               ] */
     ];
-
 }
 
 class ISCP_API_Data_Mapping
@@ -1387,7 +1381,6 @@ class ISCP_API_Data_Mapping
         }
         return null;
     }
-
 }
 
 /**
