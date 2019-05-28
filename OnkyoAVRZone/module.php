@@ -305,12 +305,14 @@ class OnkyoAVR extends IPSModule
                 }
                 if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
                     $Mapping->VarType = \OnkyoAVR\IPSVarType::vtInteger;
+                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$Object['ObjectIdent'][4]];
+                    $Mapping->VarName = $Mapping->VarName[$ISCP_ValuePrefix];
                 }
                 //Profile neu setzen
                 $this->SendDebug('Update Profile', $Object, 0);
                 $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
                 // Hat sich der Variabletyp verändert?
-                if ($Variable['VariableType'] == $Mapping->VarType) {
+                if ($Variable['VariableType'] != $Mapping->VarType) {
                     $ObjectID = $this->GetIDForIdent($Object['ObjectIdent']); //neue VariableID
                 }
                 //Name ist unverändert
