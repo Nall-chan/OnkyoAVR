@@ -138,7 +138,7 @@ class OnkyoAVR extends IPSModule
             if (strpos($Profile, '%d')) {
                 $Profile = sprintf($Profile, $this->InstanceID);
             }
-            $this->RegisterProfileInteger($Profile, '', '', '', $Size[0], $Size[1], $Size[2]);
+            $this->RegisterProfileInteger($Profile, '', '', $Size[3], $Size[0], $Size[1], $Size[2]);
         }
         foreach (\OnkyoAVR\IPSProfiles::$ProfilFloat as $Profile => $Size) {
             if (strpos($Profile, '%d')) {
@@ -157,6 +157,8 @@ class OnkyoAVR extends IPSModule
         }
         $this->SendDebug('Default Profile', $ProfileData, 0);
         $this->ToneProfile = $ProfileData;
+        $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone($this->ReadPropertyInteger('Zone'));
+
         if (@$this->GetIDForIdent('ReplyAPIData') > 0) {
             $this->PerformModulUpdate();
             return;
@@ -164,7 +166,6 @@ class OnkyoAVR extends IPSModule
 
         $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
         $this->PhaseMatchingBass = true;
-        $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone($this->ReadPropertyInteger('Zone'));
         $this->SetSummary($this->OnkyoZone->GetName());
         $APICommands = $this->OnkyoZone->GetAPICommands();
         if (count($APICommands) > 0) {
@@ -211,9 +212,17 @@ class OnkyoAVR extends IPSModule
         }
     }
 
+    protected function ModulUpdateErrorHandler($errno, $errstr)
+    {
+        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
+        echo $errstr;
+    }
+
     private function PerformModulUpdate()
     {
+        set_error_handler([$this, 'ModulErrorHandler']);
         // Update machen !!!
+        $Zone = $this->OnkyoZone;
         $OldProfileList = ['ToneOffset.Onkyo',
             'Sleep.Onkyo',
             'DisplayMode.Onkyo',
@@ -263,6 +272,7 @@ class OnkyoAVR extends IPSModule
             if ($Object['ObjectType'] != OBJECTTYPE_VARIABLE) {
                 continue;
             }
+
             $OldVariableNames = [
                 'Subwoofer Bass'       => 'Subwoofer Level',
                 'Sleep Set'            => 'Sleeptimer',
@@ -271,12 +281,17 @@ class OnkyoAVR extends IPSModule
                 'Input Selector'       => 'Input'
             ];
             $ApiCmd = substr($Object['ObjectIdent'], 0, 3);
+            if (!$Zone->CmdAvaiable($ApiCmd)) {
+                $this->SendDebug('Wrong Zone UnregisterVariable', $ApiCmd, 0);
+                $this->UnregisterVariable($ApiCmd);
+            }
             $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd);
             if ($Mapping != null) { //Variable bekannt
                 if (array_key_exists($ApiCmd, $MyPropertys)) {
                     // Werkssettings sagt false
                     if ($MyPropertys[$ApiCmd] === false) {
                         //Aber alte Variable vorhanden => settings updaten
+                        $this->SendDebug('Update Property', $ApiCmd, 0);
                         IPS_SetProperty($this->InstanceID, $ApiCmd, true);
                     }
                 }
@@ -285,15 +300,20 @@ class OnkyoAVR extends IPSModule
                     $Profile = sprintf($Profile, $this->InstanceID);
                 }
                 //Profile neu setzen
+                $this->SendDebug('Update Profile', $Object, 0);
                 $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
                 //Name ist unverändert
                 if ($Object['ObjectName'] == $Mapping->VarName) {
+                    $this->SendDebug('Update Translated Name', $Object['ObjectName'], 0);
                     IPS_SetName($ObjectID, $this->Translate($Object['ObjectName']));
                     continue;
                 }
                 if (array_key_exists($Object['ObjectName'], $OldVariableNames)) {
+                    $this->SendDebug('Update Old Name', $Object['ObjectName'], 0);
                     IPS_SetName($ObjectID, $this->Translate($Mapping->VarName));
                 }
+            } else {
+                $this->SendDebug('Skip Variable', $ApiCmd, 0);
             }
         }
         foreach ($OldProfileList as $OldProfile) {
@@ -303,6 +323,7 @@ class OnkyoAVR extends IPSModule
         if (IPS_HasChanges($this->InstanceID)) {
             IPS_RunScriptText('IPS_ApplyChanges(' . $this->InstanceID . ');');
         }
+        restore_error_handler();
     }
 
     /**
