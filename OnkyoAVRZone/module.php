@@ -88,6 +88,8 @@ class OnkyoAVR extends IPSModule
         $this->PhaseMatchingBass = true;
         $this->ToneProfile = [];
         $this->LMDList = [];
+        $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
+        $this->SendDebug('FILTER', 'NOTHING', 0);
     }
 
     public function Destroy()
@@ -120,6 +122,8 @@ class OnkyoAVR extends IPSModule
 
     public function ApplyChanges()
     {
+        $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
+        $this->SendDebug('FILTER', 'NOTHING', 0);
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
@@ -180,9 +184,6 @@ class OnkyoAVR extends IPSModule
             $Line = implode('|', $Lines);
             $this->SetReceiveDataFilter('(' . $Line . ')');
             $this->SendDebug('FILTER', $Line, 0);
-        } else {
-            $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
-            $this->SendDebug('FILTER', 'NOTHING', 0);
         }
         unset($MyPropertys['Zone']);
         foreach ($MyPropertys as $Key => $Value) {
@@ -220,7 +221,8 @@ class OnkyoAVR extends IPSModule
 
     private function PerformModulUpdate()
     {
-        set_error_handler([$this, 'ModulErrorHandler']);
+        set_error_handler([$this, 'ModulUpdateErrorHandler']);
+        $this->UnregisterVariable('ReplyAPIData');
         // Update machen !!!
         $Zone = $this->OnkyoZone;
         $OldProfileList = ['ToneOffset.Onkyo',
@@ -319,7 +321,7 @@ class OnkyoAVR extends IPSModule
         foreach ($OldProfileList as $OldProfile) {
             $this->UnregisterProfile($OldProfile);
         }
-        $this->UnregisterVariable('ReplyAPIData');
+
         if (IPS_HasChanges($this->InstanceID)) {
             IPS_RunScriptText('IPS_ApplyChanges(' . $this->InstanceID . ');');
         }
