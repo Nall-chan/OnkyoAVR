@@ -243,6 +243,13 @@ class OnkyoAVR extends IPSModule
             'DolbyVolume.Onkyo',
             'RadioPreset.Onkyo'
         ];
+        $OldVariableNames = [
+            'Subwoofer Bass'       => 'Subwoofer Level',
+            'Sleep Set'            => 'Sleeptimer',
+            'Audio Input Selector' => 'Audio Input',
+            'Video Wide Mode'      => 'Video Mode',
+            'Input Selector'       => 'Input'
+        ];
         $OldVariables = [
             \OnkyoAVR\ISCP_API_Commands::TUN,
             \OnkyoAVR\ISCP_API_Commands::PRS,
@@ -267,6 +274,7 @@ class OnkyoAVR extends IPSModule
         foreach ($OldVariables as $OldVariable) {
             @$this->UnregisterVariable($OldVariable);
         }
+
         $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
         foreach (IPS_GetChildrenIDs($this->InstanceID)as $ObjectID) {
             $Object = IPS_GetObject($ObjectID);
@@ -274,14 +282,8 @@ class OnkyoAVR extends IPSModule
             if ($Object['ObjectType'] != OBJECTTYPE_VARIABLE) {
                 continue;
             }
+            $Variable = IPS_GetVariable($ObjectID);
 
-            $OldVariableNames = [
-                'Subwoofer Bass'       => 'Subwoofer Level',
-                'Sleep Set'            => 'Sleeptimer',
-                'Audio Input Selector' => 'Audio Input',
-                'Video Wide Mode'      => 'Video Mode',
-                'Input Selector'       => 'Input'
-            ];
             $ApiCmd = substr($Object['ObjectIdent'], 0, 3);
             if (!$Zone->CmdAvaiable($ApiCmd)) {
                 $this->SendDebug('Wrong Zone UnregisterVariable', $ApiCmd, 0);
@@ -301,9 +303,16 @@ class OnkyoAVR extends IPSModule
                 if (strpos($Profile, '%d')) {
                     $Profile = sprintf($Profile, $this->InstanceID);
                 }
+                if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
+                    $Mapping->VarType = \OnkyoAVR\IPSVarType::vtInteger;
+                }
                 //Profile neu setzen
                 $this->SendDebug('Update Profile', $Object, 0);
                 $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
+                // Hat sich der Variabletyp verändert?
+                if ($Variable['VariableType '] == $Mapping->VarType) {
+                    $ObjectID = $this->GetIDForIdent($Object['ObjectIdent']); //neue VariableID
+                }
                 //Name ist unverändert
                 if ($Object['ObjectName'] == $Mapping->VarName) {
                     $this->SendDebug('Update Translated Name', $Object['ObjectName'], 0);
