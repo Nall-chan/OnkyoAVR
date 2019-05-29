@@ -10,9 +10,9 @@ eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>' . file_get_conten
  */
 class OnkyoAVRDiscovery extends ipsmodule
 {
+
     use \OnkyoAVRDiscovery\DebugHelper,
         \OnkyoAVRDiscovery\BufferHelper;
-
     /**
      * Interne Funktion des SDK.
      */
@@ -108,7 +108,8 @@ class OnkyoAVRDiscovery extends ipsmodule
                     'moduleID'      => '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}',
                     'configuration' => [
                         'Host' => $IPAddress,
-                        'Port' => (int) $Device[1]
+                        'Port' => (int) $Device[1],
+                        'Open' => true
                     ]
                 ]
             ];
@@ -177,6 +178,7 @@ class OnkyoAVRDiscovery extends ipsmodule
         $this->Devices = $this->DiscoverDevices();
         // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
+
 }
 
 /* @} */

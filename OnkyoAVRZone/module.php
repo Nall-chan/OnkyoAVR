@@ -1,5 +1,7 @@
 <?php
 
+// todo Zonenwechsel muss aufräumen...
+//
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
@@ -19,6 +21,7 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  */
 class OnkyoAVR extends IPSModule
 {
+
     use \OnkyoAVR\DebugHelper,
         \OnkyoAVR\BufferHelper,
         \OnkyoAVR\InstanceStatus,
@@ -27,7 +30,6 @@ class OnkyoAVR extends IPSModule
         \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
     }
-
     public function Create()
     {
         parent::Create();
@@ -161,13 +163,15 @@ class OnkyoAVR extends IPSModule
         }
         $this->SendDebug('Default Profile', $ProfileData, 0);
         $this->ToneProfile = $ProfileData;
+        $OldZone = $this->OnkyoZone->thisZone;
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone($this->ReadPropertyInteger('Zone'));
 
         if (@$this->GetIDForIdent('ReplyAPIData') > 0) {
             $this->PerformModulUpdate();
             return;
         }
-
+// prüfung ob $OldZone != $this->ReadPropertyInteger('Zone')
+        // dann Idents anpassen!
         $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
         $this->PhaseMatchingBass = true;
         $this->SetSummary($this->OnkyoZone->GetName());
@@ -225,7 +229,10 @@ class OnkyoAVR extends IPSModule
         $this->UnregisterVariable('ReplyAPIData');
         // Update machen !!!
         $Zone = $this->OnkyoZone;
-        $OldProfileList = ['ToneOffset.Onkyo',
+        $OldProfileList = [
+            'NetRadioPreset.Onkyo',
+            'SpeakerLayout.Onkyo',
+            'ToneOffset.Onkyo',
             'Sleep.Onkyo',
             'DisplayMode.Onkyo',
             'DisplayDimmer.Onkyo',
@@ -521,7 +528,6 @@ class OnkyoAVR extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -660,6 +666,15 @@ class OnkyoAVR extends IPSModule
         return $this->SendAPIData($APIData);
     }
 
+    public function SelectAudioInput(int $Value)
+    {
+        if (!$this->CheckZone()) {
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SLA, $Value);
+        return $this->SendAPIData($APIData);
+    }
+
     public function SelectListingMode(int $Value)
     {
         if (!$this->CheckZone()) {
@@ -686,20 +701,77 @@ class OnkyoAVR extends IPSModule
         if (!$this->CheckZone()) {
             return false;
         }
-        if (($Duration < 0) or ($Duration > 0x5A)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
-            return false;
-        }
         if ($this->OnkyoZone->thisZone != \OnkyoAVR\ONKYO_Zone::ZoneMain) {
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
             return false;
         }
+        if (($Duration < 0) or ( $Duration > 0x5A)) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
+            return false;
+        }
+
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SLP, $Duration);
         return $this->SendAPIData($APIData);
     }
 
+    public function SetCenterLevel(float $Level)
+    {
+        if (!$this->CheckZone()) {
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::CTL, $Level);
+        return $this->SendAPIData($APIData);
+    }
+
+    public function SetSubwooferLevel(float $Level)
+    {
+        if (!$this->CheckZone()) {
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SWL, $Level);
+        return $this->SendAPIData($APIData);
+    }
+
+    public function SetSubwoofer2Level(float $Level)
+    {
+        if (!$this->CheckZone()) {
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SW2, $Level);
+        return $this->SendAPIData($APIData);
+    }
+
+    public function SetDisplayMode(int $Mode)
+    {
+        if (!$this->CheckZone()) {
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::DIF, $Mode);
+        return $this->SendAPIData($APIData);
+    }
+
+    public function SetDisplayDimmer(int $Level)
+    {
+        if (!$this->CheckZone()) {
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::DIM, $Level);
+        return $this->SendAPIData($APIData);
+    }
+
+    public function GetAudioInfomation()
+    {
+        //TODO
+    }
+
+    public function GetVideoInfomation()
+    {
+        //TODO        
+    }
+
     public function SendCommand(string $Command, string $Value, bool $needResponse)
     {
+        trigger_error('Diese Funktion wird nicht mehr unterstützt!', E_USER_DEPRECATED);
         if (!$this->CheckZone()) {
             return false;
         }
@@ -822,6 +894,7 @@ class OnkyoAVR extends IPSModule
                 $ptSelectLMDProfile = sprintf(\OnkyoAVR\IPSProfiles::ptSelectLMD, $this->InstanceID);
                 $this->RegisterProfileIntegerEx($ptSelectLMDProfile, '', '', '', $Association);
                 $this->RegisterVariableInteger('LMD2', $this->Translate('Listening Mode'), $ptSelectLMDProfile, 0);
+                $this->EnableAction('LMD2');
                 $this->LMDList = $ResultDataLMDList;
             } else {
                 $this->UnregisterVariable('LMD2');
@@ -883,7 +956,9 @@ class OnkyoAVR extends IPSModule
                                 $MyProfile = $this->ToneProfile;
                                 if (array_key_exists($Mapping->Profile, $MyProfile)) {
                                     if ($MyProfile[$Mapping->Profile][2] < 1) {
-                                        $APIData->Data = $APIData->Data * 2;
+                                        $APIData->Data = (int) ($APIData->Data * 2);
+                                    } else {
+                                        $APIData->Data = (int) $APIData->Data;
                                     }
                                 }
                                 $APIData->Data = $this->sdechex($APIData->Data);
@@ -982,4 +1057,5 @@ class OnkyoAVR extends IPSModule
             return null;
         }
     }
+
 }

@@ -40,7 +40,7 @@ class ISCPSplitter extends IPSModule
     {
         parent::Create();
         $this->RequireParent('{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}');
-        $this->RegisterTimer('KeepAlive', 0, 'ISCP_KeepAlive($_IPS[\'TARGET\']);');
+        $this->RegisterTimer('KeepAlive', 0, 'OAVR_KeepAlive($_IPS[\'TARGET\']);');
         $this->ReplyISCPData = [];
         $this->Buffer = '';
         $this->ParentID = 0;

@@ -887,7 +887,7 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptToneOffset,
             self::IsVariable   => true,
-            self::VarName      => ['B' => 'Subwoofer Level'],
+            self::VarName      => ['B' => 'Subwoofer Bass'],
             self::RequestValue => true,
             self::ValuePrefix  => ['B' => 0],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
