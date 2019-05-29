@@ -21,7 +21,6 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  */
 class OnkyoAVR extends IPSModule
 {
-
     use \OnkyoAVR\DebugHelper,
         \OnkyoAVR\BufferHelper,
         \OnkyoAVR\InstanceStatus,
@@ -30,6 +29,7 @@ class OnkyoAVR extends IPSModule
         \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
     }
+
     public function Create()
     {
         parent::Create();
@@ -170,7 +170,7 @@ class OnkyoAVR extends IPSModule
             $this->PerformModulUpdate();
             return;
         }
-// prüfung ob $OldZone != $this->ReadPropertyInteger('Zone')
+        // prüfung ob $OldZone != $this->ReadPropertyInteger('Zone')
         // dann Idents anpassen!
         $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
         $this->PhaseMatchingBass = true;
@@ -528,6 +528,7 @@ class OnkyoAVR extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -705,7 +706,7 @@ class OnkyoAVR extends IPSModule
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
             return false;
         }
-        if (($Duration < 0) or ( $Duration > 0x5A)) {
+        if (($Duration < 0) or ($Duration > 0x5A)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
             return false;
         }
@@ -766,7 +767,7 @@ class OnkyoAVR extends IPSModule
 
     public function GetVideoInfomation()
     {
-        //TODO        
+        //TODO
     }
 
     public function SendCommand(string $Command, string $Value, bool $needResponse)
@@ -1057,5 +1058,4 @@ class OnkyoAVR extends IPSModule
             return null;
         }
     }
-
 }
