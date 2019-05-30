@@ -25,6 +25,7 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
  */
 class ISCPSplitter extends IPSModule
 {
+
     use \ISCPSplitter\DebugHelper,
         \ISCPSplitter\BufferHelper,
         \ISCPSplitter\InstanceStatus,
@@ -45,15 +46,7 @@ class ISCPSplitter extends IPSModule
         $this->Buffer = '';
         $this->ParentID = 0;
         $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
-        $this->SelectorList = [];
-        $this->ControlList = [];
-        $this->ProfileList = [];
-        $this->LMDList = [];
-        $this->PhaseMatchingBass = false;
-        $this->NetserviceList = [];
-        $this->PresetList = [];
-        $this->TunerList = [];
-        $this->ZoneList = [];
+        $this->EmptyProfileBuffers();
     }
 
     public function ApplyChanges()
@@ -65,15 +58,7 @@ class ISCPSplitter extends IPSModule
         $this->Buffer = '';
         $this->ParentID = 0;
         $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
-        $this->SelectorList = [];
-        $this->ControlList = [];
-        $this->ProfileList = [];
-        $this->LMDList = [];
-        $this->PhaseMatchingBass = false;
-        $this->NetserviceList = [];
-        $this->PresetList = [];
-        $this->TunerList = [];
-        $this->ZoneList = [];
+        $this->EmptyBuffers();
         parent::ApplyChanges();
 
         $this->UnregisterVariable('BufferIN');
@@ -179,22 +164,32 @@ class ISCPSplitter extends IPSModule
         }
     }
 
+    private function EmptyProfileBuffers()
+    {
+        $this->SelectorList = [];
+        $this->ControlList = [];
+        $this->ProfileList = [];
+        $this->LMDList = [];
+        $this->PhaseMatchingBass = true;
+        $this->NetserviceList = [];
+        $this->PresetList = [];
+        $this->TunerList = [];
+        $this->ZoneList = [];
+    }
+
     private function RefreshCapas()
     {
         $ret = $this->Send(new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NRI, \OnkyoAVR\ISCP_API_Commands::Request));
         if (is_null($ret)) {
-            $this->SelectorList = [];
-            $this->ControlList = [];
-            $this->ProfileList = [];
-            $this->LMDList = [];
-            $this->PhaseMatchingBass = true;
-            $this->NetserviceList = [];
-            $this->PresetList = [];
-            $this->TunerList = [];
-            $this->ZoneList = [];
+            $this->EmptyProfileBuffers();
             return;
         }
-        $Xml = new SimpleXMLElement($ret, LIBXML_NOBLANKS + LIBXML_NONET);
+        try {
+            $Xml = new SimpleXMLElement($ret, LIBXML_NOBLANKS + LIBXML_NONET + LIBXML_NOERROR);
+        } catch (Exception $ex) {
+            $this->EmptyProfileBuffers();
+            return;
+        }
         foreach ($Xml->xpath('//model') as $model) {
             $this->RegisterVariableString('Model', $this->Translate('Model'), '', 0);
             $this->SetValue(('Model'), (string) $model);
@@ -411,7 +406,7 @@ class ISCPSplitter extends IPSModule
                 $stream = substr($stream, $start);
             }
             $len = strpos($stream, "\x1A");
-            if (($len === false) or (strlen($stream) < $minTail)) { // Kein EOT oder zu klein
+            if (($len === false) or ( strlen($stream) < $minTail)) { // Kein EOT oder zu klein
                 $this->SendDebug('Waiting', 'ISCP Frame incomplete', 0);
                 $this->Buffer = $stream;
                 return;
@@ -485,7 +480,6 @@ class ISCPSplitter extends IPSModule
     }
 
     //################# SENDQUEUE
-
     /**
      * Fügt eine Anfrage in die SendQueue ein.
      */
@@ -539,4 +533,5 @@ class ISCPSplitter extends IPSModule
         $this->ReplyISCPData = $Buffer;
         $this->unlock('ReplyISCPData');
     }
+
 }
