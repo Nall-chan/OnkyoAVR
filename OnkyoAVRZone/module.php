@@ -219,7 +219,7 @@ class OnkyoAVR extends IPSModule
 
     protected function ModulUpdateErrorHandler($errno, $errstr)
     {
-        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
+        $this->SendDebug('ERROR', utf8_decode($errstr) . PHP_EOL, 0);
         echo $errstr;
     }
 
@@ -961,10 +961,16 @@ class OnkyoAVR extends IPSModule
     }
 
     //------------------------------------------------------------------------------
+    protected function RequestZoneStateErrorHandler($errno, $errstr)
+    {
+        //echo $errstr . PHP_EOL;
+    }
+
     private function RequestZoneState()
     {
         // Schleife von allen CMDs welche als Variable in dieser Zone sind.
         $MyPropertys = $this->MyConfig;
+        set_error_handler([$this, 'RequestZoneStateErrorHandler']);
         foreach (\OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$this->OnkyoZone->thisZone] as $ApiCmd) {
             if (array_key_exists($ApiCmd, $MyPropertys)) {
                 if ($MyPropertys[$ApiCmd] === false) {
@@ -982,6 +988,11 @@ class OnkyoAVR extends IPSModule
                 if ($Mapping->RequestValue) {
                     $ResultData = $this->Send($APIData);
                     if ($ResultData === null) {
+                        $VarName = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd)->VarName;
+                        if (is_array($VarName)) {
+                            $VarName = implode(' & ', array_values($VarName));
+                        }
+                        echo (sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName)));
                         continue;
                     }
                     $APIData->Data = $ResultData;
@@ -989,6 +1000,7 @@ class OnkyoAVR extends IPSModule
                 }
             }
         }
+        restore_error_handler();
     }
 
     private function SendAPIData(\OnkyoAVR\ISCP_API_Data $APIData)

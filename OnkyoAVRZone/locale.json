@@ -123,7 +123,8 @@
             "On (Music)": "An (Musik)",
             "Light": "Wenig",
             "Medium": "Mittel",
-            "Heavy": "Stark"
+            "Heavy": "Stark",
+            "Error on read %s. Maybe your Device not support %s.": "Fehler beim lesen von %s. Eventuell unterstützt ihr Gerät kein %s."
         }
     }
 }

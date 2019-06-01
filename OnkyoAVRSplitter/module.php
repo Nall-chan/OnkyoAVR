@@ -464,7 +464,7 @@ class ISCPSplitter extends IPSModule
      */
     private function WaitForResponse(string $APICommand)
     {
-        for ($i = 0; $i < 500; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $Buffer = $this->ReplyISCPData;
             if (!array_key_exists($APICommand, $Buffer)) {
                 return null;

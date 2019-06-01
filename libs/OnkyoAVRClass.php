@@ -65,6 +65,7 @@ class Remotes
                 return -1;
         }
     }
+
 }
 
 class IPSVarType
@@ -75,6 +76,7 @@ class IPSVarType
     const vtFloat = 2;
     const vtString = 3;
     const vtDualInteger = 10;
+
 }
 
 class IPSProfiles
@@ -284,6 +286,73 @@ class IPSProfiles
             [0x03, 'Heavy', '', -1]
         ]
     ];
+
+}
+
+class ONKYO_Zone_NetPlayer
+{
+    const ZoneMain = 1;
+    const Zone2 = 2;
+    const Zone3 = 3;
+    const Zone4 = 4;
+
+    public $thisZone = self::ZoneMain;
+
+    public function __construct($Zone = self::ZoneMain)
+    {
+        $this->thisZone = $Zone;
+    }
+
+    public function GetName()
+    {
+        switch ($this->thisZone) {
+            case 1:
+                return 'NetPlayer Main';
+            case 2:
+                return 'NetPlayer Zone 2';
+            case 3:
+                return 'NetPlayer Zone 3';
+            case 4:
+                return 'NetPlayer Zone 4';
+        }
+    }
+
+    public static $ZoneCMDs = [
+        self::ZoneMain => [
+            ISCP_API_Commands::NPR
+        ],
+        self::Zone2    => [
+            ISCP_API_Commands::NPZ
+        ],
+        self::Zone3    => [
+            ISCP_API_Commands::NP3
+        ],
+        self::Zone4    => [
+            ISCP_API_Commands::NP4
+        ]
+    ];
+
+    public function GetReadAPICommands()
+    {
+        return [
+            ISCP_API_Commands::NMS, // todo
+            ISCP_API_Commands::NDS, // todo 
+            ISCP_API_Commands::NDS,
+            ISCP_API_Commands::NTR,
+            ISCP_API_Commands::NTM,
+            ISCP_API_Commands::NST,
+            ISCP_API_Commands::NAL,
+            ISCP_API_Commands::NTI,
+            ISCP_API_Commands::NAT
+        ];
+    }
+
+    public function GetZoneCommand(string $APICommand)
+    {
+        $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
+        return self::$ZoneCMDs[$this->thisZone][$key];
+    }
+
 }
 
 class ONKYO_Zone_Tuner
@@ -366,6 +435,7 @@ class ONKYO_Zone_Tuner
         $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
         return self::$ZoneCMDs[$this->thisZone][$key];
     }
+
 }
 
 class ONKYO_Zone
@@ -483,8 +553,6 @@ class ONKYO_Zone
             ISCP_API_Commands::ZVL,
             ISCP_API_Commands::ZTN,
             ISCP_API_Commands::SLZ,
-//            ISCP_API_Commands::NTZ,
-//            ISCP_API_Commands::NPZ
         ],
         self::Zone3     => [
             ISCP_API_Commands::PW3,
@@ -492,16 +560,12 @@ class ONKYO_Zone
             ISCP_API_Commands::VL3,
             ISCP_API_Commands::TN3,
             ISCP_API_Commands::SL3
-//            ISCP_API_Commands::NT3,
-//            ISCP_API_Commands::NP3,
         ],
         self::Zone4     => [
             ISCP_API_Commands::PW4,
             ISCP_API_Commands::MT4,
             ISCP_API_Commands::VL4,
             ISCP_API_Commands::SL4
-//            ISCP_API_Commands::NT4,
-//            ISCP_API_Commands::NP4
         ],
         self::Tuner     => [
             ISCP_API_Commands::TUN,
@@ -522,27 +586,34 @@ class ONKYO_Zone
         ],
         self::Netplayer => [
             //Start NET/USB
-            ISCP_API_Commands::NTC,
             ISCP_API_Commands::NAT,
             ISCP_API_Commands::NAL,
             ISCP_API_Commands::NTI,
             ISCP_API_Commands::NTM,
             ISCP_API_Commands::NTR,
             ISCP_API_Commands::NST,
-            ISCP_API_Commands::NMS,
-            ISCP_API_Commands::NTS,
-            ISCP_API_Commands::NPR,
-            ISCP_API_Commands::NDS,
-            ISCP_API_Commands::NLS,
-            ISCP_API_Commands::NLA,
+            // ISCP_API_Commands::NMS, // todo
+            ISCP_API_Commands::NTS, // todo nur senden "NTS" - NET/USB Time Seek
+            // ISCP_API_Commands::NDS, // todo
+            //ISCP_API_Commands::NLS,  // nur senden
+            //ISCP_API_Commands::NLA,  // nur senden
             ISCP_API_Commands::NJA,
-            ISCP_API_Commands::NSV,
-            ISCP_API_Commands::NKY,
-            ISCP_API_Commands::NPU,
             ISCP_API_Commands::NLT,
-            ISCP_API_Commands::NMD,
-            ISCP_API_Commands::NSB,
-            ISCP_API_Commands::NRI,
+            //ISCP_API_Commands::NSV, // nur senden
+            //ISCP_API_Commands::NKY, // "NKY" - NET Keyboard(for Network Control Only)
+            //ISCP_API_Commands::NPU, // "NPU" - NET Popup Message(for Network Control Only)
+            ISCP_API_Commands::NTC,
+            ISCP_API_Commands::NPR,
+            ISCP_API_Commands::NTZ,
+            ISCP_API_Commands::NPZ,
+            ISCP_API_Commands::NT3,
+            ISCP_API_Commands::NP3,
+            ISCP_API_Commands::NT4,
+            ISCP_API_Commands::NP4,
+        /*            ISCP_API_Commands::SLI,
+          ISCP_API_Commands::SLZ,
+          ISCP_API_Commands::SL3,
+          ISCP_API_Commands::SL4 */
         //ENDE Net/USB
         ]
     ];
@@ -586,6 +657,7 @@ class ISCP_API_Mode
 {
     const LAN = 1;
     const COM = 2;
+
 }
 
 class ISCP_API_Commands
@@ -673,14 +745,12 @@ class ISCP_API_Commands
     const NTS = 'NTS'; // 'NTS' - NET/USB Time Seek
     const NDS = 'NDS'; // NET Connection/USB Device Status
     const NLS = 'NLS'; // NET/USB List Info
+    const NLT = 'NLT'; // NET/USB List Info(All item, need processing XML data, for Network Control Only)
     const NLA = 'NLA'; // NET/USB List Info(All item, need processing XML data, for Network Control Only)
     const NJA = 'NJA'; // NET/USB Jacket Art (When Jacket Art is available and Output for Network Control Only)
     const NSV = 'NSV'; // NET Service(for Network Control Only)
     const NKY = 'NKY'; // NET Keyboard(for Network Control Only)
     const NPU = 'NPU'; // NET Popup Message(for Network Control Only)
-    const NLT = 'NLT'; // NET/USB List Title Info(for Network Control Only)
-    const NMD = 'NMD'; // iPod Mode Change (with USB Connection Only)
-    const NSB = 'NSB'; // Network Standby Settings (for Network Control Only and Available in AVR is PowerOn)
     const NRI = 'NRI'; // Receiver Information (for Network Control Only)
 //ENDE Net/USB
 //Start Airplay
@@ -819,8 +889,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::TFW => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -831,8 +901,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::TFH => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -843,8 +913,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::TCT => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -855,8 +925,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::TSR => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -867,8 +937,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::TSB => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -879,8 +949,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::TSW => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -891,8 +961,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['B' => 0],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::PMB => [
             self::VarType      => IPSVarType::vtBoolean,
@@ -1184,8 +1254,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         self::SLZ => [
             self::VarType      => IPSVarType::vtInteger,
@@ -1243,8 +1313,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A'                    => 10]
+                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A' => 10]
         ],
         // Zone 3 end
         // Zone 4 start
@@ -1359,6 +1429,7 @@ class ISCP_API_Commands
               self::ValueMapping => null
               ] */
     ];
+
 }
 
 class ISCP_API_Data_Mapping
@@ -1381,6 +1452,7 @@ class ISCP_API_Data_Mapping
         }
         return null;
     }
+
 }
 
 /**
