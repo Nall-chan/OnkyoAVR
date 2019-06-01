@@ -993,7 +993,7 @@ class OnkyoAVR extends IPSModule
                         if (is_array($VarName)) {
                             $VarName = implode(' & ', array_values($VarName));
                         }
-                        echo (sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName)));
+                        echo sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName));
                         continue;
                     }
                     $APIData->Data = $ResultData;
