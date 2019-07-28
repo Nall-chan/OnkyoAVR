@@ -65,7 +65,6 @@ class Remotes
                 return -1;
         }
     }
-
 }
 
 class IPSVarType
@@ -76,7 +75,6 @@ class IPSVarType
     const vtFloat = 2;
     const vtString = 3;
     const vtDualInteger = 10;
-
 }
 
 class IPSProfiles
@@ -268,7 +266,6 @@ class IPSProfiles
             [0x03, 'Heavy', '', -1]
         ]
     ];
-
 }
 
 class ONKYO_Zone_NetPlayer
@@ -340,7 +337,6 @@ class ONKYO_Zone_NetPlayer
         }
         return self::$ZoneCMDs[$this->thisZone][$key];
     }
-
 }
 
 class ONKYO_Zone_Tuner
@@ -423,7 +419,6 @@ class ONKYO_Zone_Tuner
         $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
         return self::$ZoneCMDs[$this->thisZone][$key];
     }
-
 }
 
 class ONKYO_Zone
@@ -598,7 +593,7 @@ class ONKYO_Zone
         ]
     ];
 
-    public function __construct($Zone = \OnkyoAVR\ONKYO_Zone::None)
+    public function __construct($Zone = self::None)
     {
         $this->thisZone = $Zone;
     }
@@ -617,14 +612,12 @@ class ONKYO_Zone
     {
         return self::$ZoneCMDs[$this->thisZone];
     }
-
 }
 
 class ISCP_API_Mode
 {
     const LAN = 1;
     const COM = 2;
-
 }
 
 class ISCP_API_Commands
@@ -729,33 +722,33 @@ class ISCP_API_Commands
       const AST = 'AST'; //'AST' - Airplay Play Status (Airplay Model Only)
      */
     //Ende Airplay
-//START CMD via PORT
+    //START CMD via PORT
 //    const CPT = 'CPT'; //'CPT' - Universal PORT Operation Command
-//'IAT' - iPod Artist Name Info (Universal Port Dock Only)
-//'IAL' - iPod Album Name Info (Universal Port Dock Only)
-//'ITI' - iPod Title Name (Universal Port Dock Only)
-//'ITM' - iPod Time Info (Universal Port Dock Only)
-//'ITR' - iPod Track Info (Universal Port Dock Only)
-//'IST' - iPod Play Status (Universal Port Dock Only)
-//'ILS' - iPod List Info (Universal Port Dock Extend Mode Only)
-//'IMD' - iPod Mode Change (Universal Port Dock Only)
-//'UTN' - Tuning Command (Universal Port Dock Only)
-//'UPR' - Preset Command (Universal Port Dock Only)
-//'UPM' - Preset Memory Command (Universal Port Dock Only)
-//'UHP' - HD Radio Channel Program Command (Universal Port Dock Only)
-//'UHB' - HD Radio Blend Mode Command (Universal Port Dock Only)
-//'UHA' - HD Radio Artist Name Info (Universal Port Dock Only)
-//'UHC' - HD Radio Channel Name Info (Universal Port Dock Only)
-//'UHT' - HD Radio Title Info (Universal Port Dock Only)
-//'UHD' - HD Radio Detail Info (Universal Port Dock Only)
-//'UHS' - HD Radio Tuner Status (Universal Port Dock Only)
-//'UPR' - DAB Preset Command (Universal Port Dock Only)
-//'UPM' - Preset Memory Command (Universal Port Dock Only)
-//'UDS' - DAB Sation Name (Universal Port Dock Only)
-//'UDD' - DAB Display Info (Universal Port Dock Only)
-//ENDE CMD via PORT
-//MAIN end
-//Zone2 Zone
+    //'IAT' - iPod Artist Name Info (Universal Port Dock Only)
+    //'IAL' - iPod Album Name Info (Universal Port Dock Only)
+    //'ITI' - iPod Title Name (Universal Port Dock Only)
+    //'ITM' - iPod Time Info (Universal Port Dock Only)
+    //'ITR' - iPod Track Info (Universal Port Dock Only)
+    //'IST' - iPod Play Status (Universal Port Dock Only)
+    //'ILS' - iPod List Info (Universal Port Dock Extend Mode Only)
+    //'IMD' - iPod Mode Change (Universal Port Dock Only)
+    //'UTN' - Tuning Command (Universal Port Dock Only)
+    //'UPR' - Preset Command (Universal Port Dock Only)
+    //'UPM' - Preset Memory Command (Universal Port Dock Only)
+    //'UHP' - HD Radio Channel Program Command (Universal Port Dock Only)
+    //'UHB' - HD Radio Blend Mode Command (Universal Port Dock Only)
+    //'UHA' - HD Radio Artist Name Info (Universal Port Dock Only)
+    //'UHC' - HD Radio Channel Name Info (Universal Port Dock Only)
+    //'UHT' - HD Radio Title Info (Universal Port Dock Only)
+    //'UHD' - HD Radio Detail Info (Universal Port Dock Only)
+    //'UHS' - HD Radio Tuner Status (Universal Port Dock Only)
+    //'UPR' - DAB Preset Command (Universal Port Dock Only)
+    //'UPM' - Preset Memory Command (Universal Port Dock Only)
+    //'UDS' - DAB Sation Name (Universal Port Dock Only)
+    //'UDD' - DAB Display Info (Universal Port Dock Only)
+    //ENDE CMD via PORT
+    //MAIN end
+    //Zone2 Zone
     const ZPW = 'ZPW';
     const ZMT = 'ZMT';
     const ZVL = 'ZVL';
@@ -839,8 +832,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TFW => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -851,8 +844,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TFH => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -863,8 +856,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TCT => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -875,8 +868,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TSR => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -887,8 +880,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TSB => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -899,8 +892,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::TSW => [
             self::VarType      => IPSVarType::vtDualInteger,
@@ -911,8 +904,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['B' => 0],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::PMB => [
             self::VarType      => IPSVarType::vtBoolean,
@@ -1204,8 +1197,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         self::SLZ => [
             self::VarType      => IPSVarType::vtInteger,
@@ -1263,8 +1256,8 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValuePrefix  => ['T' => 0, 'B' => 1],
             self::ValueMapping => ['-A' => -10, '-8' => -8, '-6' => -6, '-4' => -4,
-                '-2' => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
-                '+A' => 10]
+                '-2'                    => -2, '00' => 0, '+2' => 2, '+4' => 4, '+6' => 6, '+8' => 8,
+                '+A'                    => 10]
         ],
         // Zone 3 end
         // Zone 4 start
@@ -1305,7 +1298,6 @@ class ISCP_API_Commands
             self::ValueMapping => null
         ]
     ];
-
 }
 
 class ISCP_API_Data_Mapping
@@ -1328,7 +1320,6 @@ class ISCP_API_Data_Mapping
         }
         return null;
     }
-
 }
 
 /**
@@ -1400,5 +1391,4 @@ class ISCP_API_Data
     {
         return ISCP_API_Data_Mapping::GetMapping($this->APICommand);
     }
-
 }

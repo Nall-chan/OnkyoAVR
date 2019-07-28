@@ -25,7 +25,6 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
  */
 class ISCPSplitter extends IPSModule
 {
-
     use \ISCPSplitter\DebugHelper,
         \ISCPSplitter\BufferHelper,
         \ISCPSplitter\InstanceStatus,
@@ -407,7 +406,7 @@ class ISCPSplitter extends IPSModule
                 $stream = substr($stream, $start);
             }
             $len = strpos($stream, "\x1A");
-            if (($len === false) or ( strlen($stream) < $minTail)) { // Kein EOT oder zu klein
+            if (($len === false) or (strlen($stream) < $minTail)) { // Kein EOT oder zu klein
                 $this->SendDebug('Waiting', 'ISCP Frame incomplete', 0);
                 $this->Multi_Buffer = $stream;
                 return;
@@ -481,6 +480,7 @@ class ISCPSplitter extends IPSModule
     }
 
     //################# SENDQUEUE
+
     /**
      * Fügt eine Anfrage in die SendQueue ein.
      */
@@ -534,5 +534,4 @@ class ISCPSplitter extends IPSModule
         $this->ReplyISCPData = $Buffer;
         $this->unlock('ReplyISCPData');
     }
-
 }

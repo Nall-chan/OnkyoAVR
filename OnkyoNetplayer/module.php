@@ -27,7 +27,6 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  */
 class OnkyoNetplayer extends IPSModule
 {
-
     use \OnkyoNetplayer\DebugHelper,
         \OnkyoNetplayer\BufferHelper,
         \OnkyoNetplayer\InstanceStatus,
@@ -37,6 +36,7 @@ class OnkyoNetplayer extends IPSModule
         \OnkyoNetplayer\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoNetplayer\InstanceStatus::RequestAction as IORequestAction;
     }
+
     public function Create()
     {
         parent::Create();
@@ -267,7 +267,6 @@ class OnkyoNetplayer extends IPSModule
 
     private function RefreshNavigationTable(array $List)
     {
-
         $HTML = $this->GetTable($List, 'OnkyoNetPlayer', 'Index', 'ID');
         $this->SetValueString('NLA', $HTML);
     }
@@ -411,6 +410,7 @@ class OnkyoNetplayer extends IPSModule
                     $Title = $this->Translate('Data has wrong sequence number');
                     break;
                 }
+
                 try {
                     $xml = new SimpleXMLElement(substr($ret, 9), LIBXML_NOBLANKS + LIBXML_NONET + LIBXML_NOERROR);
                 } catch (Exception $ex) {
@@ -484,7 +484,7 @@ class OnkyoNetplayer extends IPSModule
         $this->SendDebug('ListItems', $ListItems, 0);
         $this->SendDebug('ServiceType', $ServiceType, 0);
         $this->SendDebug('ServiceType old', $this->ServiceType, 0);
-        if (($this->ServiceType == $ServiceType) and ( $this->UiType == $UiType) and ( $this->Layer == $Layer)) {
+        if (($this->ServiceType == $ServiceType) and ($this->UiType == $UiType) and ($this->Layer == $Layer)) {
             return;
         }
         $this->ServiceType = $ServiceType;
@@ -710,7 +710,7 @@ class OnkyoNetplayer extends IPSModule
                 if ($Data[1] != '--:--') {
                     $NTM0 = $this->StringToSeconds($Data[0]);
                     $NTM1 = $this->StringToSeconds($Data[1]);
-                    $Total = (100 / $NTM1 ) * $NTM0;
+                    $Total = (100 / $NTM1) * $NTM0;
                     $this->SetValueInteger('NTM', $Total);
                 }
                 break;
@@ -785,6 +785,7 @@ class OnkyoNetplayer extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -864,7 +865,7 @@ class OnkyoNetplayer extends IPSModule
 
     public function CallPreset(int $Value)
     {
-        if (($Value < 1) or ( $Value > 40)) {
+        if (($Value < 1) or ($Value > 40)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -891,7 +892,7 @@ class OnkyoNetplayer extends IPSModule
         if (count($ResultDataSelectorList) > 0) {
             //$AssociationSLI = [];
             foreach ($ResultDataSelectorList as $Value => $SelectorProfileData) {
-                if (($Value < 0x29) or ( $Value > 0x2E)) {
+                if (($Value < 0x29) or ($Value > 0x2E)) {
                     continue;
                 }
                 if (((int) $SelectorProfileData['Zone'] & $zone) == $zone) {
@@ -933,7 +934,6 @@ class OnkyoNetplayer extends IPSModule
         $APIDataNetserviceList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetserviceList);
         $ResultDataNetserviceList = $this->Send($APIDataNetserviceList);
         if (count($ResultDataNetserviceList) > 0) {
-
             foreach ($ResultDataNetserviceList as $Value => $NetserviceProfileData) {
                 $AssociationNSV[] = [$Value, $NetserviceProfileData, '', -1];
             }
@@ -1032,7 +1032,6 @@ class OnkyoNetplayer extends IPSModule
     /**
      * Verarbeitet Daten aus dem Webhook.
      *
-     * @access protected
      * @global array $_GET
      */
     protected function ProcessHookdata()
@@ -1040,11 +1039,10 @@ class OnkyoNetplayer extends IPSModule
         //$this->SendDebug('$_GET', $_GET, 0);
         //
         //Type=Index&ID=55&Secret=8XJKlIPXwJ3P8hOJgO3skdMLsys%3D
-        if ((!isset($_GET['Type'])) or ( !isset($_GET['Secret']))) {
+        if ((!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
-
 
         $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
         //$this->SendDebug('HookId', $_GET['ID'], 0);
@@ -1068,8 +1066,8 @@ class OnkyoNetplayer extends IPSModule
     /**
      * Liefert den Header der HTML-Tabelle.
      *
-     * @access private
      * @param array $Config Die Kofiguration der Tabelle
+     *
      * @return string HTML-String
      */
     protected function GetTableHeader($Config_Table, $Config_Columns)
@@ -1151,11 +1149,13 @@ sleep(10).then(() => {
 
     /**
      * Liefert den Inhalt der HTML-Box für ein Tabelle.
-     * @param array $Data Die Nutzdaten der Tabelle.
-     * @param string $HookPrefix Der Prefix des Webhook.
-     * @param string $HookType Ein String welcher als Parameter Type im Webhook übergeben wird.
-     * @param string $HookId Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
-     * @param int $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
+     *
+     * @param array  $Data        Die Nutzdaten der Tabelle.
+     * @param string $HookPrefix  Der Prefix des Webhook.
+     * @param string $HookType    Ein String welcher als Parameter Type im Webhook übergeben wird.
+     * @param string $HookId      Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
+     * @param int    $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
+     *
      * @return string Der HTML-String.
      */
     protected function GetTable($Array_Data, $HookPrefix, $HookType, $HookId)
@@ -1225,7 +1225,6 @@ sleep(10).then(() => {
     /**
      * Liefert den Footer der HTML-Tabelle.
      *
-     * @access private
      * @return string HTML-String
      */
     protected function GetTableFooter()
@@ -1407,5 +1406,4 @@ sleep(10).then(() => {
         }
         return $Seconds;
     }
-
 }
