@@ -8,10 +8,10 @@ declare(strict_types=1);
  * @file          OnkyoAVRClass.php
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2018 Michael Tröger
+ * @copyright     2019 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       0.4
+ * @version       1.0
  */
 
 namespace OnkyoAVR;
@@ -103,10 +103,6 @@ class IPSProfiles
     const ptAudyssey = 'Onkyo.Audyssey';
     const ptAudysseyDynamic = 'Onkyo.AudysseyDynamic';
 
-    //Main end
-    //const ptNetRadioPreset = 'Onkyo.NetRadioPreset';
-    //const ptNetTuneCommand = 'Onkyo.NetTuneCommand';
-
     public static $ProfileListIndexToProfile = [
         'Bass'             => self::ptToneOffset,
         'Center Level'     => self::ptCenterLevel,
@@ -118,7 +114,6 @@ class IPSProfiles
         self::ptToneOffset => [-10, 10, 2, ''],
         self::ptSleep      => [0x00, 0x5A, 1, ''],
         self::ptVolume     => [0, 80, 1, ' %']
-//        self::ptNetRadioPreset => [0x01, 0x28, 1],
     ];
     public static $ProfilFloat = [
         self::ptCenterLevel     => [-12, 12, 1],
@@ -152,28 +147,17 @@ class IPSProfiles
             [0x03, 'Video 4 AUX1(AUX)', '', -1],
             [0x04, 'Video 5 AUX2', '', -1], //not z
             [0x05, 'Video 6 PC', '', -1],
-//'Video 7', //not z
             [0x10, 'BD/DVD', '', -1],
             [0x12, 'TV', '', -1],
             [0x20, 'TAPE 1', '', -1], // not z
-//'TAPE2', // not z
             [0x22, 'PHONO', '', -1],
             [0x23, 'TV/CD', '', -1],
             [0x24, 'Tuner (FM)', '', -1],
             [0x25, 'Tuner (AM)', '', -1],
-//            array(0x26, 'TUNER', '', -1), // not z
-//'MUSIC SERVER DLNA',
-//'INTERNET RADIO',
             [0x29, 'USB(Front)', '', -1],
-//'USB(Rear)', // not z
-            [0x2B, 'NETWORK', '', -1],
-//'USB(toggle)', //lol
-            [0x2D, 'Aiplay', '', -1], //?
+            [0x2B, 'Network', '', -1],
+            [0x2D, 'Airplay', '', -1], //?
             [0x2E, 'Bluetooth', '', -1], //?
-//0x30 => 'MULTI CH', //not z
-//'XM', //not z
-//'SIRIUS', // not z
-//'DAB', // not z
             [0x40, 'Universal PORT', '', -1] //not z
         ],
         self::ptSelectInputAudio => [
@@ -247,9 +231,7 @@ class IPSProfiles
             [0x0F, 'MONO', '', -1],
             [0x11, 'PURE AUDIO', '', -1],
             [0x13, 'FULL MONO', '', -1],
-            //[0x16, 'Audyssey DSX', '', -1],
             [0x40, 'Straight Decode', '', -1],
-            //[0x41, 'Dolby EX', '', -1],
             [0x42, 'THX Cinema', '', -1],
             [0x43, 'THX Surround EX', '', -1],
             [0x44, 'THX Music', '', -1],
@@ -319,37 +301,43 @@ class ONKYO_Zone_NetPlayer
 
     public static $ZoneCMDs = [
         self::ZoneMain => [
-            ISCP_API_Commands::NPR
+            ISCP_API_Commands::NPR,
+            ISCP_API_Commands::NTC,
+            ISCP_API_Commands::SLI
         ],
         self::Zone2    => [
-            ISCP_API_Commands::NPZ
+            ISCP_API_Commands::NPZ,
+            ISCP_API_Commands::NTZ,
+            ISCP_API_Commands::SLZ
         ],
         self::Zone3    => [
-            ISCP_API_Commands::NP3
+            ISCP_API_Commands::NP3,
+            ISCP_API_Commands::NT3,
+            ISCP_API_Commands::SL3
         ],
         self::Zone4    => [
-            ISCP_API_Commands::NP4
+            ISCP_API_Commands::NP4,
+            ISCP_API_Commands::NT4,
+            ISCP_API_Commands::SL4
         ]
     ];
-
-    public function GetReadAPICommands()
-    {
-        return [
-            ISCP_API_Commands::NMS, // todo
-            ISCP_API_Commands::NDS, // todo 
-            ISCP_API_Commands::NDS,
-            ISCP_API_Commands::NTR,
-            ISCP_API_Commands::NTM,
-            ISCP_API_Commands::NST,
-            ISCP_API_Commands::NAL,
-            ISCP_API_Commands::NTI,
-            ISCP_API_Commands::NAT
-        ];
-    }
+    public static $ReadAPICommands = [
+        ISCP_API_Commands::NDS,
+        ISCP_API_Commands::NTR,
+        ISCP_API_Commands::NTM,
+        ISCP_API_Commands::NST,
+        ISCP_API_Commands::NAL,
+        ISCP_API_Commands::NTI,
+        ISCP_API_Commands::NAT,
+        ISCP_API_Commands::NMS
+    ];
 
     public function GetZoneCommand(string $APICommand)
     {
         $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
+        if ($key === false) {
+            return false;
+        }
         return self::$ZoneCMDs[$this->thisZone][$key];
     }
 
@@ -473,6 +461,7 @@ class ONKYO_Zone
             ISCP_API_Commands::PWR,
             ISCP_API_Commands::AMT,
             ISCP_API_Commands::MVL,
+            ISCP_API_Commands::SLI,
             ISCP_API_Commands::TFR,
             ISCP_API_Commands::TFW,
             ISCP_API_Commands::TFH,
@@ -488,11 +477,9 @@ class ONKYO_Zone
             ISCP_API_Commands::CTL,
             ISCP_API_Commands::DIF,
             ISCP_API_Commands::DIM,
-            ISCP_API_Commands::OSD,
             ISCP_API_Commands::MEM,
             ISCP_API_Commands::IFA,
             ISCP_API_Commands::IFV,
-            ISCP_API_Commands::SLI,
             ISCP_API_Commands::SLA,
             ISCP_API_Commands::TGA,
             ISCP_API_Commands::TGB,
@@ -513,16 +500,16 @@ class ONKYO_Zone
             ISCP_API_Commands::ADV,
             ISCP_API_Commands::MOT,
 //Start Airplay
-            /*
-              ISCP_API_Commands::AAT,
-              ISCP_API_Commands::AAL,
-              ISCP_API_Commands::ATI,
-              ISCP_API_Commands::ATM,
-              ISCP_API_Commands::AST,
-             */
-            //Ende Airplay
+        /*
+          ISCP_API_Commands::AAT,
+          ISCP_API_Commands::AAL,
+          ISCP_API_Commands::ATI,
+          ISCP_API_Commands::ATM,
+          ISCP_API_Commands::AST,
+         */
+        //Ende Airplay
 //START CMD via PORT
-            ISCP_API_Commands::CPT,
+//            ISCP_API_Commands::CPT,
 //'IAT' - iPod Artist Name Info (Universal Port Dock Only)
 //'IAL' - iPod Album Name Info (Universal Port Dock Only)
 //'ITI' - iPod Title Name (Universal Port Dock Only)
@@ -551,15 +538,15 @@ class ONKYO_Zone
             ISCP_API_Commands::ZPW,
             ISCP_API_Commands::ZMT,
             ISCP_API_Commands::ZVL,
-            ISCP_API_Commands::ZTN,
             ISCP_API_Commands::SLZ,
+            ISCP_API_Commands::ZTN
         ],
         self::Zone3     => [
             ISCP_API_Commands::PW3,
             ISCP_API_Commands::MT3,
             ISCP_API_Commands::VL3,
-            ISCP_API_Commands::TN3,
-            ISCP_API_Commands::SL3
+            ISCP_API_Commands::SL3,
+            ISCP_API_Commands::TN3
         ],
         self::Zone4     => [
             ISCP_API_Commands::PW4,
@@ -592,16 +579,13 @@ class ONKYO_Zone
             ISCP_API_Commands::NTM,
             ISCP_API_Commands::NTR,
             ISCP_API_Commands::NST,
-            // ISCP_API_Commands::NMS, // todo
-            ISCP_API_Commands::NTS, // todo nur senden "NTS" - NET/USB Time Seek
-            // ISCP_API_Commands::NDS, // todo
-            //ISCP_API_Commands::NLS,  // nur senden
-            //ISCP_API_Commands::NLA,  // nur senden
+            ISCP_API_Commands::NMS,
+            ISCP_API_Commands::NTS,
+            ISCP_API_Commands::NDS,
             ISCP_API_Commands::NJA,
             ISCP_API_Commands::NLT,
-            //ISCP_API_Commands::NSV, // nur senden
             //ISCP_API_Commands::NKY, // "NKY" - NET Keyboard(for Network Control Only)
-            //ISCP_API_Commands::NPU, // "NPU" - NET Popup Message(for Network Control Only)
+            ISCP_API_Commands::NPU,
             ISCP_API_Commands::NTC,
             ISCP_API_Commands::NPR,
             ISCP_API_Commands::NTZ,
@@ -610,11 +594,7 @@ class ONKYO_Zone
             ISCP_API_Commands::NP3,
             ISCP_API_Commands::NT4,
             ISCP_API_Commands::NP4,
-        /*            ISCP_API_Commands::SLI,
-          ISCP_API_Commands::SLZ,
-          ISCP_API_Commands::SL3,
-          ISCP_API_Commands::SL4 */
-        //ENDE Net/USB
+            ISCP_API_Commands::NFI
         ]
     ];
 
@@ -638,19 +618,6 @@ class ONKYO_Zone
         return self::$ZoneCMDs[$this->thisZone];
     }
 
-    /*  public function SubCmdAvaiable(ISCP_API_Data $API_Data)
-      {
-
-      //        IPS_LogMessage('APISubCommand', print_r($API_Data->APISubCommand, 1));
-      //        IPS_LogMessage('ZoneCMDs', print_r(self::$ZoneCMDs[$this->thisZone], 1));
-      if ($API_Data->APISubCommand != null) {
-      if (property_exists($API_Data->APISubCommand, (string) $this->thisZone)) {
-      return in_array($API_Data->APISubCommand->{$this->thisZone}, self::$ZoneCMDs[$this->thisZone]);
-      }
-      }
-      return false;
-      }
-     */
 }
 
 class ISCP_API_Mode
@@ -752,6 +719,7 @@ class ISCP_API_Commands
     const NKY = 'NKY'; // NET Keyboard(for Network Control Only)
     const NPU = 'NPU'; // NET Popup Message(for Network Control Only)
     const NRI = 'NRI'; // Receiver Information (for Network Control Only)
+    const NFI = 'NFI'; // NET/USB File Information
 //ENDE Net/USB
 //Start Airplay
     /* const AAT = 'AAT'; //'AAT' - Airplay Artist Name Info (Airplay Model Only)
@@ -762,7 +730,7 @@ class ISCP_API_Commands
      */
     //Ende Airplay
 //START CMD via PORT
-    const CPT = 'CPT'; //'CPT' - Universal PORT Operation Command
+//    const CPT = 'CPT'; //'CPT' - Universal PORT Operation Command
 //'IAT' - iPod Artist Name Info (Universal Port Dock Only)
 //'IAL' - iPod Album Name Info (Universal Port Dock Only)
 //'ITI' - iPod Title Name (Universal Port Dock Only)
@@ -852,25 +820,7 @@ class ISCP_API_Commands
             self::VarName      => 'Mute',
             self::RequestValue => true,
             self::ValueMapping => null
-        ], /*
-          self::SPA => [
-          self::VarType      => IPSVarType::vtBoolean,
-          self::EnableAction => true,
-          self::Profile      => IPSProfiles::ptSwitch,
-          self::IsVariable   => true,
-          self::VarName      => 'Speaker A',
-          self::RequestValue => true,
-          self::ValueMapping => null
-          ],
-          self::SPB => [
-          self::VarType      => IPSVarType::vtBoolean,
-          self::EnableAction => true,
-          self::Profile      => IPSProfiles::ptSwitch,
-          self::IsVariable   => true,
-          self::VarName      => 'Speaker B',
-          self::RequestValue => true,
-          self::ValueMapping => null
-          ], */
+        ],
         self::MVL => [
             self::VarType      => IPSVarType::vtInteger,
             self::EnableAction => true,
@@ -1067,7 +1017,7 @@ class ISCP_API_Commands
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSwitch,
-            self::IsVariable   => true,
+            self::IsVariable   => false,
             self::VarName      => '12V Trigger A',
             self::RequestValue => true,
             self::ValueMapping => null
@@ -1076,7 +1026,7 @@ class ISCP_API_Commands
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSwitch,
-            self::IsVariable   => true,
+            self::IsVariable   => false,
             self::VarName      => '12V Trigger B',
             self::RequestValue => true,
             self::ValueMapping => null
@@ -1085,7 +1035,7 @@ class ISCP_API_Commands
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSwitch,
-            self::IsVariable   => true,
+            self::IsVariable   => false,
             self::VarName      => '12V Trigger C',
             self::RequestValue => true,
             self::ValueMapping => null
@@ -1185,7 +1135,7 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptAudyssey,
             self::IsVariable   => true,
-            self::VarName      => 'Audyssey',
+            self::VarName      => 'Audyssey Mode',
             self::RequestValue => true,
             self::ValueMapping => null
         ],
@@ -1353,88 +1303,14 @@ class ISCP_API_Commands
             self::VarName      => 'Input',
             self::RequestValue => true,
             self::ValueMapping => null
-        ],
-            // Zone 4 end
-            // MORE TODO Network all
-            /* self::NTC => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetTuneCommand,
-              self::IsVariable   => false,
-              self::VarName      => null,
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ], */
-            /* self::NTZ => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetTuneCommand,
-              self::IsVariable   => false,
-              self::VarName      => null,
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ],
-              self::NT3 => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetTuneCommand,
-              self::IsVariable   => false,
-              self::VarName      => null,
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ],
-              self::NT4 => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetTuneCommand,
-              self::IsVariable   => false,
-              self::VarName      => null,
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ], */
-            /*        self::NPR => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetRadioPreset,
-              self::IsVariable   => true,
-              self::VarName      => 'Network Radio Preset',
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ], */
-            /* self::NPZ => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetRadioPreset,
-              self::IsVariable   => true,
-              self::VarName      => 'Network Radio Preset',
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ],
-              self::NP3 => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetRadioPreset,
-              self::IsVariable   => true,
-              self::VarName      => 'Network Radio Preset',
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ],
-              self::NP4 => [
-              self::VarType      => IPSVarType::vtInteger,
-              self::EnableAction => true,
-              self::Profile      => IPSProfiles::ptNetRadioPreset,
-              self::IsVariable   => true,
-              self::VarName      => 'Network Radio Preset',
-              self::RequestValue => false,
-              self::ValueMapping => null
-              ] */
+        ]
     ];
 
 }
 
 class ISCP_API_Data_Mapping
 {
-    public static function GetMapping($Cmd) //__construct($Cmd)
+    public static function GetMapping($Cmd)
     {
         if (array_key_exists($Cmd, ISCP_API_Commands::$VarMapping)) {
             $result = new \stdClass();
@@ -1458,29 +1334,21 @@ class ISCP_API_Data_Mapping
 /**
  * @property ISCP_API_Commands $APICommand
  * @property mixed $Data
- * @property \stdClass $Mapping
  * @property bool $needResponse
  */
 class ISCP_API_Data
 {
     public $APICommand;
     public $Data;
-    public $Mapping;
-    public $SubIndex;
     public $needResponse;
 
     public function __construct(string $Command = null, $Data = null, bool $needResponse = true)
     {
-        $this->Mapping = null;
         $this->needResponse = $needResponse;
 
         if ($Data !== null) {
-            $this->APICommand = substr($Command, 0, 3);
-            if (strlen($Command) == 4) {
-                $this->SubIndex = substr($Command, -1);
-            }
+            $this->APICommand = $Command;
             $this->Data = $Data;
-            //$this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
             return;
         }
         if ($Command === null) {
@@ -1533,9 +1401,4 @@ class ISCP_API_Data
         return ISCP_API_Data_Mapping::GetMapping($this->APICommand);
     }
 
-    /*
-      public function GetSubCommand()
-      {
-      $this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
-      } */
 }

@@ -2,7 +2,7 @@
 {
     "translations": {
         "de": {
-            "Sending commands uses the following zone:": "Bei dem senden von Befehlen wird die folgende Zone verwendet:",
+            "When send commands the following zone is used for": "Bei dem senden von Befehlen wird die folgende Zone verwendet",
             "Request State": "Status lesen",
             "Radio Stations": "Radiosender",
             "Tuner Frequency": "Tuner-Frequenz",

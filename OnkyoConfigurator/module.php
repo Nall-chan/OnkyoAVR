@@ -4,10 +4,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 
+/**
+ * @property array $Zones
+ */
 class OnkyoConfigurator extends IPSModule
 {
-    use \OnkyoConfigurator\DebugHelper;
 
+    use \OnkyoConfigurator\DebugHelper;
     /**
      * Interne Funktion des SDK.
      */
@@ -53,7 +56,7 @@ class OnkyoConfigurator extends IPSModule
     private function GetZoneConfigFormValues(int $Splitter)
     {
         $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
-        $FoundZones = $this->Send($APIDataZoneList);
+        $this->Zones = $FoundZones = $this->Send($APIDataZoneList);
         $this->SendDebug('Found Zones', $FoundZones, 0);
         $InstanceIDListZones = $this->GetInstanceList('{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}', $Splitter, 'Zone');
         $this->SendDebug('IPS Zones', $InstanceIDListZones, 0);
@@ -177,10 +180,8 @@ class OnkyoConfigurator extends IPSModule
             }
             $TunerValues[] = $AddValue;
         }
-        if ($HasTuner and (count($TunerValues) == 0)) {
-            $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
-            $FoundZones = $this->Send($APIDataZoneList);
-            foreach ($FoundZones as $ZoneID => $Zone) {
+        if ($HasTuner and ( count($TunerValues) == 0)) {
+            foreach ($this->Zones as $ZoneID => $Zone) {
                 $Create['Tuner ' . $Zone['Name']] = [
                     'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
                     'configuration' => ['Zone' => $ZoneID]
@@ -196,6 +197,52 @@ class OnkyoConfigurator extends IPSModule
             ];
         }
         return $TunerValues;
+    }
+
+    private function GetNetworkConfigFormValues(int $Splitter)
+    {
+        $APIDataNetServiceList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetserviceList);
+        $FoundNetServiceList = $this->Send($APIDataNetServiceList);
+        $HasNetPlayer = false;
+        if (count($FoundNetServiceList) > 0) {
+            $HasNetPlayer = true;
+        }
+        $InstanceIDListNetPlayer = $this->GetInstanceList('{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}', $Splitter, 'Zone');
+        $this->SendDebug('IPS NetPlayer', $InstanceIDListNetPlayer, 0);
+        $NetPlayerValues = [];
+        foreach ($InstanceIDListNetPlayer as $InstanceIDNetPlayer => $ZoneID) {
+            $AddValue = [
+                'instanceID' => $InstanceIDNetPlayer,
+                'name'       => IPS_GetName($InstanceIDNetPlayer),
+                'type'       => 'Netplayer',
+                'zone'       => '',
+                'location'   => stristr(IPS_GetLocation($InstanceIDNetPlayer), IPS_GetName($InstanceIDNetPlayer), true)
+            ];
+            if ($HasNetPlayer) {
+                $AddValue['create'] = [
+                    'moduleID'      => '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}',
+                    'configuration' => ['Zone' => $ZoneID]
+                ];
+            }
+            $NetPlayerValues[] = $AddValue;
+        }
+        if ($HasNetPlayer and ( count($NetPlayerValues) == 0)) {
+            foreach ($this->Zones as $ZoneID => $Zone) {
+                $Create['Netplayer ' . $Zone['Name']] = [
+                    'moduleID'      => '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}',
+                    'configuration' => ['Zone' => $ZoneID]
+                ];
+            }
+            $NetPlayerValues[] = [
+                'instanceID' => 0,
+                'name'       => 'Netplayer',
+                'type'       => 'Netplayer',
+                'zone'       => '',
+                'location'   => '',
+                'create'     => $Create
+            ];
+        }
+        return $NetPlayerValues;
     }
 
     public function GetConfigurationForm()
@@ -236,7 +283,8 @@ class OnkyoConfigurator extends IPSModule
         }
         $ZoneValues = $this->GetZoneConfigFormValues($Splitter);
         $RemoteValues = $this->GetRemoteConfigFormValues($Splitter);
-        $Form['actions'][0]['values'] = array_merge($ZoneValues, $RemoteValues);
+        $NetworkValues = $this->GetNetworkConfigFormValues($Splitter);
+        $Form['actions'][0]['values'] = array_merge($ZoneValues, $RemoteValues, $NetworkValues);
 
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
@@ -264,4 +312,5 @@ class OnkyoConfigurator extends IPSModule
             return null;
         }
     }
+
 }

@@ -7,23 +7,23 @@
                     "caption": "Zone",
                     "options": [
                         {
-                            "label": "not set",
+                            "caption": "not set",
                             "value": 0
                         },
                         {
-                            "label": "Main",
+                            "caption": "Main",
                             "value": 1
                         },
                         {
-                            "label": "Zone 2",
+                            "caption": "Zone 2",
                             "value": 2
                         },
                         {
-                            "label": "Zone 3",
+                            "caption": "Zone 3",
                             "value": 3
                         },
                         {
-                            "label": "Zone 4",
+                            "caption": "Zone 4",
                             "value": 4
                         }
                     ]

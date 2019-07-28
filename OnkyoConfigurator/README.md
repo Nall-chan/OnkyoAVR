@@ -52,7 +52,7 @@ Ist der Splitter korrekt verbunden, wird beim öffnen des Konfigurator folgenden
 ![Konfigurator](../imgs/conf_configurator.png)  
 
 Über das selektieren eines Eintrages in der Tabelle und betätigen des dazugehörigen 'Erstellen' Button,  
-können alle Instanzen in IPS angelegt werden.  
+können Instanzen in IPS angelegt werden.  
 
 ## 5. Statusvariablen und Profile
 

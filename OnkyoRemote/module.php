@@ -1,18 +1,7 @@
 <?php
 
-//todo
-/*
-  //START CMD via RI
-  ISCP_API_Commands::CDS, //"CDS" - Command for Docking Station via RI
-  ISCP_API_Commands::CT1, //"CT1" - TAPE1(A) Operation Command
-  ISCP_API_Commands::CT2, //"CT2" - TAPE2(B) Operation Command
-  ISCP_API_Commands::CEQ, // "CEQ" - Graphics Equalizer Operation Command
-  ISCP_API_Commands::CDT, //"CDT" - DAT Recorder Operation Command
-  ISCP_API_Commands::CMD, //"CMD" - MD Recorder Operation Command
-  ISCP_API_Commands::CCR, //"CCR" - CD-R Recorder Operation Command
-  //ENDE CMD via RI
+// todo secure webhook
 
- */
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
@@ -25,6 +14,7 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
  */
 class OnkyoRemote extends IPSModule
 {
+
     use \OnkyoRemote\DebugHelper,
         \OnkyoRemote\WebhookHelper,
         \OnkyoRemote\Bufferhelper,
@@ -48,7 +38,8 @@ class OnkyoRemote extends IPSModule
             'AUDIO',
             'VIDEO',
             'HOME',
-            'QUICK'
+            'QUICK',
+            'RETURN'
         ],
         \OnkyoAVR\Remotes::CTV => [
             'POWER',
@@ -211,7 +202,7 @@ class OnkyoRemote extends IPSModule
             'AMTTG',
             'PWRON',
             'PWROFF',
-            'PWRTG',
+            'PWRTG'
         ],
     ];
 
@@ -256,7 +247,7 @@ class OnkyoRemote extends IPSModule
                 $this->RegisterHook('/hook/OnkyoRemote' . $this->InstanceID);
             }
 
-            $this->RegisterVariableString('Remote', 'Remote', '~HTMLBox', 1);
+            $this->RegisterVariableString('Remote', $this->Translate('Remote'), '~HTMLBox', 1);
             /* @var $remote string */
             include 'generateRemote' . ($this->ReadPropertyInteger('RemoteId')) . '.php';
             $this->SetValue('Remote', $remote);
@@ -277,7 +268,7 @@ class OnkyoRemote extends IPSModule
                 [6, 'Exit', '', -1],
                 [7, $this->Translate('Menu'), '', -1]
             ]);
-            $this->RegisterVariableInteger('navremote', 'Navigation', 'Onkyo.Navigation', 2);
+            $this->RegisterVariableInteger('navremote', $this->Translate('Navigation'), 'Onkyo.Navigation', 2);
             $this->EnableAction('navremote');
         } else {
             $this->UnregisterVariable('navremote');
@@ -291,7 +282,7 @@ class OnkyoRemote extends IPSModule
                 [4, 'Stop', '', -1],
                 [5, '>>', '', -1]
             ]);
-            $this->RegisterVariableInteger('ctrlremote', 'Steuerung', 'Onkyo.Control', 3);
+            $this->RegisterVariableInteger('ctrlremote', $this->Translate('Control'), 'Onkyo.Control', 3);
             $this->EnableAction('ctrlremote');
         } else {
             $this->UnregisterVariable('ctrlremote');
@@ -301,7 +292,6 @@ class OnkyoRemote extends IPSModule
     }
 
     //################# PRIVATE
-
     /**
      * Verarbeitet Daten aus dem Webhook.
      *
@@ -311,17 +301,27 @@ class OnkyoRemote extends IPSModule
     {
         if (isset($_GET['button'])) {
             $Command = strtoupper($_GET['button']);
-            if ($this->Type == \OnkyoAVR\Remotes::CAP) {
-                switch ($Command) {
-                    case 'VLDN':
-                        $Command = 'MVLDOWN';
-                        break;
-                    case 'VLUP':
-                        $Command = 'MVLUP';
-                        break;
-                    case 'POWER':
-                        $Command = 'PWRTG';
-                }
+            switch ($this->Type) {
+                case \OnkyoAVR\Remotes::CAP:
+                    switch ($Command) {
+                        case 'VLDN':
+                            $Command = 'MVLDOWN';
+                            break;
+                        case 'VLUP':
+                            $Command = 'MVLUP';
+                            break;
+                        case 'POWER':
+                            $Command = 'PWRTG';
+                            break;
+                    }
+                    break;
+                /* case \OnkyoAVR\Remotes::OSD:
+                  switch ($Command) {
+                  case 'RETURN':
+                  $Command = 'MVLDOWN';
+                  break;
+                  }
+                  break; */
             }
             if ($this->Send($Command) === true) {
                 echo 'OK';
@@ -333,7 +333,6 @@ class OnkyoRemote extends IPSModule
     }
 
     //################# ActionHandler
-
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      *
@@ -404,7 +403,6 @@ class OnkyoRemote extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * IPS-Instanz-Funktion 'OAVR_Up'. Tastendruck 'Hoch' ausführen.
      *
@@ -598,6 +596,11 @@ class OnkyoRemote extends IPSModule
         return $this->Send('SKIP.R');
     }
 
+    public function SendKey(string $Key)
+    {
+        return $this->Send(strtoupper($Key));
+    }
+
     private function Send(string $Command)
     {
         try {
@@ -623,6 +626,7 @@ class OnkyoRemote extends IPSModule
             return false;
         }
     }
+
 }
 
 /* @} */

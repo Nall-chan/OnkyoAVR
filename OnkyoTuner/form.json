@@ -10,19 +10,19 @@
                     "caption": "Zone",
                     "options": [
                         {
-                            "label": "Tuner Main Zone",
+                            "caption": "Tuner Main Zone",
                             "value": 1
                         },
                         {
-                            "label": "Tuner Zone 2",
+                            "caption": "Tuner Zone 2",
                             "value": 2
                         },
                         {
-                            "label": "Tuner Zone 3",
+                            "caption": "Tuner Zone 3",
                             "value": 3
                         },
                         {
-                            "label": "Tuner Zone 4",
+                            "caption": "Tuner Zone 4",
                             "value": 4
                         }
                     ]
@@ -34,7 +34,7 @@
                 },
                 {
                     "type": "Button",
-                    "label": "Request State",
+                    "caption": "Request State",
                     "onClick": "OAVR_RequestState($id,'ALL');"
                 }
             ]

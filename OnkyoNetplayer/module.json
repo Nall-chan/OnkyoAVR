@@ -1,0 +1,11 @@
+{
+    "id": "{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}",
+    "name": "Onkyo Netplayer",
+    "type": 3,
+    "vendor": "Onkyo & Pioneer",
+    "aliases": ["Onyko Netplayer", "Pioneer Netplayer"],
+    "parentRequirements": ["{8F47273A-0B69-489E-AF36-F391AE5FBEC0}"],
+    "childRequirements": [],
+    "implemented": ["{43E4B48E-2345-4A9A-B506-3E8E7A964757}"],
+    "prefix": "OAVR"
+}

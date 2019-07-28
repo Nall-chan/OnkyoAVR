@@ -1,7 +1,5 @@
 <?php
 
-// todo Zonenwechsel muss aufräumen...
-//
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
@@ -21,6 +19,7 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  */
 class OnkyoAVR extends IPSModule
 {
+
     use \OnkyoAVR\DebugHelper,
         \OnkyoAVR\BufferHelper,
         \OnkyoAVR\InstanceStatus,
@@ -29,7 +28,6 @@ class OnkyoAVR extends IPSModule
         \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
     }
-
     public function Create()
     {
         parent::Create();
@@ -170,8 +168,19 @@ class OnkyoAVR extends IPSModule
             $this->PerformModulUpdate();
             return;
         }
-        // prüfung ob $OldZone != $this->ReadPropertyInteger('Zone')
-        // dann Idents anpassen!
+
+        // Power, Mute, Volume, Input überführen in neuen Ident
+        if ($OldZone != $this->ReadPropertyInteger('Zone')) {
+            $OldZoneIdents = \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$OldZone];
+            $NewZoneIdents = \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$this->OnkyoZone->thisZone];
+            for ($index = 0; $index < 4; $index++) {
+                $VarId = @$this->GetIDForIdent($OldZoneIdents[$index]);
+                if ($VarId > 0) {
+                    IPS_SetIdent($VarId, $NewZoneIdents[$index]);
+                }
+            }
+        }
+
         $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
         $this->PhaseMatchingBass = true;
         $this->SetSummary($this->OnkyoZone->GetName());
@@ -190,7 +199,12 @@ class OnkyoAVR extends IPSModule
             $this->SendDebug('FILTER', $Line, 0);
         }
         unset($MyPropertys['Zone']);
-        foreach ($MyPropertys as $Key => $Value) {
+
+        // Abgewählte Variablen entfernen und Variablen welche nicht in dieser Zone sind
+        foreach ($MyPropertys as $Key => &$Value) {
+            if (!in_array($Key, \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$this->OnkyoZone->thisZone])) {
+                $Value = false;
+            }
             if ($Value === false) {
                 $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($Key);
                 $VariableIdent = $Key;
@@ -529,10 +543,6 @@ class OnkyoAVR extends IPSModule
 
     //################# PUBLIC
 
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
-     */
     public function RequestState(string $Ident)
     {
         if (!$this->CheckZone()) {
@@ -706,7 +716,7 @@ class OnkyoAVR extends IPSModule
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
             return false;
         }
-        if (($Duration < 0) or ($Duration > 0x5A)) {
+        if (($Duration < 0) or ( $Duration > 0x5A)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
             return false;
         }
@@ -826,33 +836,32 @@ class OnkyoAVR extends IPSModule
         return array_combine($Keys, array_pad(explode(',', substr($ret, 0, -1)), count($Keys), ''));
     }
 
-    public function SendCommand(string $Command, string $Value, bool $needResponse)
-    {
-        trigger_error('Diese Funktion wird nicht mehr unterstützt!', E_USER_DEPRECATED);
-        if (!$this->CheckZone()) {
-            return false;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data($Command, $Value, $needResponse);
-        $ResultData = $this->Send($APIData);
-        if ($ResultData === null) {
-            trigger_error('Error on send command.', E_USER_NOTICE);
-            return false;
-        }
-        if ($needResponse) {
-            if ($ResultData == 'N/A') {
-                trigger_error('Command (temporally) not available.', E_USER_NOTICE);
-                return false;
-            }
-            return $ResultData;
-        } else {
-            if ($APIData === false) {
-                trigger_error('Error on send command.', E_USER_NOTICE);
-                return false;
-            }
-        }
-        return true;
-    }
-
+    /*    public function SendCommand(string $Command, string $Value, bool $needResponse)
+      {
+      trigger_error('Diese Funktion wird nicht mehr unterstützt!', E_USER_DEPRECATED);
+      if (!$this->CheckZone()) {
+      return false;
+      }
+      $APIData = new \OnkyoAVR\ISCP_API_Data($Command, $Value, $needResponse);
+      $ResultData = $this->Send($APIData);
+      if ($ResultData === null) {
+      trigger_error('Error on send command.', E_USER_NOTICE);
+      return false;
+      }
+      if ($needResponse) {
+      if ($ResultData == 'N/A') {
+      trigger_error('Command (temporally) not available.', E_USER_NOTICE);
+      return false;
+      }
+      return $ResultData;
+      } else {
+      if ($APIData === false) {
+      trigger_error('Error on send command.', E_USER_NOTICE);
+      return false;
+      }
+      }
+      return true;
+      } */
     //################# Datapoints
 
     public function ReceiveData($JSONString)
@@ -1006,6 +1015,10 @@ class OnkyoAVR extends IPSModule
 
     private function SendAPIData(\OnkyoAVR\ISCP_API_Data $APIData)
     {
+        if (strlen($APIData->APICommand) == 4) {
+            $SubIndex = substr($APIData->APICommand, -1);
+            $APIData->APICommand = substr($APIData->APICommand, 0, 3);
+        }
         try {
             if (!$this->OnkyoZone->CmdAvaiable($APIData->APICommand)) {
                 throw new Exception('Command not available at this zone.', E_USER_NOTICE);
@@ -1062,7 +1075,7 @@ class OnkyoAVR extends IPSModule
                     }
                     break;
                 case \OnkyoAVR\IPSVarType::vtDualInteger:
-                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$APIData->SubIndex];
+                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$SubIndex];
                     $ValueMapping = array_flip($Mapping->ValueMapping);
                     if (array_key_exists($APIData->Data, $ValueMapping)) {
                         $APIData->Data = $ISCP_ValuePrefix . $ValueMapping[$APIData->Data];
@@ -1126,4 +1139,5 @@ class OnkyoAVR extends IPSModule
             return null;
         }
     }
+
 }

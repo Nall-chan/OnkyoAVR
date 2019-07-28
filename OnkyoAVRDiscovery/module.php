@@ -179,5 +179,3 @@ class OnkyoAVRDiscovery extends ipsmodule
         // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
 }
-
-/* @} */

@@ -29,6 +29,7 @@ ermöglich die Einbindung von Onkyo und Pioneer AV-Receiver in IP-Symcon.
 ### [OnkyoConfigurator:](OnkyoConfigurator/)  
 ### [OnkyoAVRSplitter:](OnkyoAVRSplitter/)  
 ### [OnkyoAVRZone:](OnkyoAVRZone/)  
+### [OnkyoNetplayer:](OnkyoNetplayer/)  
 ### [OnkyoRemote:](OnkyoRemote/)  
 ### [OnkyoTuner:](OnkyoTuner/)  
 
@@ -62,6 +63,7 @@ Es wird empfohlen die Einrichtung mit der Discovery-Instanz zu starten ([OnkyoAV
 | Onkyo Configurator  | Configurator | OAVR   | {251DAC2C-5B1F-4B1F-B843-B22D518F553E} |
 | ISCP Splitter       | Splitter     | OAVR   | {EB1697D1-2A88-4A1A-89D9-807D73EEA7C9} |
 | Onkyo AVR Zone      | Device       | OAVR   | {DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7} |
+| Onkyo Netplayer     | Device       | OAVR   | {3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476} |
 | Onkyo Tuner         | Device       | OAVR   | {47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F} |
 | Onkyo Remote        | Device       | OAVR   | {C7EA583D-2BAC-41B7-A85A-AD0DF648E514} |
 
@@ -73,7 +75,7 @@ Es wird empfohlen die Einrichtung mit der Discovery-Instanz zu starten ([OnkyoAV
  - Modul für IPS 5.1 komplett überarbeitet  
  - Neue Discovery Instanz zum auffinden und einrichten von Geräten in Symcon  
  - Neue Konfigurator Instanz zum einfachen einrichten der Geräte Instanzen in Symcon  
- - Neue Instanzen für Tuner und Fernsteuerung (Remote)  
+ - Neue Instanzen für Tuner, Netplayer und Fernsteuerung (Remote)  
  - Profile folgen dem Muster Onkyo.<Name>  
  - Zonen können detalierter Konfiguriert werden und unterstützen mehr Funktionen  
  - Übersetzungen hinzugefügt  

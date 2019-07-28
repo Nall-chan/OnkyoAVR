@@ -1,0 +1,235 @@
+{
+    "elements":
+            [
+                {
+                    "type": "Label",
+                    "caption": "When send commands the following zone is used for"
+                },
+                {
+                    "name": "Zone",
+                    "type": "Select",
+                    "caption": "Zone",
+                    "options": [
+                        {
+                            "label": "Main Zone",
+                            "value": 1
+                        },
+                        {
+                            "label": "Zone 2",
+                            "value": 2
+                        },
+                        {
+                            "label": "Zone 3",
+                            "value": 3
+                        },
+                        {
+                            "label": "Zone 4",
+                            "value": 4
+                        }
+                    ]
+                }, {
+                    "name": "showNavigation",
+                    "type": "CheckBox",
+                    "caption": "Show navigation as HTML-Box"
+                }, {
+                    "type": "ExpansionPanel",
+                    "caption": "Desgin of the HTML-Box",
+                    "items": [
+                        {
+                            "type": "List",
+                            "name": "Table",
+                            "caption": "Navigation design",
+                            "rowCount": 5,
+                            "add": false,
+                            "delete": false,
+                            "columns": [{
+                                    "name": "tag", 
+                                    "caption": "HTML-Tag",
+                                    "width": "150px",
+                                    "save": true
+                                }, {
+                                    "caption": "CSS",
+                                    "name": "style", 
+                                    "width": "auto",
+                                    "edit": {
+                                        "caption": "CSS:",                        
+                                        "type": "ValidationTextBox"
+                                    }
+                                }
+                            ]
+                        }, {
+                            "type": "List",
+                            "name": "Columns",
+                            "caption": "Navigation columns",
+                            "rowCount": 4,
+                            "add": false,
+                            "delete": false,
+                            "sort": {
+                                "column": "index",
+                                "direction": "ascending"
+                            },
+                            "columns": [{
+                                    "name": "key", 
+                                    "caption": "Data",
+                                    "width": "150px",
+                                    "save": true
+                                }, {
+                                    "caption": "Visible",
+                                    "name": "show",
+                                    "width": "75px",
+                                    "edit": {
+                                        "caption": "Visible as column ?",                        
+                                        "type": "CheckBox"
+                                    }
+                                }, {
+                                    "caption": "No.",
+                                    "name": "index", 
+                                    "width": "75px",
+                                    "edit": {
+                                        "caption": "Index of this column:",                        
+                                        "type": "NumberSpinner"
+                                    }
+                                }, {
+                                    "caption": "Display-Name",
+                                    "name": "name", 
+                                    "width": "150px",
+                                    "edit": {
+                                        "caption": "Display-Name:",                        
+                                        "type": "ValidationTextBox"
+                                    }
+                                }, {
+                                    "caption": "Width",
+                                    "name": "width", 
+                                    "width": "60px",
+                                    "edit": {
+                                        "caption": "Width of this column:",                        
+                                        "type": "NumberSpinner",
+                                        "suffix": "px"
+                                    }
+                                }, {
+                                    "caption": "Alignment",
+                                    "name": "align", 
+                                    "width": "90px",
+                                    "edit": {
+                                        "type": "Select",
+                                        "caption": "Text alignment",
+                                        "options": [
+                                            {
+                                                "caption": "Left",
+                                                "value": "left"
+                                            },
+                                            {
+                                                "caption": "Center",
+                                                "value": "center"
+                                            },
+                                            {
+                                                "caption": "Right",
+                                                "value": "right"
+                                            }
+                                        ]
+                                    }
+                                }, {
+                                    "caption": "Color",
+                                    "name": "color", 
+                                    "width": "150px",
+                                    "edit": {
+                                        "caption": "Color of Text:",                        
+                                        "type": "SelectColor"
+                                    }
+                                }, {
+                                    "caption": "CSS",
+                                    "name": "style", 
+                                    "width": "auto",
+                                    "edit": {
+                                        "caption": "CSS:",                        
+                                        "type": "ValidationTextBox"
+                                    }
+                                }
+                            ]
+                        }, {
+                            "type": "List",
+                            "name": "Rows",
+                            "caption": "Navigation rows",
+                            "rowCount": 4,
+                            "add": false,
+                            "delete": false,
+                            "columns": [{
+                                    "name": "row", 
+                                    "caption": "",
+                                    "save": true,
+                                    "visible": false
+                                }, {
+                                    "name": "name", 
+                                    "caption": "Row",
+                                    "save": true,
+                                    "width": "150px"
+                                }, {
+                                    "caption": "Backgroundcolor",
+                                    "name": "bgcolor", 
+                                    "width": "150px",
+                                    "edit": {
+                                        "caption": "Color of background:",                        
+                                        "type": "SelectColor"
+                                    }
+                                }, {
+                                    "caption": "Color",
+                                    "name": "color", 
+                                    "width": "150px",
+                                    "edit": {
+                                        "caption": "Color of Text:",                        
+                                        "type": "SelectColor"
+                                    }
+                                }, {
+                                    "caption": "CSS",
+                                    "name": "style", 
+                                    "width": "auto",
+                                    "edit": {
+                                        "caption": "CSS:",                        
+                                        "type": "ValidationTextBox"
+                                    }
+                                }
+                            ]
+                        }, {
+                            "type": "List",
+                            "name": "Icons",
+                            "caption": "Icons",
+                            "rowCount": 12,
+                            "add": false,
+                            "delete": false,
+                            "columns": [{
+                                    "name": "typ", 
+                                    "caption": "",
+                                    "save": true,
+                                    "visible": false
+                                }, {
+                                    "name": "name", 
+                                    "caption": "Type",
+                                    "save": true,
+                                    "width": "150px"
+                                }, {
+                                    "name": "icon", 
+                                    "caption": "Icon",
+                                    "width": "auto",
+                                    "edit": {
+                                        "caption": "Icon",                        
+                                        "type": "Select",
+                                        "options": [
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+    "actions":
+            [{
+                    "type": "TestCenter"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Request State",
+                    "onClick": "OAVR_RequestState($id,'ALL');"
+                }
+            ]
+}

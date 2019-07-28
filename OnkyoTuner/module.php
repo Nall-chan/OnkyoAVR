@@ -17,6 +17,7 @@ eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/V
  */
 class OnkyoTuner extends IPSModule
 {
+
     use \OnkyoTuner\DebugHelper,
         \OnkyoTuner\BufferHelper,
         \OnkyoTuner\InstanceStatus,
@@ -25,7 +26,6 @@ class OnkyoTuner extends IPSModule
         \OnkyoTuner\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoTuner\InstanceStatus::RequestAction as IORequestAction;
     }
-
     public function Create()
     {
         parent::Create();
@@ -201,7 +201,6 @@ class OnkyoTuner extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -223,6 +222,7 @@ class OnkyoTuner extends IPSModule
         }
         $APIData->Data = $ResultData;
         $this->UpdateVariable($APIData);
+        return true;
     }
 
     public function SetFrequency(float $Value)
@@ -230,7 +230,7 @@ class OnkyoTuner extends IPSModule
         $ValueValid = false;
         $NewBand = 0;
         foreach ($this->TunerProfile as $Profile) {
-            if (($Value >= $Profile['Min']) and ($Value <= $Profile['Max'])) {
+            if (($Value >= $Profile['Min']) and ( $Value <= $Profile['Max'])) {
                 $ValueValid = true;
                 $NewBand = $Profile['SLI'];
             }
@@ -258,7 +258,6 @@ class OnkyoTuner extends IPSModule
             $result = false;
         }
         return $result;
-        //return $result && $this->SendAPIData($APIData);
     }
 
     public function SetBand(int $Value)
@@ -276,7 +275,7 @@ class OnkyoTuner extends IPSModule
 
     public function CallPreset(int $Value)
     {
-        if (($Value < 1) or ($Value > $this->MaxPreset)) {
+        if (($Value < 1) or ( $Value > $this->MaxPreset)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -287,7 +286,7 @@ class OnkyoTuner extends IPSModule
 
     public function SetPreset(int $Value)
     {
-        if (($Value < 1) or ($Value > $this->MaxPreset)) {
+        if (($Value < 1) or ( $Value > $this->MaxPreset)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -384,4 +383,5 @@ class OnkyoTuner extends IPSModule
             return null;
         }
     }
+
 }

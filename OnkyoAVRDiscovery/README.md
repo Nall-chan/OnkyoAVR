@@ -40,7 +40,7 @@ Nach der installation des Moduls fragt Symcon ob es diese Instanz automatisch an
 Anschließend ist im Objektbaum unter 'Discovery Instanzen' eine Instanz 'Onkyo AVR Discovery' vorhanden.  
 Beim dem Öffnen der Instanz, werden alle im Netzwerk gefundenen 'AV Receiver' aufgelistet.  
 Über das selektieren eines Gerätes in der Tabelle und betätigen des dazugehörigen 'Erstellen' Button, wird ein entsprechender Konfigurator in IPS angelegt.  
-Mit diesem Konfigurator können dann die einzelnen Player in IPS erzeugt werden.   
+Mit diesem Konfigurator können dann die einzelnen Instanzen in IPS erzeugt werden.   
 ![Discovery](../imgs/conf_discovery.png)  
 
 ## 5. Statusvariablen und Profile

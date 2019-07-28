@@ -10,7 +10,7 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
 
 /**
  * @property array $ReplyISCPData Enthält die versendeten Befehle und buffert die Antworten.
- * @property string $Buffer Empfangsbuffer
+ * @property string $Multi_Buffer Empfangsbuffer
  * @property int $ParentID Die InstanzeID des IO-Parent
  * @property \OnkyoAVR\ISCP_API_Mode $Mode
  * @property array $NetserviceList
@@ -25,6 +25,7 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
  */
 class ISCPSplitter extends IPSModule
 {
+
     use \ISCPSplitter\DebugHelper,
         \ISCPSplitter\BufferHelper,
         \ISCPSplitter\InstanceStatus,
@@ -42,7 +43,7 @@ class ISCPSplitter extends IPSModule
         $this->RequireParent('{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}');
         $this->RegisterTimer('KeepAlive', 0, 'OAVR_KeepAlive($_IPS[\'TARGET\']);');
         $this->ReplyISCPData = [];
-        $this->Buffer = '';
+        $this->Multi_Buffer = '';
         $this->ParentID = 0;
         $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
         $this->EmptyProfileBuffers();
@@ -54,10 +55,10 @@ class ISCPSplitter extends IPSModule
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         $this->ReplyISCPData = [];
-        $this->Buffer = '';
+        $this->Multi_Buffer = '';
         $this->ParentID = 0;
         $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
-        $this->EmptyBuffers();
+        $this->EmptyProfileBuffers();
         parent::ApplyChanges();
 
         $this->UnregisterVariable('BufferIN');
@@ -138,7 +139,7 @@ class ISCPSplitter extends IPSModule
             if ($this->HasActiveParent()) {
                 $this->RefreshCapas();
                 $this->SetStatus(IS_ACTIVE);
-                $this->SetTimerInterval('KeepAlive', 360000);
+                $this->SetTimerInterval('KeepAlive', 3600000);
                 return;
             }
         }
@@ -206,7 +207,7 @@ class ISCPSplitter extends IPSModule
             if ((string) $Netservice['value'] == '0') {
                 continue;
             }
-            $NetserviceList[(int) hexdec((string) $Netservice['id'])] = trim((string) $Netservice['name']);
+            $NetserviceList[hexdec((string) $Netservice['id'])] = trim((string) $Netservice['name']);
         }
         $this->LogMessage('Netservices: ' . count($NetserviceList), KL_NOTIFY);
         $this->NetserviceList = $NetserviceList;
@@ -216,7 +217,7 @@ class ISCPSplitter extends IPSModule
             if ((string) $Selector['value'] == '0') {
                 continue;
             }
-            $SelectorList[(int) hexdec($Selector['id'])] = [
+            $SelectorList[hexdec((string) $Selector['id'])] = [
                 'Name' => trim((string) $Selector['name']),
                 'Zone' => (int) $Selector['zone'],
             ];
@@ -229,7 +230,7 @@ class ISCPSplitter extends IPSModule
             if ((string) $Zone['value'] == '0') {
                 continue;
             }
-            $ZoneList[(int) hexdec($Zone['id'])] = [
+            $ZoneList[hexdec((string) $Zone['id'])] = [
                 'Name'     => trim((string) $Zone['name']),
                 'Volmax'   => (int) $Zone['volmax'],
                 'Volsetep' => (int) $Zone['volstep'],
@@ -358,7 +359,7 @@ class ISCPSplitter extends IPSModule
 
     public function ReceiveData($JSONString)
     {
-        $stream = $this->Buffer;
+        $stream = $this->Multi_Buffer;
         $stream .= utf8_decode(json_decode($JSONString)->Buffer);
         $this->SendDebug('Receive', $stream, 0);
         if ($this->Mode == \OnkyoAVR\ISCP_API_Mode::LAN) {
@@ -366,7 +367,7 @@ class ISCPSplitter extends IPSModule
             $start = strpos($stream, 'ISCP');
             if ($start === false) {
                 $this->SendDebug('Error', 'eISCP Frame without ISCP', 0);
-                $this->Buffer = '';
+                $this->Multi_Buffer = '';
                 return;
             } elseif ($start > 0) {
                 $this->SendDebug('Warning', 'eISCP Frame start not with ISCP', 0);
@@ -374,7 +375,7 @@ class ISCPSplitter extends IPSModule
             }
             if (strlen($stream) < $minTail) {
                 $this->SendDebug('Waiting', 'eISCP Frame incomplete', 0);
-                $this->Buffer = $stream;
+                $this->Multi_Buffer = $stream;
                 return;
             }
             $len = unpack('N*', substr($stream, 4, 8));
@@ -383,7 +384,7 @@ class ISCPSplitter extends IPSModule
             $PayloadLen = $len[2];
             if (strlen($stream) < $eISCPHeaderlen + $PayloadLen) {
                 $this->SendDebug('Waiting', 'eISCP Frame must have ' . $eISCPHeaderlen . '+' . $PayloadLen . ' Bytes. ' . strlen($stream) . ' Bytes given.', 0);
-                $this->Buffer = $stream;
+                $this->Multi_Buffer = $stream;
                 return;
             }
             $header = substr($stream, 0, $eISCPHeaderlen);
@@ -399,22 +400,22 @@ class ISCPSplitter extends IPSModule
             $start = strpos($stream, '!');
             if ($start === false) {
                 $this->SendDebug('Error', 'ISCP Frame without "!"', 0);
-                $this->Buffer = '';
+                $this->Multi_Buffer = '';
                 return;
             } elseif ($start > 0) {
                 $this->SendDebug('Warning', 'ISCP Frame do not start with "!"', 0);
                 $stream = substr($stream, $start);
             }
             $len = strpos($stream, "\x1A");
-            if (($len === false) or (strlen($stream) < $minTail)) { // Kein EOT oder zu klein
+            if (($len === false) or ( strlen($stream) < $minTail)) { // Kein EOT oder zu klein
                 $this->SendDebug('Waiting', 'ISCP Frame incomplete', 0);
-                $this->Buffer = $stream;
+                $this->Multi_Buffer = $stream;
                 return;
             }
             $frame = substr($stream, 0, $len);
             $tail = ltrim(substr($stream, $len));
         }
-        $this->Buffer = $tail;
+        $this->Multi_Buffer = $tail;
         if ($frame != '') {
             $APIData = $this->DecodeData(rtrim($frame));
             if ($APIData !== false) {
@@ -464,7 +465,7 @@ class ISCPSplitter extends IPSModule
      */
     private function WaitForResponse(string $APICommand)
     {
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 2000; $i++) {
             $Buffer = $this->ReplyISCPData;
             if (!array_key_exists($APICommand, $Buffer)) {
                 return null;
@@ -480,7 +481,6 @@ class ISCPSplitter extends IPSModule
     }
 
     //################# SENDQUEUE
-
     /**
      * Fügt eine Anfrage in die SendQueue ein.
      */
@@ -534,4 +534,5 @@ class ISCPSplitter extends IPSModule
         $this->ReplyISCPData = $Buffer;
         $this->unlock('ReplyISCPData');
     }
+
 }
