@@ -9,8 +9,8 @@ eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/h
  */
 class OnkyoConfigurator extends IPSModule
 {
-
     use \OnkyoConfigurator\DebugHelper;
+
     /**
      * Interne Funktion des SDK.
      */
@@ -180,7 +180,7 @@ class OnkyoConfigurator extends IPSModule
             }
             $TunerValues[] = $AddValue;
         }
-        if ($HasTuner and ( count($TunerValues) == 0)) {
+        if ($HasTuner and (count($TunerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
                 $Create['Tuner ' . $Zone['Name']] = [
                     'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
@@ -226,7 +226,7 @@ class OnkyoConfigurator extends IPSModule
             }
             $NetPlayerValues[] = $AddValue;
         }
-        if ($HasNetPlayer and ( count($NetPlayerValues) == 0)) {
+        if ($HasNetPlayer and (count($NetPlayerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
                 $Create['Netplayer ' . $Zone['Name']] = [
                     'moduleID'      => '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}',
@@ -312,5 +312,4 @@ class OnkyoConfigurator extends IPSModule
             return null;
         }
     }
-
 }

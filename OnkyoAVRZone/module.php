@@ -19,7 +19,6 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  */
 class OnkyoAVR extends IPSModule
 {
-
     use \OnkyoAVR\DebugHelper,
         \OnkyoAVR\BufferHelper,
         \OnkyoAVR\InstanceStatus,
@@ -28,6 +27,7 @@ class OnkyoAVR extends IPSModule
         \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
     }
+
     public function Create()
     {
         parent::Create();
@@ -716,7 +716,7 @@ class OnkyoAVR extends IPSModule
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
             return false;
         }
-        if (($Duration < 0) or ( $Duration > 0x5A)) {
+        if (($Duration < 0) or ($Duration > 0x5A)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
             return false;
         }
@@ -1002,7 +1002,7 @@ class OnkyoAVR extends IPSModule
                         if (is_array($VarName)) {
                             $VarName = implode(' & ', array_values($VarName));
                         }
-                        echo (sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName)));
+                        echo sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName));
                         continue;
                     }
                     $APIData->Data = $ResultData;
@@ -1019,6 +1019,7 @@ class OnkyoAVR extends IPSModule
             $SubIndex = substr($APIData->APICommand, -1);
             $APIData->APICommand = substr($APIData->APICommand, 0, 3);
         }
+
         try {
             if (!$this->OnkyoZone->CmdAvaiable($APIData->APICommand)) {
                 throw new Exception('Command not available at this zone.', E_USER_NOTICE);
@@ -1139,5 +1140,4 @@ class OnkyoAVR extends IPSModule
             return null;
         }
     }
-
 }

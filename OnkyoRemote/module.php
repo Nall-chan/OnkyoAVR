@@ -14,7 +14,6 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
  */
 class OnkyoRemote extends IPSModule
 {
-
     use \OnkyoRemote\DebugHelper,
         \OnkyoRemote\WebhookHelper,
         \OnkyoRemote\Bufferhelper,
@@ -292,6 +291,7 @@ class OnkyoRemote extends IPSModule
     }
 
     //################# PRIVATE
+
     /**
      * Verarbeitet Daten aus dem Webhook.
      *
@@ -333,6 +333,7 @@ class OnkyoRemote extends IPSModule
     }
 
     //################# ActionHandler
+
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      *
@@ -403,6 +404,7 @@ class OnkyoRemote extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'OAVR_Up'. Tastendruck 'Hoch' ausführen.
      *
@@ -626,7 +628,6 @@ class OnkyoRemote extends IPSModule
             return false;
         }
     }
-
 }
 
 /* @} */
