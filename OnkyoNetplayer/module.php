@@ -27,6 +27,7 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  */
 class OnkyoNetplayer extends IPSModule
 {
+
     use \OnkyoNetplayer\DebugHelper,
         \OnkyoNetplayer\BufferHelper,
         \OnkyoNetplayer\InstanceStatus,
@@ -36,7 +37,6 @@ class OnkyoNetplayer extends IPSModule
         \OnkyoNetplayer\InstanceStatus::MessageSink as IOMessageSink;
         \OnkyoNetplayer\InstanceStatus::RequestAction as IORequestAction;
     }
-
     public function Create()
     {
         parent::Create();
@@ -484,7 +484,7 @@ class OnkyoNetplayer extends IPSModule
         $this->SendDebug('ListItems', $ListItems, 0);
         $this->SendDebug('ServiceType', $ServiceType, 0);
         $this->SendDebug('ServiceType old', $this->ServiceType, 0);
-        if (($this->ServiceType == $ServiceType) and ($this->UiType == $UiType) and ($this->Layer == $Layer)) {
+        if (($this->ServiceType == $ServiceType) and ( $this->UiType == $UiType) and ( $this->Layer == $Layer)) {
             return;
         }
         $this->ServiceType = $ServiceType;
@@ -505,9 +505,9 @@ class OnkyoNetplayer extends IPSModule
         //      }
     }
 
-    public function SendKey(string $Value)
+    public function SendKey(string $Key)
     {
-        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NTC), $Value, false);
+        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NTC), $Key, false);
         $ResultData = $this->Send($APIData);
         if ($ResultData === null) {
             return false;
@@ -785,7 +785,6 @@ class OnkyoNetplayer extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
@@ -865,7 +864,7 @@ class OnkyoNetplayer extends IPSModule
 
     public function CallPreset(int $Value)
     {
-        if (($Value < 1) or ($Value > 40)) {
+        if (($Value < 1) or ( $Value > 40)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -892,7 +891,7 @@ class OnkyoNetplayer extends IPSModule
         if (count($ResultDataSelectorList) > 0) {
             //$AssociationSLI = [];
             foreach ($ResultDataSelectorList as $Value => $SelectorProfileData) {
-                if (($Value < 0x29) or ($Value > 0x2E)) {
+                if (($Value < 0x29) or ( $Value > 0x2E)) {
                     continue;
                 }
                 if (((int) $SelectorProfileData['Zone'] & $zone) == $zone) {
@@ -1039,7 +1038,7 @@ class OnkyoNetplayer extends IPSModule
         //$this->SendDebug('$_GET', $_GET, 0);
         //
         //Type=Index&ID=55&Secret=8XJKlIPXwJ3P8hOJgO3skdMLsys%3D
-        if ((!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
+        if ((!isset($_GET['Type'])) or ( !isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -1406,4 +1405,5 @@ sleep(10).then(() => {
         }
         return $Seconds;
     }
+
 }
