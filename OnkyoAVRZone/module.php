@@ -162,7 +162,8 @@ class OnkyoAVR extends IPSModule
         $this->SendDebug('Default Profile', $ProfileData, 0);
         $this->ToneProfile = $ProfileData;
         $OldZone = $this->OnkyoZone->thisZone;
-        $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone($this->ReadPropertyInteger('Zone'));
+        $NewZone = $this->ReadPropertyInteger('Zone');
+        $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone($NewZone);
 
         if (@$this->GetIDForIdent('ReplyAPIData') > 0) {
             $this->PerformModulUpdate();
@@ -170,7 +171,7 @@ class OnkyoAVR extends IPSModule
         }
 
         // Power, Mute, Volume, Input überführen in neuen Ident
-        if ($OldZone != $this->ReadPropertyInteger('Zone')) {
+        if ((($OldZone != 0) and ($NewZone != 0)) and ($OldZone != $NewZone)) {
             $OldZoneIdents = \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$OldZone];
             $NewZoneIdents = \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$this->OnkyoZone->thisZone];
             for ($index = 0; $index < 4; $index++) {
