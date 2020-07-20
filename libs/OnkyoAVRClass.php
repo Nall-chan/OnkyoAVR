@@ -277,25 +277,6 @@ class ONKYO_Zone_NetPlayer
 
     public $thisZone = self::ZoneMain;
 
-    public function __construct($Zone = self::ZoneMain)
-    {
-        $this->thisZone = $Zone;
-    }
-
-    public function GetName()
-    {
-        switch ($this->thisZone) {
-            case 1:
-                return 'NetPlayer Main';
-            case 2:
-                return 'NetPlayer Zone 2';
-            case 3:
-                return 'NetPlayer Zone 3';
-            case 4:
-                return 'NetPlayer Zone 4';
-        }
-    }
-
     public static $ZoneCMDs = [
         self::ZoneMain => [
             ISCP_API_Commands::NPR,
@@ -329,6 +310,25 @@ class ONKYO_Zone_NetPlayer
         ISCP_API_Commands::NMS,
     ];
 
+    public function __construct($Zone = self::ZoneMain)
+    {
+        $this->thisZone = $Zone;
+    }
+
+    public function GetName()
+    {
+        switch ($this->thisZone) {
+            case 1:
+                return 'NetPlayer Main';
+            case 2:
+                return 'NetPlayer Zone 2';
+            case 3:
+                return 'NetPlayer Zone 3';
+            case 4:
+                return 'NetPlayer Zone 4';
+        }
+    }
+
     public function GetZoneCommand(string $APICommand)
     {
         $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
@@ -352,25 +352,6 @@ class ONKYO_Zone_Tuner
     const AM = 'AM';
 
     public $thisZone = self::ZoneMain;
-
-    public function __construct($Zone = self::ZoneMain)
-    {
-        $this->thisZone = $Zone;
-    }
-
-    public function GetName()
-    {
-        switch ($this->thisZone) {
-            case 1:
-                return 'Tuner Main';
-            case 2:
-                return 'Tuner Zone 2';
-            case 3:
-                return 'Tuner Zone 3';
-            case 4:
-                return 'Tuner Zone 4';
-        }
-    }
 
     public static $TunerProfile = [
         self::FM => [
@@ -410,6 +391,25 @@ class ONKYO_Zone_Tuner
         ],
     ];
 
+    public function __construct($Zone = self::ZoneMain)
+    {
+        $this->thisZone = $Zone;
+    }
+
+    public function GetName()
+    {
+        switch ($this->thisZone) {
+            case 1:
+                return 'Tuner Main';
+            case 2:
+                return 'Tuner Zone 2';
+            case 3:
+                return 'Tuner Zone 3';
+            case 4:
+                return 'Tuner Zone 4';
+        }
+    }
+
     public function GetReadAPICommands()
     {
         return self::$ZoneCMDs[$this->thisZone];
@@ -434,22 +434,6 @@ class ONKYO_Zone
     const Netplayer = 6;
 
     public $thisZone = self::None;
-
-    public function GetName()
-    {
-        switch ($this->thisZone) {
-            case 1:
-                return 'Main';
-            case 2:
-                return 'Zone 2';
-            case 3:
-                return 'Zone 3';
-            case 4:
-                return 'Zone 4';
-            default:
-                return 'Zone not set';
-        }
-    }
 
     public static $ZoneCMDs = [
         self::None      => [
@@ -503,7 +487,7 @@ class ONKYO_Zone
           ISCP_API_Commands::ATI,
           ISCP_API_Commands::ATM,
           ISCP_API_Commands::AST,
-         */
+             */
             //Ende Airplay
             //START CMD via PORT
             //            ISCP_API_Commands::CPT,
@@ -603,6 +587,22 @@ class ONKYO_Zone
     public function __sleep()
     {
         return ['thisZone'];
+    }
+
+    public function GetName()
+    {
+        switch ($this->thisZone) {
+            case 1:
+                return 'Main';
+            case 2:
+                return 'Zone 2';
+            case 3:
+                return 'Zone 3';
+            case 4:
+                return 'Zone 4';
+            default:
+                return 'Zone not set';
+        }
     }
 
     public function CmdAvaiable(string $APICommand)
@@ -781,13 +781,6 @@ class ISCP_API_Commands
     const NP4 = 'NP4';  // Net-Preset Network Zone
     const Request = 'QSTN';
 
-    public static $BoolValueMapping = [
-        false => '00',
-        true  => '01',
-        '00'  => false,
-        '01'  => true,
-    ];
-
     const IsVariable = 0;
     const VarType = 1;
     const VarName = 2;
@@ -796,6 +789,13 @@ class ISCP_API_Commands
     const RequestValue = 5;
     const ValueMapping = 6;
     const ValuePrefix = 7;
+
+    public static $BoolValueMapping = [
+        false => '00',
+        true  => '01',
+        '00'  => false,
+        '01'  => true,
+    ];
 
     public static $VarMapping = [
         self::PWR => [
@@ -1381,12 +1381,12 @@ class ISCP_API_Data
         } else {
             $Value = $this->Data;
         }
-        $Payload = '!1'.$this->APICommand.$Value."\r\n";
+        $Payload = '!1' . $this->APICommand . $Value . "\r\n";
         if ($Mode == \OnkyoAVR\ISCP_API_Mode::LAN) {
             $PayloadLen = pack('N', strlen($Payload));
-            $eSICPHeader = $PayloadLen."\x01\x00\x00\x00";
+            $eSICPHeader = $PayloadLen . "\x01\x00\x00\x00";
             $eISCPHeaderlen = pack('N', strlen($eSICPHeader) + 8);
-            $Frame = 'ISCP'.$eISCPHeaderlen.$eSICPHeader.$Payload;
+            $Frame = 'ISCP' . $eISCPHeaderlen . $eSICPHeader . $Payload;
         } else {
             $Frame = $Payload;
         }
