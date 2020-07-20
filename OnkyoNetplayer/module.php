@@ -3,14 +3,14 @@
 // todo secure webhook
 
 declare(strict_types=1);
-require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
+require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoNetplayer {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
+eval('namespace OnkyoNetplayer {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
+eval('namespace OnkyoNetplayer {?>'.file_get_contents(__DIR__.'/../libs/helper/ParentIOHelper.php').'}');
+eval('namespace OnkyoNetplayer {?>'.file_get_contents(__DIR__.'/../libs/helper/SemaphoreHelper.php').'}');
+eval('namespace OnkyoNetplayer {?>'.file_get_contents(__DIR__.'/../libs/helper/WebhookHelper.php').'}');
+eval('namespace OnkyoNetplayer {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableHelper.php').'}');
+eval('namespace OnkyoNetplayer {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableProfileHelper.php').'}');
 
 /**
  * @property int $ParentID Die InstanzeID des IO-Parent
@@ -71,12 +71,12 @@ class OnkyoNetplayer extends IPSModule
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('Onkyo.NetTunerPreset');
             $this->UnregisterProfile('Onkyo.Status');
-            $this->UnregisterProfile('Onkyo.Shuffle.' . $this->InstanceID);
-            $this->UnregisterProfile('Onkyo.Repeat.' . $this->InstanceID);
+            $this->UnregisterProfile('Onkyo.Shuffle.'.$this->InstanceID);
+            $this->UnregisterProfile('Onkyo.Repeat.'.$this->InstanceID);
             $this->UnregisterProfile('Onkyo.Tracks');
             $this->UnregisterProfile('Onkyo.Network');
             $this->UnregisterProfile('Onkyo.USB');
-            $this->UnregisterProfile('Onkyo.SelectNetworkService.' . $this->InstanceID);
+            $this->UnregisterProfile('Onkyo.SelectNetworkService.'.$this->InstanceID);
             $CoverID = @IPS_GetObjectIDByIdent('Cover', $this->InstanceID);
             if ($CoverID > 0) {
                 @IPS_DeleteMedia($CoverID, true);
@@ -106,10 +106,10 @@ class OnkyoNetplayer extends IPSModule
         $APICommands = $Zone->GetAPICommands();
         if (count($APICommands) > 0) {
             foreach ($APICommands as $APICommand) {
-                $Lines[] = '.*"APICommand":"' . $APICommand . '".*';
+                $Lines[] = '.*"APICommand":"'.$APICommand.'".*';
             }
             $Line = implode('|', $Lines);
-            $this->SetReceiveDataFilter('(' . $Line . ')');
+            $this->SetReceiveDataFilter('('.$Line.')');
             $this->SendDebug('FILTER', $Line, 0);
         } else {
             $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
@@ -122,17 +122,17 @@ class OnkyoNetplayer extends IPSModule
         $this->RegisterProfileIntegerEx('Onkyo.Status', 'Information', '', '', [
             [0, 'Stop', '', -1],
             [1, 'Play', '', -1],
-            [2, 'Pause', '', -1]
+            [2, 'Pause', '', -1],
         ]);
-        $this->RegisterProfileIntegerEx('Onkyo.Shuffle.' . $this->InstanceID, 'Shuffle', '', '', [
-            [0, $this->Translate('off'), '', -1]
+        $this->RegisterProfileIntegerEx('Onkyo.Shuffle.'.$this->InstanceID, 'Shuffle', '', '', [
+            [0, $this->Translate('off'), '', -1],
         ]);
-        $this->RegisterProfileIntegerEx('Onkyo.Repeat.' . $this->InstanceID, 'Repeat', '', '', [
-            [0, $this->Translate('off'), '', -1]
+        $this->RegisterProfileIntegerEx('Onkyo.Repeat.'.$this->InstanceID, 'Repeat', '', '', [
+            [0, $this->Translate('off'), '', -1],
         ]);
-        $this->RegisterVariableInteger('NST2', $this->Translate('Shuffle'), 'Onkyo.Shuffle.' . $this->InstanceID, 0);
+        $this->RegisterVariableInteger('NST2', $this->Translate('Shuffle'), 'Onkyo.Shuffle.'.$this->InstanceID, 0);
         $this->EnableAction('NST2');
-        $this->RegisterVariableInteger('NST1', $this->Translate('Repeat'), 'Onkyo.Repeat.' . $this->InstanceID, 0);
+        $this->RegisterVariableInteger('NST1', $this->Translate('Repeat'), 'Onkyo.Repeat.'.$this->InstanceID, 0);
         $this->EnableAction('NST1');
         $this->RegisterVariableInteger('NST0', $this->Translate('State'), 'Onkyo.Status', 0);
         $this->EnableAction('NST0');
@@ -140,12 +140,12 @@ class OnkyoNetplayer extends IPSModule
         $this->RegisterProfileIntegerEx('Onkyo.Tracks', '', '', '', [
             [-999, '<<', '', -1],
             [0, '%d', '', -1],
-            [999, '>>', '', -1]
+            [999, '>>', '', -1],
         ]);
         $this->RegisterProfileIntegerEx('Onkyo.Network', '', '', '', [
             [0, $this->Translate('no connection'), '', -1],
             [1, $this->Translate('Ethernet'), '', -1],
-            [2, $this->Translate('Wireless'), '', -1]
+            [2, $this->Translate('Wireless'), '', -1],
         ]);
         $this->RegisterProfileIntegerEx('Onkyo.USB', '', '', '', [
             [0, $this->Translate('disable'), '', -1],
@@ -153,7 +153,7 @@ class OnkyoNetplayer extends IPSModule
             [2, $this->Translate('iPod/iPhone'), '', -1],
             [3, $this->Translate('Memory'), '', -1],
             [4, $this->Translate('Wireless Adaptor'), '', -1],
-            [5, $this->Translate('Bluetooth Adaptor'), '', -1]
+            [5, $this->Translate('Bluetooth Adaptor'), '', -1],
         ]);
         $this->RegisterVariableInteger('NTR0', $this->Translate('Current Track'), 'Onkyo.Tracks', 0);
         $this->RegisterVariableInteger('NTR1', $this->Translate('Number of Tracks'), '', 0);
@@ -169,8 +169,8 @@ class OnkyoNetplayer extends IPSModule
         $this->RegisterVariableInteger('NDS1', $this->Translate('Front USB'), 'Onkyo.USB', 0);
         $this->RegisterVariableInteger('NDS2', $this->Translate('Rear USB'), 'Onkyo.USB', 0);
 
-        $this->RegisterProfileInteger('Onkyo.SelectNetworkService.' . $this->InstanceID, '', '', '', 0, 0, 0);
-        $this->RegisterVariableInteger('NSV', $this->Translate('Network Service'), 'Onkyo.SelectNetworkService.' . $this->InstanceID, 0);
+        $this->RegisterProfileInteger('Onkyo.SelectNetworkService.'.$this->InstanceID, '', '', '', 0, 0, 0);
+        $this->RegisterVariableInteger('NSV', $this->Translate('Network Service'), 'Onkyo.SelectNetworkService.'.$this->InstanceID, 0);
         $this->EnableAction('NSV');
 
         if ($this->ReadPropertyBoolean('showCover')) {
@@ -191,9 +191,9 @@ class OnkyoNetplayer extends IPSModule
             return;
         }
         if ($this->ReadPropertyBoolean('showNavigation')) {
-            $this->RegisterHook('/hook/OnkyoNetPlayer' . $this->InstanceID);
+            $this->RegisterHook('/hook/OnkyoNetPlayer'.$this->InstanceID);
         } else {
-            $this->UnregisterHook('/hook/OnkyoNetPlayer' . $this->InstanceID);
+            $this->UnregisterHook('/hook/OnkyoNetPlayer'.$this->InstanceID);
         }
         $this->RegisterParent();
         if ($this->HasActiveParent()) {
@@ -238,6 +238,7 @@ class OnkyoNetplayer extends IPSModule
                     break;
                 default:
                     trigger_error($this->Translate('Unknow NetworkService'), E_USER_NOTICE);
+
                     return false;
             }
             $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI), sprintf('%02X', $Input));
@@ -245,14 +246,16 @@ class OnkyoNetplayer extends IPSModule
             if ($ResultData === null) {
                 return false;
             }
+
             return true;
         }
-        $Data = sprintf('%02X', $ServiceIndex) . '0';
+        $Data = sprintf('%02X', $ServiceIndex).'0';
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NSV, $Data, false);
         $ret = $this->Send($APIData);
         if ($ret == null) {
             return false;
         }
+
         return true;
     }
 
@@ -271,7 +274,7 @@ class OnkyoNetplayer extends IPSModule
             $this->Sequence = $Sequence + 1;
         }
 
-        $Data = 'I' . sprintf('%02X', $this->Layer) . sprintf('%04X', $Index) . '----';
+        $Data = 'I'.sprintf('%02X', $this->Layer).sprintf('%04X', $Index).'----';
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NLA, $Data, false);
         $ret = $this->Send($APIData);
         if ($ret == null) {
@@ -287,7 +290,7 @@ class OnkyoNetplayer extends IPSModule
         $List[] = [
             'ID'    => -1,
             'Type'  => -1,
-            'Title' => '..'
+            'Title' => '..',
         ];
         switch ($this->ServiceType) {
             case 0xff:
@@ -302,7 +305,7 @@ class OnkyoNetplayer extends IPSModule
                         $List[] = [
                             'ID'    => (int) $Key,
                             'Type'  => 0x2F,
-                            'Title' => $Item
+                            'Title' => $Item,
                         ];
                     }
 
@@ -335,7 +338,7 @@ class OnkyoNetplayer extends IPSModule
                 } else {
                     $this->Sequence = $Sequence + 1;
                 }
-                $Data = 'L' . sprintf('%04X', $Sequence) . sprintf('%02X', $this->Layer) . '0000' . sprintf('%04X', $this->ListItems);
+                $Data = 'L'.sprintf('%04X', $Sequence).sprintf('%02X', $this->Layer).'0000'.sprintf('%04X', $this->ListItems);
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NLA, $Data);
                 $ret = $this->Send($APIData);
                 if ($ret == null) {
@@ -351,7 +354,7 @@ class OnkyoNetplayer extends IPSModule
                 }
                 if (hexdec(substr($ret, 1, 4)) != $Sequence) {
                     $this->SendDebug('ERROR', 'NLA Data wrong sequence', 0);
-                    $this->LogMessage('NLA ' . $this->Translate('Data has wrong sequence number'), KL_ERROR);
+                    $this->LogMessage('NLA '.$this->Translate('Data has wrong sequence number'), KL_ERROR);
                     $Title = $this->Translate('Data has wrong sequence number');
                     break;
                 }
@@ -360,14 +363,14 @@ class OnkyoNetplayer extends IPSModule
                     $xml = new SimpleXMLElement(substr($ret, 9), LIBXML_NOBLANKS + LIBXML_NONET + LIBXML_NOERROR);
                 } catch (Exception $ex) {
                     $this->SendDebug('ERROR', 'NLA Data is invalid XML', 0);
-                    $this->LogMessage('NLA ' . $this->Translate('Data is invalid XML'), KL_ERROR);
+                    $this->LogMessage('NLA '.$this->Translate('Data is invalid XML'), KL_ERROR);
                     $Title = $this->Translate('Data is invalid XML');
                     break;
                 }
                 if ($ret[5] == 'E') {
                     $error = $xml->xpath('//error');
                     if (count($error) == 1) {
-                        $this->SendDebug('ERROR ' . (string) $error[0]['code'], (string) $error[0]['message'], 0);
+                        $this->SendDebug('ERROR '.(string) $error[0]['code'], (string) $error[0]['message'], 0);
                         trigger_error((string) $error[0]['message'], E_USER_NOTICE);
                         $Title = (string) $error[0]['message'];
                         break;
@@ -377,13 +380,14 @@ class OnkyoNetplayer extends IPSModule
                     $List[] = [
                         'ID'    => (int) $Key,
                         'Type'  => hexdec($Item['iconid']),
-                        'Title' => (string) $Item['title']
+                        'Title' => (string) $Item['title'],
                     ];
                 }
                 $Title = $this->FolderName;
                 $this->SendDebug('NLA', $List, 0);
                 break;
         }
+
         return ['Title' => $Title, 'List' => $List];
     }
 
@@ -394,6 +398,7 @@ class OnkyoNetplayer extends IPSModule
         if ($ResultData === null) {
             return false;
         }
+
         return true;
     }
 
@@ -409,10 +414,12 @@ class OnkyoNetplayer extends IPSModule
               return $this->SelectInput($Value); */
             case 'NPR':
                 $this->SetValue('NPR', $Value);
+
                 return $this->CallPreset($Value);
             case 'NTM':
                 $Total = $this->StringToSeconds($this->GetValue('NTM1'));
                 $Time = ($Total / 100) * (int) $Value;
+
                 return $this->SetPosition(intval($Time));
             case 'NTC':
                 return $this->SendKey($Value);
@@ -422,6 +429,7 @@ class OnkyoNetplayer extends IPSModule
                     $Result = $this->RequestInfoListData();
                     $this->RefreshNavigationTable($Result);
                 }
+
                 return true;
             case 'NST0':
                 switch ($Value) {
@@ -431,14 +439,17 @@ class OnkyoNetplayer extends IPSModule
                         if ($this->GetValue('NST0') == 1) {
                             return true;
                         }
+
                         return $this->Pause();
                     case 2:
                         if ($this->GetValue('NST0') == 2) {
                             return true;
                         }
+
                         return $this->Pause();
                 }
                 echo 'Invalid Value';
+
                 return false;
             case 'NST1':
                 return $this->Repeat();
@@ -451,12 +462,12 @@ class OnkyoNetplayer extends IPSModule
                     case 999:
                         return $this->NextTrack();
                 }
+
                 return;
             case 'NSV':
                 return $this->SelectNetworkService($Value);
         }
         echo $this->Translate('Invalid Ident');
-        return;
     }
 
     //################# PUBLIC
@@ -473,6 +484,7 @@ class OnkyoNetplayer extends IPSModule
         $ApiCmd = substr($Ident, 0, 3);
         if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands)) {
             trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
+
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -482,6 +494,7 @@ class OnkyoNetplayer extends IPSModule
         }
         $APIData->Data = $ResultData;
         $this->UpdateVariable($APIData);
+
         return true;
     }
 
@@ -491,6 +504,7 @@ class OnkyoNetplayer extends IPSModule
             $this->Stop();
             sleep(3);
         }
+
         return $this->SendKey('TRDN');
     }
 
@@ -528,6 +542,7 @@ class OnkyoNetplayer extends IPSModule
     {
         if ($Value > $this->StringToSeconds($this->GetValue('NTM1'))) {
             trigger_error($this->Translate('Value greater as duration'), E_USER_NOTICE);
+
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NTS, $this->SecondsToString($Value), false);
@@ -535,6 +550,7 @@ class OnkyoNetplayer extends IPSModule
         if ($ResultData === null) {
             return false;
         }
+
         return true;
     }
 
@@ -542,17 +558,26 @@ class OnkyoNetplayer extends IPSModule
     {
         if (($Value < 1) || ($Value > 40)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR), sprintf('%02X', $Value), false);
+            $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR),
+            sprintf('%02X', $Value),
+            false
+        );
+
         return $this->Send($APIData);
     }
 
     public function SavePreset()
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR), 'SET', false);
+            $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR),
+            'SET',
+            false
+        );
+
         return $this->Send($APIData);
     }
 
@@ -565,17 +590,17 @@ class OnkyoNetplayer extends IPSModule
 
     public function GetConfigurationForm()
     {
-        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        $Form = json_decode(file_get_contents(__DIR__.'/form.json'), true);
         if ($this->ReadPropertyBoolean('showNavigation')) {
             $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
             $Icons[] = [
                 'caption' => $this->Translate('none'),
-                'value'   => 'Transparent'
+                'value'   => 'Transparent',
             ];
             foreach (UC_GetIconList($id) as $Icon) {
                 $Icons[] = [
                     'caption' => $Icon,
-                    'value'   => $Icon
+                    'value'   => $Icon,
                 ];
             }
             $Form['elements'][3]['items'][3]['columns'][2]['edit']['options'] = $Icons;
@@ -584,6 +609,7 @@ class OnkyoNetplayer extends IPSModule
         }
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
+
         return json_encode($Form);
     }
 
@@ -622,10 +648,11 @@ class OnkyoNetplayer extends IPSModule
         //Type=Index&ID=55&Secret=8XJKlIPXwJ3P8hOJgO3skdMLsys%3D
         if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
+
             return;
         }
 
-        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
+        $CalcSecret = base64_encode(sha1($this->WebHookSecret.'0'.(string) $_GET['ID'], true));
         //$this->SendDebug('HookId', $_GET['ID'], 0);
         //$this->SendDebug('CalcSecret', $CalcSecret, 0);
         //$this->SendDebug('GetSecret', $_GET['Secret'], 0);
@@ -636,6 +663,7 @@ class OnkyoNetplayer extends IPSModule
           } */
         if ($_GET['Type'] != 'Index') {
             echo $this->Translate('Bad Request');
+
             return;
         }
 
@@ -655,10 +683,10 @@ class OnkyoNetplayer extends IPSModule
     {
         $table = '';
         // Kopf der Tabelle erzeugen
-        $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
+        $table .= '<table style="'.$Config_Table['<table>'].'">'.PHP_EOL;
         // JS Rückkanal erzeugen
-        $table .= '<script type="text/javascript" id="script' . $this->InstanceID . '">
-function xhrGet' . $this->InstanceID . '(o)
+        $table .= '<script type="text/javascript" id="script'.$this->InstanceID.'">
+function xhrGet'.$this->InstanceID.'(o)
 {
     var HTTP = new XMLHttpRequest();
     HTTP.open(\'GET\',o.url,true);
@@ -668,14 +696,14 @@ function xhrGet' . $this->InstanceID . '(o)
         if (HTTP.status >= 200 && HTTP.status < 300)
         {
             if (HTTP.responseText !== \'OK\')
-                sendError' . $this->InstanceID . '(HTTP.responseText);
+                sendError'.$this->InstanceID.'(HTTP.responseText);
         } else {
-            sendError' . $this->InstanceID . '(HTTP.statusText);
+            sendError'.$this->InstanceID.'(HTTP.statusText);
         }
     });
 }
 
-function sendError' . $this->InstanceID . '(data)
+function sendError'.$this->InstanceID.'(data)
 {
 var notify = document.getElementsByClassName("ipsNotifications")[0];
 var newDiv = document.createElement("div");
@@ -696,17 +724,17 @@ sleep(10).then(() => {
 }
 
 </script>';
-        $table .= '<colgroup>' . PHP_EOL;
+        $table .= '<colgroup>'.PHP_EOL;
         $colgroup = [];
         foreach ($Config_Columns as $Column) {
             if ($Column['show'] !== true) {
                 continue;
             }
-            $colgroup[$Column['index']] = '<col width="' . $Column['width'] . 'em" />' . PHP_EOL;
+            $colgroup[$Column['index']] = '<col width="'.$Column['width'].'em" />'.PHP_EOL;
         }
         ksort($colgroup);
-        $table .= implode('', $colgroup) . '</colgroup>' . PHP_EOL;
-        $table .= '<thead style="' . $Config_Table['<thead>'] . '">' . PHP_EOL;
+        $table .= implode('', $colgroup).'</colgroup>'.PHP_EOL;
+        $table .= '<thead style="'.$Config_Table['<thead>'].'">'.PHP_EOL;
         $table .= '<tr>';
         $th = [];
         foreach ($Config_Columns as $Column) {
@@ -715,16 +743,17 @@ sleep(10).then(() => {
             }
             $ThStyle = [];
             if ($Column['color'] >= 0) {
-                $ThStyle[] = 'color:#' . substr('000000' . dechex($Column['color']), -6);
+                $ThStyle[] = 'color:#'.substr('000000'.dechex($Column['color']), -6);
             }
-            $ThStyle[] = 'text-align:' . $Column['align'];
+            $ThStyle[] = 'text-align:'.$Column['align'];
             $ThStyle[] = $Column['style'];
-            $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . ';">' . $Column['name'] . '</th>';
+            $th[$Column['index']] = '<th style="'.implode(';', $ThStyle).';">'.$Column['name'].'</th>';
         }
         ksort($th);
-        $table .= implode('', $th) . '</tr>' . PHP_EOL;
-        $table .= '</thead>' . PHP_EOL;
-        $table .= '<tbody style="' . $Config_Table['<tbody>'] . '">' . PHP_EOL;
+        $table .= implode('', $th).'</tr>'.PHP_EOL;
+        $table .= '</thead>'.PHP_EOL;
+        $table .= '<tbody style="'.$Config_Table['<tbody>'].'">'.PHP_EOL;
+
         return $table;
     }
 
@@ -754,30 +783,30 @@ sleep(10).then(() => {
         $this->WebHookSecret = $NewSecret;
 
         $HTMLData = $this->GetTableHeader($Config_Table, $Config_Columns);
-        $HTMLData .= '<caption style="' . $Config_Table['<caption>'] . '">' . $Array_Data['Title'] . '</caption>';
+        $HTMLData .= '<caption style="'.$Config_Table['<caption>'].'">'.$Array_Data['Title'].'</caption>';
 
         $pos = 0;
         if (count($Data) > 0) {
             foreach ($Data as $Line) {
                 $Line['Position'] = $pos;
                 if (array_key_exists($Line['Type'], $Config_Icon)) {
-                    $Line['Icon'] = '<div class="iconMediumSpinner ipsIcon' . $Config_Icon[$Line['Type']] . '" style="width: 100%; background-position: center center;"></div>';
+                    $Line['Icon'] = '<div class="iconMediumSpinner ipsIcon'.$Config_Icon[$Line['Type']].'" style="width: 100%; background-position: center center;"></div>';
                 } else {
                     $Line['Icon'] = '<div class="iconMediumSpinner ipsIconTransparent" style="width: 100%; background-position: center center;"></div>';
                 }
-                $LineSecret = base64_encode(sha1($NewSecret . '0' . (string) $Line[$HookId], true));
+                $LineSecret = base64_encode(sha1($NewSecret.'0'.(string) $Line[$HookId], true));
                 //$this->SendDebug('HookId', $Line[$HookId], 0);
                 //$this->SendDebug('LineSecret', $LineSecret, 0);
                 $LineIndex = ($Line['Type'] == 0x36 ? 'active' : ($pos % 2 ? 'odd' : 'even'));
                 $TrStyle = [];
                 if ($Config_Rows_BgColor[$LineIndex] >= 0) {
-                    $TrStyle[] = 'background-color:#' . substr('000000' . dechex($Config_Rows_BgColor[$LineIndex]), -6);
+                    $TrStyle[] = 'background-color:#'.substr('000000'.dechex($Config_Rows_BgColor[$LineIndex]), -6);
                 }
                 if ($Config_Rows_Color[$LineIndex] >= 0) {
-                    $TrStyle[] = 'color:#' . substr('000000' . dechex($Config_Rows_Color[$LineIndex]), -6);
+                    $TrStyle[] = 'color:#'.substr('000000'.dechex($Config_Rows_Color[$LineIndex]), -6);
                 }
                 $TdStyle[] = $Config_Rows_Style[$LineIndex];
-                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . rawurlencode($LineSecret) . '\' });">';
+                $HTMLData .= '<tr style="'.implode(';', $TrStyle).';" onclick="eval(document.getElementById(\'script'.$this->InstanceID.'\').innerHTML.toString()); window.xhrGet'.$this->InstanceID.'({ url: \'hook/'.$HookPrefix.$this->InstanceID.'?Type='.$HookType.'&ID='.($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]).'&Secret='.rawurlencode($LineSecret).'\' });">';
 
                 $td = [];
                 foreach ($Config_Columns as $Column) {
@@ -788,18 +817,19 @@ sleep(10).then(() => {
                         $Line[$Column['key']] = '';
                     }
                     $TdStyle = [];
-                    $TdStyle[] = 'text-align:' . $Column['align'];
+                    $TdStyle[] = 'text-align:'.$Column['align'];
                     $TdStyle[] = $Column['style'];
 
-                    $td[$Column['index']] = '<td style="' . implode(';', $TdStyle) . ';">' . (string) $Line[$Column['key']] . '</td>';
+                    $td[$Column['index']] = '<td style="'.implode(';', $TdStyle).';">'.(string) $Line[$Column['key']].'</td>';
                 }
                 ksort($td);
-                $HTMLData .= implode('', $td) . '</tr>';
-                $HTMLData .= '</tr>' . PHP_EOL;
+                $HTMLData .= implode('', $td).'</tr>';
+                $HTMLData .= '</tr>'.PHP_EOL;
                 $pos++;
             }
         }
         $HTMLData .= $this->GetTableFooter();
+
         return $HTMLData;
     }
 
@@ -810,8 +840,9 @@ sleep(10).then(() => {
      */
     protected function GetTableFooter()
     {
-        $table = '</tbody>' . PHP_EOL;
-        $table .= '</table>' . PHP_EOL;
+        $table = '</tbody>'.PHP_EOL;
+        $table .= '</table>'.PHP_EOL;
+
         return $table;
     }
 
@@ -827,7 +858,7 @@ sleep(10).then(() => {
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
             IPS_SetMediaCached($CoverID, true);
-            $filename = 'media' . DIRECTORY_SEPARATOR . 'Cover_' . $this->InstanceID . '.onkyo';
+            $filename = 'media'.DIRECTORY_SEPARATOR.'Cover_'.$this->InstanceID.'.onkyo';
             IPS_SetMediaFile($CoverID, $filename, false);
             $this->SendDebug('Create Media', $filename, 0);
         }
@@ -837,7 +868,7 @@ sleep(10).then(() => {
             $CoverRAW = '';
         }
         if ($CoverRAW === '') {
-            $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'nocover.png');
+            $CoverRAW = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'nocover.png');
         }
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
     }
@@ -870,7 +901,7 @@ sleep(10).then(() => {
             $List[] = [
                 'ID'    => -1,
                 'Type'  => -1,
-                'Title' => $Item
+                'Title' => $Item,
             ];
         }
         $this->RefreshNavigationTable(['Title' => $Title, 'List' => $List]);
@@ -906,8 +937,8 @@ sleep(10).then(() => {
         }
         $this->SetValue('NSV', $ServiceType);
 
-        IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'NLA\',0);');
-        return;
+        IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'NLA\',0);');
+
         //      }
     }
 
@@ -1048,8 +1079,8 @@ sleep(10).then(() => {
                         break;
                 }
 
-                $this->RegisterProfileIntegerEx('Onkyo.Repeat.' . $this->InstanceID, 'Repeat', '', '', [
-                    [0, $this->Translate($RepeatValue), '', -1]
+                $this->RegisterProfileIntegerEx('Onkyo.Repeat.'.$this->InstanceID, 'Repeat', '', '', [
+                    [0, $this->Translate($RepeatValue), '', -1],
                 ]);
 
                 switch ((string) $APIData->Data[2]) {
@@ -1074,8 +1105,8 @@ sleep(10).then(() => {
                         $this->EnableAction('NST2');
                         break;
                 }
-                $this->RegisterProfileIntegerEx('Onkyo.Shuffle.' . $this->InstanceID, 'Shuffle', '', '', [
-                    [0, $this->Translate($ShuffleValue), '', -1]
+                $this->RegisterProfileIntegerEx('Onkyo.Shuffle.'.$this->InstanceID, 'Shuffle', '', '', [
+                    [0, $this->Translate($ShuffleValue), '', -1],
                 ]);
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NJA:
@@ -1159,7 +1190,7 @@ sleep(10).then(() => {
             $AssociationNSV = [
                 [0xF0, 'USB', '', -1],
                 [0xF3, 'Network', '', -1],
-                [0xF4, 'Bluetooth', '', -1]
+                [0xF4, 'Bluetooth', '', -1],
             ];
         }
         /*      foreach ($AssociationSLI as &$AssociationItem) {
@@ -1208,7 +1239,7 @@ sleep(10).then(() => {
                       [0xF4, 'Bluetooth', '', -1] */
             ];
         }
-        $this->RegisterProfileIntegerEx('Onkyo.SelectNetworkService.' . $this->InstanceID, '', '', '', $AssociationNSV);
+        $this->RegisterProfileIntegerEx('Onkyo.SelectNetworkService.'.$this->InstanceID, '', '', '', $AssociationNSV);
     }
 
     //------------------------------------------------------------------------------
@@ -1247,14 +1278,17 @@ sleep(10).then(() => {
             $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
             if ($ret === false) {
                 $this->SendDebug('Response', 'No answer', 0);
+
                 return null;
             }
             $result = unserialize($ret);
-            $this->SendDebug('Response ' . $APIData->APICommand, $result, 0);
+            $this->SendDebug('Response '.$APIData->APICommand, $result, 0);
+
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
+
             return null;
         }
     }
@@ -1264,20 +1298,20 @@ sleep(10).then(() => {
         $NewTableConfig = [
             [
                 'tag'   => '<table>',
-                'style' => 'margin:0 auto; font-size:0.8em;'
+                'style' => 'margin:0 auto; font-size:0.8em;',
             ],
             [
                 'tag'   => '<caption>',
-                'style' => 'margin:0 auto; font-size:2em; font-weight:bold;'
+                'style' => 'margin:0 auto; font-size:2em; font-weight:bold;',
             ],
             [
                 'tag'   => '<thead>',
-                'style' => ''
+                'style' => '',
             ],
             [
                 'tag'   => '<tbody>',
-                'style' => ''
-            ]
+                'style' => '',
+            ],
         ];
         $NewColumnsConfig = [
             [
@@ -1288,7 +1322,7 @@ sleep(10).then(() => {
                 'width' => 50,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''
+                'style' => '',
             ],
             [
                 'index' => 1,
@@ -1298,7 +1332,7 @@ sleep(10).then(() => {
                 'width' => 50,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''
+                'style' => '',
             ],
             [
                 'index' => 2,
@@ -1308,8 +1342,8 @@ sleep(10).then(() => {
                 'width' => 250,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''
-            ]
+                'style' => '',
+            ],
         ];
         $NewRowsConfig = [
             [
@@ -1317,22 +1351,22 @@ sleep(10).then(() => {
                 'name'    => $this->Translate('odd'),
                 'bgcolor' => 0x000000,
                 'color'   => 0xffffff,
-                'style'   => ''
+                'style'   => '',
             ],
             [
                 'row'     => 'even',
                 'name'    => $this->Translate('even'),
                 'bgcolor' => 0x080808,
                 'color'   => 0xffffff,
-                'style'   => ''
+                'style'   => '',
             ],
             [
                 'row'     => 'active',
                 'name'    => $this->Translate('active'),
                 'bgcolor' => 0x808000,
                 'color'   => 0xffffff,
-                'style'   => ''
-            ]
+                'style'   => '',
+            ],
         ];
         /*
           '29' : Folder, '2A' : Folder X, '2B' : Server, '2C' : Server X, '2D' : Title, '2E' : Title X,
@@ -1347,45 +1381,46 @@ sleep(10).then(() => {
             [
                 'typ'  => -1,
                 'name' => $this->Translate('back'),
-                'icon' => 'Backspace'
+                'icon' => 'Backspace',
             ], [
                 'typ'  => 0x00,
                 'name' => $this->Translate('unknow'),
-                'icon' => 'Transparent'
+                'icon' => 'Transparent',
             ], [
                 'typ'  => 0x29, // +0x44
                 'name' => $this->Translate('Folder'),
-                'icon' => 'Database'
+                'icon' => 'Database',
             ], [
                 'typ'  => 0x31,
                 'name' => $this->Translate('USB'),
-                'icon' => 'Mobile'
+                'icon' => 'Mobile',
             ], [
                 'typ'  => 0x2B,
                 'name' => $this->Translate('Server'),
-                'icon' => 'Notebook'
+                'icon' => 'Notebook',
             ], [
                 'typ'  => 0x2D,
                 'name' => $this->Translate('Track'),
-                'icon' => 'Melody'
+                'icon' => 'Melody',
             ], [
                 'typ'  => 0x2F,
                 'name' => $this->Translate('Stream'),
-                'icon' => 'Melody'
+                'icon' => 'Melody',
             ], [
                 'typ'  => 0x36, //+0x41
                 'name' => $this->Translate('Playing'),
-                'icon' => 'Speaker'
+                'icon' => 'Speaker',
             ], [
                 'typ'  => 0x39,
                 'name' => $this->Translate('Album'),
-                'icon' => 'Database'
+                'icon' => 'Database',
             ], [
                 'typ'  => 0x3A,
                 'name' => $this->Translate('Playlist'),
-                'icon' => 'Melody'
+                'icon' => 'Melody',
             ],
         ];
+
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIconsConfig];
     }
 
@@ -1405,6 +1440,7 @@ sleep(10).then(() => {
         foreach ($Parts as $Part) {
             $Seconds += $Part * 60;
         }
+
         return $Seconds;
     }
 }

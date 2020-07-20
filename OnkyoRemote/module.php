@@ -3,11 +3,11 @@
 // todo secure webhook
 
 declare(strict_types=1);
-require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
-eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
-eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
+require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
+eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
+eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/WebhookHelper.php').'}');
+eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableProfileHelper.php').'}');
 
 /**
  * @property int $Type
@@ -26,7 +26,7 @@ class OnkyoRemote extends IPSModule
         \OnkyoAVR\Remotes::CTV => 'CTV',
         \OnkyoAVR\Remotes::CDV => 'CDV',
         \OnkyoAVR\Remotes::CCD => 'CCD',
-        \OnkyoAVR\Remotes::CAP => 'CAP'
+        \OnkyoAVR\Remotes::CAP => 'CAP',
     ];
     protected static $Actions = [
         \OnkyoAVR\Remotes::OSD => [
@@ -41,7 +41,7 @@ class OnkyoRemote extends IPSModule
             'VIDEO',
             'HOME',
             'QUICK',
-            'RETURN'
+            'RETURN',
         ],
         \OnkyoAVR\Remotes::CTV => [
             'POWER',
@@ -77,7 +77,7 @@ class OnkyoRemote extends IPSModule
             'A',
             'B',
             'C',
-            'D'
+            'D',
         ],
         \OnkyoAVR\Remotes::CDV => [
             'POWER',
@@ -151,7 +151,7 @@ class OnkyoRemote extends IPSModule
             'MSPDN',
             'PCT',
             'RSCTG',
-            'INIT'
+            'INIT',
         ],
         \OnkyoAVR\Remotes::CCD => [
             'POWER',
@@ -192,7 +192,7 @@ class OnkyoRemote extends IPSModule
             'DISC5',
             'DISC6',
             'STBY',
-            'PON'
+            'PON',
         ],
         \OnkyoAVR\Remotes::CAP => [
             'MVLUP',
@@ -204,7 +204,7 @@ class OnkyoRemote extends IPSModule
             'AMTTG',
             'PWRON',
             'PWROFF',
-            'PWRTG'
+            'PWRTG',
         ],
     ];
 
@@ -237,7 +237,7 @@ class OnkyoRemote extends IPSModule
             return parent::Destroy();
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
+            $this->UnregisterHook('/hook/OnkyoRemote'.$this->InstanceID);
         }
 
         parent::Destroy();
@@ -251,16 +251,16 @@ class OnkyoRemote extends IPSModule
         $this->Type = $this->ReadPropertyInteger('Type');
         if ($this->ReadPropertyBoolean('showSVGRemote')) {
             if (IPS_GetKernelRunlevel() == KR_READY) {
-                $this->RegisterHook('/hook/OnkyoRemote' . $this->InstanceID);
+                $this->RegisterHook('/hook/OnkyoRemote'.$this->InstanceID);
             }
 
             $this->RegisterVariableString('Remote', $this->Translate('Remote'), '~HTMLBox', 1);
             /* @var $remote string */
-            include 'generateRemote' . ($this->ReadPropertyInteger('RemoteId')) . '.php';
+            include 'generateRemote'.($this->ReadPropertyInteger('RemoteId')).'.php';
             $this->SetValue('Remote', $remote);
         } else {
             if (IPS_GetKernelRunlevel() == KR_READY) {
-                $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
+                $this->UnregisterHook('/hook/OnkyoRemote'.$this->InstanceID);
             }
             $this->UnregisterVariable('Remote');
         }
@@ -273,7 +273,7 @@ class OnkyoRemote extends IPSModule
                 [4, 'v', '', -1],
                 [5, 'Enter', '', -1],
                 [6, 'Exit', '', -1],
-                [7, $this->Translate('Menu'), '', -1]
+                [7, $this->Translate('Menu'), '', -1],
             ]);
             $this->RegisterVariableInteger('navremote', $this->Translate('Navigation'), 'Onkyo.Navigation', 2);
             $this->EnableAction('navremote');
@@ -287,7 +287,7 @@ class OnkyoRemote extends IPSModule
                 [2, 'Play', '', -1],
                 [3, 'Pause', '', -1],
                 [4, 'Stop', '', -1],
-                [5, '>>', '', -1]
+                [5, '>>', '', -1],
             ]);
             $this->RegisterVariableInteger('ctrlremote', $this->Translate('Control'), 'Onkyo.Control', 3);
             $this->EnableAction('ctrlremote');
@@ -362,6 +362,7 @@ class OnkyoRemote extends IPSModule
                 break;
             default:
                 trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+
                 return;
         }
         if (!$ret) {
@@ -523,6 +524,7 @@ class OnkyoRemote extends IPSModule
         if ($this->Type == \OnkyoAVR\Remotes::CAP) {
             return $this->Send('MVLDOWN');
         }
+
         return $this->Send('VLDN');
     }
 
@@ -531,6 +533,7 @@ class OnkyoRemote extends IPSModule
         if ($this->Type == \OnkyoAVR\Remotes::CAP) {
             return $this->Send('MVLUP');
         }
+
         return $this->Send('VLUP');
     }
 
@@ -620,14 +623,17 @@ class OnkyoRemote extends IPSModule
             $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
             if ($ret === false) {
                 $this->SendDebug('Response', 'No answer', 0);
+
                 return false;
             }
             $result = unserialize($ret);
             $this->SendDebug('Response', $result, 0);
+
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
+
             return false;
         }
     }
