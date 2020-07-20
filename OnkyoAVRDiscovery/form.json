@@ -1,6 +1,6 @@
 {
     "actions": [
-             {
+        {
             "type": "Configurator",
             "name": "Discovery",
             "add": false,
@@ -9,20 +9,24 @@
                 "column": "IPAddress",
                 "direction": "ascending"
             },
-            "columns": [{
+            "columns": [
+                {
                     "caption": "IP Address",
                     "name": "IPAddress",
                     "width": "160px"
-                }, {
+                },
+                {
                     "caption": "Model",
                     "name": "type",
                     "width": "250px"
-                }, {
+                },
+                {
                     "caption": "Name",
                     "name": "name",
                     "width": "auto"
                 }
             ],
             "values": []
-        }]
+        }
+    ]
 }

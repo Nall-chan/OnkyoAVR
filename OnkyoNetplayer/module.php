@@ -215,62 +215,6 @@ class OnkyoNetplayer extends IPSModule
         }
     }
 
-    /**
-     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
-     */
-    protected function KernelReady()
-    {
-        $this->LogMessage(__FUNCTION__, KL_DEBUG);
-        $this->RegisterParent();
-    }
-
-    /**
-     * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     */
-    protected function IOChangeState($State)
-    {
-        $this->LogMessage(__FUNCTION__, KL_DEBUG);
-        if ($State == IS_ACTIVE) {
-            if ($this->HasActiveParent()) {
-                $this->RequestProfile();
-                $this->RequestZoneState();
-            }
-        }
-    }
-
-    //################# PRIVATE
-    private function SetCover()
-    {
-        $this->SendDebug('Refresh Cover', '', 0);
-        $CoverID = @IPS_GetObjectIDByIdent('Cover', $this->InstanceID);
-        if ($CoverID === false) {
-            $CoverID = IPS_CreateMedia(1);
-            IPS_SetParent($CoverID, $this->InstanceID);
-            IPS_SetIdent($CoverID, 'Cover');
-            IPS_SetName($CoverID, 'Cover');
-            IPS_SetPosition($CoverID, 27);
-            IPS_SetMediaCached($CoverID, true);
-            $filename = 'media' . DIRECTORY_SEPARATOR . 'Cover_' . $this->InstanceID . '.onkyo';
-            IPS_SetMediaFile($CoverID, $filename, false);
-            $this->SendDebug('Create Media', $filename, 0);
-        }
-        $CoverRAW = $this->Multi_Cover;
-
-        if ($this->GetValue('NST0') == 0) {
-            $CoverRAW = '';
-        }
-        if ($CoverRAW === '') {
-            $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'nocover.png');
-        }
-        IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
-    }
-
-    private function RefreshNavigationTable(array $List)
-    {
-        $HTML = $this->GetTable($List, 'OnkyoNetPlayer', 'Index', 'ID');
-        $this->SetValueString('NLA', $HTML);
-    }
-
     public function Menu()
     {
         return $this->SendKey('TOP');
@@ -365,6 +309,7 @@ class OnkyoNetplayer extends IPSModule
                     $Title = $this->FolderName;
                     break;
                 }
+                // FIXME: No break. Please add proper comment if intentional
             default:
                 if ($this->UiType == 3) { //menü screen
                     $Title = $this->FolderName;
@@ -442,6 +387,467 @@ class OnkyoNetplayer extends IPSModule
         return ['Title' => $Title, 'List' => $List];
     }
 
+    public function SendKey(string $Key)
+    {
+        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NTC), $Key, false);
+        $ResultData = $this->Send($APIData);
+        if ($ResultData === null) {
+            return false;
+        }
+        return true;
+    }
+
+    //################# ActionHandler
+
+    public function RequestAction($Ident, $Value)
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            /* case 'SLI':
+              return $this->SelectInput($Value); */
+            case 'NPR':
+                $this->SetValue('NPR', $Value);
+                return $this->CallPreset($Value);
+            case 'NTM':
+                $Total = $this->StringToSeconds($this->GetValue('NTM1'));
+                $Time = ($Total / 100) * (int) $Value;
+                return $this->SetPosition(intval($Time));
+            case 'NTC':
+                return $this->SendKey($Value);
+            case 'NLA':
+                $this->SendDebug('RequestAction', 'NLA', 0);
+                if ($this->ReadPropertyBoolean('showNavigation')) {
+                    $Result = $this->RequestInfoListData();
+                    $this->RefreshNavigationTable($Result);
+                }
+                return true;
+            case 'NST0':
+                switch ($Value) {
+                    case 0:
+                        return $this->Stop();
+                    case 1:
+                        if ($this->GetValue('NST0') == 1) {
+                            return true;
+                        }
+                        return $this->Pause();
+                    case 2:
+                        if ($this->GetValue('NST0') == 2) {
+                            return true;
+                        }
+                        return $this->Pause();
+                }
+                echo 'Invalid Value';
+                return false;
+            case 'NST1':
+                return $this->Repeat();
+            case 'NST2':
+                return $this->Shuffle();
+            case 'NTR0':
+                switch ($Value) {
+                    case -999:
+                        return $this->PreviousTrack();
+                    case 999:
+                        return $this->NextTrack();
+                }
+                return;
+            case 'NSV':
+                return $this->SelectNetworkService($Value);
+        }
+        echo $this->Translate('Invalid Ident');
+        return;
+    }
+
+    //################# PUBLIC
+
+    /**
+     * This function will be available automatically after the module is imported with the module control.
+     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
+     */
+    public function RequestState(string $Ident)
+    {
+        if ($Ident == 'ALL') {
+            return $this->RequestZoneState();
+        }
+        $ApiCmd = substr($Ident, 0, 3);
+        if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands)) {
+            trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
+        $ResultData = $this->Send($APIData);
+        if ($ResultData === null) {
+            return false;
+        }
+        $APIData->Data = $ResultData;
+        $this->UpdateVariable($APIData);
+        return true;
+    }
+
+    public function PreviousTrack()
+    {
+        if ($this->GetValue('NST0') != 0) {
+            $this->Stop();
+            sleep(3);
+        }
+        return $this->SendKey('TRDN');
+    }
+
+    public function NextTrack()
+    {
+        return $this->SendKey('TRUP');
+    }
+
+    public function Play()
+    {
+        return $this->SendKey(strtoupper(__FUNCTION__));
+    }
+
+    public function Pause()
+    {
+        return $this->SendKey(strtoupper(__FUNCTION__));
+    }
+
+    public function Stop()
+    {
+        return $this->SendKey(strtoupper(__FUNCTION__));
+    }
+
+    public function Shuffle()
+    {
+        return $this->SendKey('RANDOM');
+    }
+
+    public function Repeat()
+    {
+        return $this->SendKey(strtoupper(__FUNCTION__));
+    }
+
+    public function SetPosition(int $Value)
+    {
+        if ($Value > $this->StringToSeconds($this->GetValue('NTM1'))) {
+            trigger_error($this->Translate('Value greater as duration'), E_USER_NOTICE);
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NTS, $this->SecondsToString($Value), false);
+        $ResultData = $this->Send($APIData);
+        if ($ResultData === null) {
+            return false;
+        }
+        return true;
+    }
+
+    public function CallPreset(int $Value)
+    {
+        if (($Value < 1) || ($Value > 40)) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(
+                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR), sprintf('%02X', $Value), false);
+        return $this->Send($APIData);
+    }
+
+    public function SavePreset()
+    {
+        $APIData = new \OnkyoAVR\ISCP_API_Data(
+                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR), 'SET', false);
+        return $this->Send($APIData);
+    }
+
+    public function ReceiveData($JSONString)
+    {
+        $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
+        $this->SendDebug('ReceiveData', $APIData, 0);
+        $this->UpdateVariable($APIData);
+    }
+
+    public function GetConfigurationForm()
+    {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->ReadPropertyBoolean('showNavigation')) {
+            $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
+            $Icons[] = [
+                'caption' => $this->Translate('none'),
+                'value'   => 'Transparent'
+            ];
+            foreach (UC_GetIconList($id) as $Icon) {
+                $Icons[] = [
+                    'caption' => $Icon,
+                    'value'   => $Icon
+                ];
+            }
+            $Form['elements'][3]['items'][3]['columns'][2]['edit']['options'] = $Icons;
+        } else {
+            unset($Form['elements'][3]);
+        }
+        $this->SendDebug('FORM', json_encode($Form), 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+        return json_encode($Form);
+    }
+
+    /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->LogMessage(__FUNCTION__, KL_DEBUG);
+        $this->RegisterParent();
+    }
+
+    /**
+     * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     */
+    protected function IOChangeState($State)
+    {
+        $this->LogMessage(__FUNCTION__, KL_DEBUG);
+        if ($State == IS_ACTIVE) {
+            if ($this->HasActiveParent()) {
+                $this->RequestProfile();
+                $this->RequestZoneState();
+            }
+        }
+    }
+
+    /**
+     * Verarbeitet Daten aus dem Webhook.
+     *
+     * @global array $_GET
+     */
+    protected function ProcessHookdata()
+    {
+        //$this->SendDebug('$_GET', $_GET, 0);
+        //
+        //Type=Index&ID=55&Secret=8XJKlIPXwJ3P8hOJgO3skdMLsys%3D
+        if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
+            echo $this->Translate('Bad Request');
+            return;
+        }
+
+        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
+        //$this->SendDebug('HookId', $_GET['ID'], 0);
+        //$this->SendDebug('CalcSecret', $CalcSecret, 0);
+        //$this->SendDebug('GetSecret', $_GET['Secret'], 0);
+        //$this->SendDebug('GetSecret', rawurldecode($_GET['Secret']), 0);
+        /* if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+          echo $this->Translate('Access denied');
+          return;
+          } */
+        if ($_GET['Type'] != 'Index') {
+            echo $this->Translate('Bad Request');
+            return;
+        }
+
+        if ($this->SelectInfoListItem((int) $_GET['ID'])) {
+            echo 'OK';
+        }
+    }
+
+    /**
+     * Liefert den Header der HTML-Tabelle.
+     *
+     * @param array $Config Die Kofiguration der Tabelle
+     *
+     * @return string HTML-String
+     */
+    protected function GetTableHeader($Config_Table, $Config_Columns)
+    {
+        $table = '';
+        // Kopf der Tabelle erzeugen
+        $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
+        // JS Rückkanal erzeugen
+        $table .= '<script type="text/javascript" id="script' . $this->InstanceID . '">
+function xhrGet' . $this->InstanceID . '(o)
+{
+    var HTTP = new XMLHttpRequest();
+    HTTP.open(\'GET\',o.url,true);
+    HTTP.send();
+    HTTP.addEventListener(\'load\', function()
+    {
+        if (HTTP.status >= 200 && HTTP.status < 300)
+        {
+            if (HTTP.responseText !== \'OK\')
+                sendError' . $this->InstanceID . '(HTTP.responseText);
+        } else {
+            sendError' . $this->InstanceID . '(HTTP.statusText);
+        }
+    });
+}
+
+function sendError' . $this->InstanceID . '(data)
+{
+var notify = document.getElementsByClassName("ipsNotifications")[0];
+var newDiv = document.createElement("div");
+newDiv.innerHTML =\'<div style="height:auto; visibility: hidden; overflow: hidden; transition: height 500ms ease-in 0s" class="ipsNotification"><div class="spacer"></div><div class="message icon error" onclick="document.getElementsByClassName(\\\'ipsNotifications\\\')[0].removeChild(this.parentNode);"><div class="ipsIconClose"></div><div class="content"><div class="title">Fehler</div><div class="text">\' + data + \'</div></div></div></div>\';
+if (notify.childElementCount === 0)
+	var thisDiv = notify.appendChild(newDiv.firstChild);
+else
+	var thisDiv = notify.insertBefore(newDiv.firstChild,notify.childNodes[0]);
+var newheight = window.getComputedStyle(thisDiv, null)["height"];
+thisDiv.style.height = "0px";
+thisDiv.style.visibility = "visible";
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+sleep(10).then(() => {
+	thisDiv.style.height = newheight;
+});
+}
+
+</script>';
+        $table .= '<colgroup>' . PHP_EOL;
+        $colgroup = [];
+        foreach ($Config_Columns as $Column) {
+            if ($Column['show'] !== true) {
+                continue;
+            }
+            $colgroup[$Column['index']] = '<col width="' . $Column['width'] . 'em" />' . PHP_EOL;
+        }
+        ksort($colgroup);
+        $table .= implode('', $colgroup) . '</colgroup>' . PHP_EOL;
+        $table .= '<thead style="' . $Config_Table['<thead>'] . '">' . PHP_EOL;
+        $table .= '<tr>';
+        $th = [];
+        foreach ($Config_Columns as $Column) {
+            if ($Column['show'] !== true) {
+                continue;
+            }
+            $ThStyle = [];
+            if ($Column['color'] >= 0) {
+                $ThStyle[] = 'color:#' . substr('000000' . dechex($Column['color']), -6);
+            }
+            $ThStyle[] = 'text-align:' . $Column['align'];
+            $ThStyle[] = $Column['style'];
+            $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . ';">' . $Column['name'] . '</th>';
+        }
+        ksort($th);
+        $table .= implode('', $th) . '</tr>' . PHP_EOL;
+        $table .= '</thead>' . PHP_EOL;
+        $table .= '<tbody style="' . $Config_Table['<tbody>'] . '">' . PHP_EOL;
+        return $table;
+    }
+
+    /**
+     * Liefert den Inhalt der HTML-Box für ein Tabelle.
+     *
+     * @param array  $Data        Die Nutzdaten der Tabelle.
+     * @param string $HookPrefix  Der Prefix des Webhook.
+     * @param string $HookType    Ein String welcher als Parameter Type im Webhook übergeben wird.
+     * @param string $HookId      Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
+     * @param int    $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
+     *
+     * @return string Der HTML-String.
+     */
+    protected function GetTable($Array_Data, $HookPrefix, $HookType, $HookId)
+    {
+        $Data = $Array_Data['List'];
+        $Config_Table = array_column(json_decode($this->ReadPropertyString('Table'), true), 'style', 'tag');
+        $Config_Columns = json_decode($this->ReadPropertyString('Columns'), true);
+        $Config_Rows = json_decode($this->ReadPropertyString('Rows'), true);
+        $Config_Rows_BgColor = array_column($Config_Rows, 'bgcolor', 'row');
+        $Config_Rows_Color = array_column($Config_Rows, 'color', 'row');
+        $Config_Rows_Style = array_column($Config_Rows, 'style', 'row');
+        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
+        $Config_Icon = array_column($Config_Icons, 'icon', 'typ');
+        $NewSecret = base64_encode(openssl_random_pseudo_bytes(12));
+        $this->WebHookSecret = $NewSecret;
+
+        $HTMLData = $this->GetTableHeader($Config_Table, $Config_Columns);
+        $HTMLData .= '<caption style="' . $Config_Table['<caption>'] . '">' . $Array_Data['Title'] . '</caption>';
+
+        $pos = 0;
+        if (count($Data) > 0) {
+            foreach ($Data as $Line) {
+                $Line['Position'] = $pos;
+                if (array_key_exists($Line['Type'], $Config_Icon)) {
+                    $Line['Icon'] = '<div class="iconMediumSpinner ipsIcon' . $Config_Icon[$Line['Type']] . '" style="width: 100%; background-position: center center;"></div>';
+                } else {
+                    $Line['Icon'] = '<div class="iconMediumSpinner ipsIconTransparent" style="width: 100%; background-position: center center;"></div>';
+                }
+                $LineSecret = base64_encode(sha1($NewSecret . '0' . (string) $Line[$HookId], true));
+                //$this->SendDebug('HookId', $Line[$HookId], 0);
+                //$this->SendDebug('LineSecret', $LineSecret, 0);
+                $LineIndex = ($Line['Type'] == 0x36 ? 'active' : ($pos % 2 ? 'odd' : 'even'));
+                $TrStyle = [];
+                if ($Config_Rows_BgColor[$LineIndex] >= 0) {
+                    $TrStyle[] = 'background-color:#' . substr('000000' . dechex($Config_Rows_BgColor[$LineIndex]), -6);
+                }
+                if ($Config_Rows_Color[$LineIndex] >= 0) {
+                    $TrStyle[] = 'color:#' . substr('000000' . dechex($Config_Rows_Color[$LineIndex]), -6);
+                }
+                $TdStyle[] = $Config_Rows_Style[$LineIndex];
+                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . rawurlencode($LineSecret) . '\' });">';
+
+                $td = [];
+                foreach ($Config_Columns as $Column) {
+                    if ($Column['show'] !== true) {
+                        continue;
+                    }
+                    if (!array_key_exists($Column['key'], $Line)) {
+                        $Line[$Column['key']] = '';
+                    }
+                    $TdStyle = [];
+                    $TdStyle[] = 'text-align:' . $Column['align'];
+                    $TdStyle[] = $Column['style'];
+
+                    $td[$Column['index']] = '<td style="' . implode(';', $TdStyle) . ';">' . (string) $Line[$Column['key']] . '</td>';
+                }
+                ksort($td);
+                $HTMLData .= implode('', $td) . '</tr>';
+                $HTMLData .= '</tr>' . PHP_EOL;
+                $pos++;
+            }
+        }
+        $HTMLData .= $this->GetTableFooter();
+        return $HTMLData;
+    }
+
+    /**
+     * Liefert den Footer der HTML-Tabelle.
+     *
+     * @return string HTML-String
+     */
+    protected function GetTableFooter()
+    {
+        $table = '</tbody>' . PHP_EOL;
+        $table .= '</table>' . PHP_EOL;
+        return $table;
+    }
+
+    //################# PRIVATE
+    private function SetCover()
+    {
+        $this->SendDebug('Refresh Cover', '', 0);
+        $CoverID = @IPS_GetObjectIDByIdent('Cover', $this->InstanceID);
+        if ($CoverID === false) {
+            $CoverID = IPS_CreateMedia(1);
+            IPS_SetParent($CoverID, $this->InstanceID);
+            IPS_SetIdent($CoverID, 'Cover');
+            IPS_SetName($CoverID, 'Cover');
+            IPS_SetPosition($CoverID, 27);
+            IPS_SetMediaCached($CoverID, true);
+            $filename = 'media' . DIRECTORY_SEPARATOR . 'Cover_' . $this->InstanceID . '.onkyo';
+            IPS_SetMediaFile($CoverID, $filename, false);
+            $this->SendDebug('Create Media', $filename, 0);
+        }
+        $CoverRAW = $this->Multi_Cover;
+
+        if ($this->GetValue('NST0') == 0) {
+            $CoverRAW = '';
+        }
+        if ($CoverRAW === '') {
+            $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'nocover.png');
+        }
+        IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
+    }
+
+    private function RefreshNavigationTable(array $List)
+    {
+        $HTML = $this->GetTable($List, 'OnkyoNetPlayer', 'Index', 'ID');
+        $this->SetValueString('NLA', $HTML);
+    }
+
     private function ProcessPopUpInfo(string $NPUData)
     {
         if ($NPUData[0] == 'L') { //list not supported
@@ -484,7 +890,7 @@ class OnkyoNetplayer extends IPSModule
         $this->SendDebug('ListItems', $ListItems, 0);
         $this->SendDebug('ServiceType', $ServiceType, 0);
         $this->SendDebug('ServiceType old', $this->ServiceType, 0);
-        if (($this->ServiceType == $ServiceType) and ($this->UiType == $UiType) and ($this->Layer == $Layer)) {
+        if (($this->ServiceType == $ServiceType) && ($this->UiType == $UiType) && ($this->Layer == $Layer)) {
             return;
         }
         $this->ServiceType = $ServiceType;
@@ -503,16 +909,6 @@ class OnkyoNetplayer extends IPSModule
         IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'NLA\',0);');
         return;
         //      }
-    }
-
-    public function SendKey(string $Key)
-    {
-        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NTC), $Key, false);
-        $ResultData = $this->Send($APIData);
-        if ($ResultData === null) {
-            return false;
-        }
-        return true;
     }
 
     private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
@@ -722,165 +1118,6 @@ class OnkyoNetplayer extends IPSModule
         }
     }
 
-    //################# ActionHandler
-
-    public function RequestAction($Ident, $Value)
-    {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            /* case 'SLI':
-              return $this->SelectInput($Value); */
-            case 'NPR':
-                $this->SetValue('NPR', $Value);
-                return $this->CallPreset($Value);
-            case 'NTM':
-                $Total = $this->StringToSeconds($this->GetValue('NTM1'));
-                $Time = ($Total / 100) * (int) $Value;
-                return $this->SetPosition(intval($Time));
-            case 'NTC':
-                return $this->SendKey($Value);
-            case 'NLA':
-                $this->SendDebug('RequestAction', 'NLA', 0);
-                if ($this->ReadPropertyBoolean('showNavigation')) {
-                    $Result = $this->RequestInfoListData();
-                    $this->RefreshNavigationTable($Result);
-                }
-                return true;
-            case 'NST0':
-                switch ($Value) {
-                    case 0:
-                        return $this->Stop();
-                    case 1:
-                        if ($this->GetValue('NST0') == 1) {
-                            return true;
-                        }
-                        return $this->Pause();
-                    case 2:
-                        if ($this->GetValue('NST0') == 2) {
-                            return true;
-                        }
-                        return $this->Pause();
-                }
-                echo 'Invalid Value';
-                return false;
-            case 'NST1':
-                return $this->Repeat();
-            case 'NST2':
-                return $this->Shuffle();
-            case 'NTR0':
-                switch ($Value) {
-                    case -999:
-                        return $this->PreviousTrack();
-                    case 999:
-                        return $this->NextTrack();
-                }
-                return;
-            case 'NSV':
-                return $this->SelectNetworkService($Value);
-        }
-        echo $this->Translate('Invalid Ident');
-        return;
-    }
-
-    //################# PUBLIC
-
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
-     */
-    public function RequestState(string $Ident)
-    {
-        if ($Ident == 'ALL') {
-            return $this->RequestZoneState();
-        }
-        $ApiCmd = substr($Ident, 0, 3);
-        if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands)) {
-            trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
-            return false;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
-        $ResultData = $this->Send($APIData);
-        if ($ResultData === null) {
-            return false;
-        }
-        $APIData->Data = $ResultData;
-        $this->UpdateVariable($APIData);
-        return true;
-    }
-
-    public function PreviousTrack()
-    {
-        if ($this->GetValue('NST0') != 0) {
-            $this->Stop();
-            sleep(3);
-        }
-        return $this->SendKey('TRDN');
-    }
-
-    public function NextTrack()
-    {
-        return $this->SendKey('TRUP');
-    }
-
-    public function Play()
-    {
-        return $this->SendKey(strtoupper(__FUNCTION__));
-    }
-
-    public function Pause()
-    {
-        return $this->SendKey(strtoupper(__FUNCTION__));
-    }
-
-    public function Stop()
-    {
-        return $this->SendKey(strtoupper(__FUNCTION__));
-    }
-
-    public function Shuffle()
-    {
-        return $this->SendKey('RANDOM');
-    }
-
-    public function Repeat()
-    {
-        return $this->SendKey(strtoupper(__FUNCTION__));
-    }
-
-    public function SetPosition(int $Value)
-    {
-        if ($Value > $this->StringToSeconds($this->GetValue('NTM1'))) {
-            trigger_error($this->Translate('Value greater as duration'), E_USER_NOTICE);
-            return false;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NTS, $this->SecondsToString($Value), false);
-        $ResultData = $this->Send($APIData);
-        if ($ResultData === null) {
-            return false;
-        }
-        return true;
-    }
-
-    public function CallPreset(int $Value)
-    {
-        if (($Value < 1) or ($Value > 40)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR), sprintf('%02X', $Value), false);
-        return $this->Send($APIData);
-    }
-
-    public function SavePreset()
-    {
-        $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR), 'SET', false);
-        return $this->Send($APIData);
-    }
-
     //################# Datapoints
     private function RequestProfile()
     {
@@ -892,7 +1129,7 @@ class OnkyoNetplayer extends IPSModule
         if (count($ResultDataSelectorList) > 0) {
             //$AssociationSLI = [];
             foreach ($ResultDataSelectorList as $Value => $SelectorProfileData) {
-                if (($Value < 0x29) or ($Value > 0x2E)) {
+                if (($Value < 0x29) || ($Value > 0x2E)) {
                     continue;
                 }
                 if (((int) $SelectorProfileData['Zone'] & $zone) == $zone) {
@@ -965,20 +1202,13 @@ class OnkyoNetplayer extends IPSModule
                 [0x1A, 'onkyo music', '', -1],
                 [0x1B, 'TIDAL', '', -1],
                 [0x41, 'FireConnect', '', -1],
-                    /* [0xF0, 'USB/USB(Front)', '', -1],
+                /* [0xF0, 'USB/USB(Front)', '', -1],
                       [0xF1, 'USB(Rear)', '', -1],
                       [0xF3, 'Network', '', -1],
                       [0xF4, 'Bluetooth', '', -1] */
             ];
         }
         $this->RegisterProfileIntegerEx('Onkyo.SelectNetworkService.' . $this->InstanceID, '', '', '', $AssociationNSV);
-    }
-
-    public function ReceiveData($JSONString)
-    {
-        $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
-        $this->SendDebug('ReceiveData', $APIData, 0);
-        $this->UpdateVariable($APIData);
     }
 
     //------------------------------------------------------------------------------
@@ -1027,211 +1257,6 @@ class OnkyoNetplayer extends IPSModule
             trigger_error($exc->getMessage(), E_USER_NOTICE);
             return null;
         }
-    }
-
-    /**
-     * Verarbeitet Daten aus dem Webhook.
-     *
-     * @global array $_GET
-     */
-    protected function ProcessHookdata()
-    {
-        //$this->SendDebug('$_GET', $_GET, 0);
-        //
-        //Type=Index&ID=55&Secret=8XJKlIPXwJ3P8hOJgO3skdMLsys%3D
-        if ((!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
-            echo $this->Translate('Bad Request');
-            return;
-        }
-
-        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
-        //$this->SendDebug('HookId', $_GET['ID'], 0);
-        //$this->SendDebug('CalcSecret', $CalcSecret, 0);
-        //$this->SendDebug('GetSecret', $_GET['Secret'], 0);
-        //$this->SendDebug('GetSecret', rawurldecode($_GET['Secret']), 0);
-        /* if ($CalcSecret != rawurldecode($_GET['Secret'])) {
-          echo $this->Translate('Access denied');
-          return;
-          } */
-        if ($_GET['Type'] != 'Index') {
-            echo $this->Translate('Bad Request');
-            return;
-        }
-
-        if ($this->SelectInfoListItem((int) $_GET['ID'])) {
-            echo 'OK';
-        }
-    }
-
-    /**
-     * Liefert den Header der HTML-Tabelle.
-     *
-     * @param array $Config Die Kofiguration der Tabelle
-     *
-     * @return string HTML-String
-     */
-    protected function GetTableHeader($Config_Table, $Config_Columns)
-    {
-        $table = '';
-        // Kopf der Tabelle erzeugen
-        $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
-        // JS Rückkanal erzeugen
-        $table .= '<script type="text/javascript" id="script' . $this->InstanceID . '">
-function xhrGet' . $this->InstanceID . '(o)
-{
-    var HTTP = new XMLHttpRequest();
-    HTTP.open(\'GET\',o.url,true);
-    HTTP.send();
-    HTTP.addEventListener(\'load\', function()
-    {
-        if (HTTP.status >= 200 && HTTP.status < 300)
-        {
-            if (HTTP.responseText !== \'OK\')
-                sendError' . $this->InstanceID . '(HTTP.responseText);
-        } else {
-            sendError' . $this->InstanceID . '(HTTP.statusText);
-        }
-    });
-}
-
-function sendError' . $this->InstanceID . '(data)
-{
-var notify = document.getElementsByClassName("ipsNotifications")[0];
-var newDiv = document.createElement("div");
-newDiv.innerHTML =\'<div style="height:auto; visibility: hidden; overflow: hidden; transition: height 500ms ease-in 0s" class="ipsNotification"><div class="spacer"></div><div class="message icon error" onclick="document.getElementsByClassName(\\\'ipsNotifications\\\')[0].removeChild(this.parentNode);"><div class="ipsIconClose"></div><div class="content"><div class="title">Fehler</div><div class="text">\' + data + \'</div></div></div></div>\';
-if (notify.childElementCount === 0)
-	var thisDiv = notify.appendChild(newDiv.firstChild);
-else
-	var thisDiv = notify.insertBefore(newDiv.firstChild,notify.childNodes[0]);
-var newheight = window.getComputedStyle(thisDiv, null)["height"];
-thisDiv.style.height = "0px";
-thisDiv.style.visibility = "visible";
-function sleep (time) {
-  return new Promise((resolve) => setTimeout(resolve, time));
-}
-sleep(10).then(() => {
-	thisDiv.style.height = newheight;
-});
-}
-
-</script>';
-        $table .= '<colgroup>' . PHP_EOL;
-        $colgroup = [];
-        foreach ($Config_Columns as $Column) {
-            if ($Column['show'] !== true) {
-                continue;
-            }
-            $colgroup[$Column['index']] = '<col width="' . $Column['width'] . 'em" />' . PHP_EOL;
-        }
-        ksort($colgroup);
-        $table .= implode('', $colgroup) . '</colgroup>' . PHP_EOL;
-        $table .= '<thead style="' . $Config_Table['<thead>'] . '">' . PHP_EOL;
-        $table .= '<tr>';
-        $th = [];
-        foreach ($Config_Columns as $Column) {
-            if ($Column['show'] !== true) {
-                continue;
-            }
-            $ThStyle = [];
-            if ($Column['color'] >= 0) {
-                $ThStyle[] = 'color:#' . substr('000000' . dechex($Column['color']), -6);
-            }
-            $ThStyle[] = 'text-align:' . $Column['align'];
-            $ThStyle[] = $Column['style'];
-            $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . ';">' . $Column['name'] . '</th>';
-        }
-        ksort($th);
-        $table .= implode('', $th) . '</tr>' . PHP_EOL;
-        $table .= '</thead>' . PHP_EOL;
-        $table .= '<tbody style="' . $Config_Table['<tbody>'] . '">' . PHP_EOL;
-        return $table;
-    }
-
-    /**
-     * Liefert den Inhalt der HTML-Box für ein Tabelle.
-     *
-     * @param array  $Data        Die Nutzdaten der Tabelle.
-     * @param string $HookPrefix  Der Prefix des Webhook.
-     * @param string $HookType    Ein String welcher als Parameter Type im Webhook übergeben wird.
-     * @param string $HookId      Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
-     * @param int    $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
-     *
-     * @return string Der HTML-String.
-     */
-    protected function GetTable($Array_Data, $HookPrefix, $HookType, $HookId)
-    {
-        $Data = $Array_Data['List'];
-        $Config_Table = array_column(json_decode($this->ReadPropertyString('Table'), true), 'style', 'tag');
-        $Config_Columns = json_decode($this->ReadPropertyString('Columns'), true);
-        $Config_Rows = json_decode($this->ReadPropertyString('Rows'), true);
-        $Config_Rows_BgColor = array_column($Config_Rows, 'bgcolor', 'row');
-        $Config_Rows_Color = array_column($Config_Rows, 'color', 'row');
-        $Config_Rows_Style = array_column($Config_Rows, 'style', 'row');
-        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
-        $Config_Icon = array_column($Config_Icons, 'icon', 'typ');
-        $NewSecret = base64_encode(openssl_random_pseudo_bytes(12));
-        $this->WebHookSecret = $NewSecret;
-
-        $HTMLData = $this->GetTableHeader($Config_Table, $Config_Columns);
-        $HTMLData .= '<caption style="' . $Config_Table['<caption>'] . '">' . $Array_Data['Title'] . '</caption>';
-
-        $pos = 0;
-        if (count($Data) > 0) {
-            foreach ($Data as $Line) {
-                $Line['Position'] = $pos;
-                if (array_key_exists($Line['Type'], $Config_Icon)) {
-                    $Line['Icon'] = '<div class="iconMediumSpinner ipsIcon' . $Config_Icon[$Line['Type']] . '" style="width: 100%; background-position: center center;"></div>';
-                } else {
-                    $Line['Icon'] = '<div class="iconMediumSpinner ipsIconTransparent" style="width: 100%; background-position: center center;"></div>';
-                }
-                $LineSecret = base64_encode(sha1($NewSecret . '0' . (string) $Line[$HookId], true));
-                //$this->SendDebug('HookId', $Line[$HookId], 0);
-                //$this->SendDebug('LineSecret', $LineSecret, 0);
-                $LineIndex = ($Line['Type'] == 0x36 ? 'active' : ($pos % 2 ? 'odd' : 'even'));
-                $TrStyle = [];
-                if ($Config_Rows_BgColor[$LineIndex] >= 0) {
-                    $TrStyle[] = 'background-color:#' . substr('000000' . dechex($Config_Rows_BgColor[$LineIndex]), -6);
-                }
-                if ($Config_Rows_Color[$LineIndex] >= 0) {
-                    $TrStyle[] = 'color:#' . substr('000000' . dechex($Config_Rows_Color[$LineIndex]), -6);
-                }
-                $TdStyle[] = $Config_Rows_Style[$LineIndex];
-                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . rawurlencode($LineSecret) . '\' });">';
-
-                $td = [];
-                foreach ($Config_Columns as $Column) {
-                    if ($Column['show'] !== true) {
-                        continue;
-                    }
-                    if (!array_key_exists($Column['key'], $Line)) {
-                        $Line[$Column['key']] = '';
-                    }
-                    $TdStyle = [];
-                    $TdStyle[] = 'text-align:' . $Column['align'];
-                    $TdStyle[] = $Column['style'];
-
-                    $td[$Column['index']] = '<td style="' . implode(';', $TdStyle) . ';">' . (string) $Line[$Column['key']] . '</td>';
-                }
-                ksort($td);
-                $HTMLData .= implode('', $td) . '</tr>';
-                $HTMLData .= '</tr>' . PHP_EOL;
-                $pos++;
-            }
-        }
-        $HTMLData .= $this->GetTableFooter();
-        return $HTMLData;
-    }
-
-    /**
-     * Liefert den Footer der HTML-Tabelle.
-     *
-     * @return string HTML-String
-     */
-    protected function GetTableFooter()
-    {
-        $table = '</tbody>' . PHP_EOL;
-        $table .= '</table>' . PHP_EOL;
-        return $table;
     }
 
     private function GenerateHTMLStyleProperty()
@@ -1332,7 +1357,7 @@ sleep(10).then(() => {
                 'name' => $this->Translate('Folder'),
                 'icon' => 'Database'
             ], [
-                'typ'  => 0x31, //
+                'typ'  => 0x31,
                 'name' => $this->Translate('USB'),
                 'icon' => 'Mobile'
             ], [
@@ -1362,30 +1387,6 @@ sleep(10).then(() => {
             ],
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIconsConfig];
-    }
-
-    public function GetConfigurationForm()
-    {
-        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-        if ($this->ReadPropertyBoolean('showNavigation')) {
-            $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
-            $Icons[] = [
-                'caption' => $this->Translate('none'),
-                'value'   => 'Transparent'
-            ];
-            foreach (UC_GetIconList($id) as $Icon) {
-                $Icons[] = [
-                    'caption' => $Icon,
-                    'value'   => $Icon
-                ];
-            }
-            $Form['elements'][3]['items'][3]['columns'][2]['edit']['options'] = $Icons;
-        } else {
-            unset($Form['elements'][3]);
-        }
-        $this->SendDebug('FORM', json_encode($Form), 0);
-        $this->SendDebug('FORM', json_last_error_msg(), 0);
-        return json_encode($Form);
     }
 
     private function SecondsToString($Time)

@@ -171,7 +171,7 @@ class OnkyoAVR extends IPSModule
         }
 
         // Power, Mute, Volume, Input überführen in neuen Ident
-        if ((($OldZone != 0) and ($NewZone != 0)) and ($OldZone != $NewZone)) {
+        if ((($OldZone != 0) && ($NewZone != 0)) && ($OldZone != $NewZone)) {
             $OldZoneIdents = \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$OldZone];
             $NewZoneIdents = \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$this->OnkyoZone->thisZone];
             for ($index = 0; $index < 4; $index++) {
@@ -232,135 +232,6 @@ class OnkyoAVR extends IPSModule
         }
     }
 
-    protected function ModulUpdateErrorHandler($errno, $errstr)
-    {
-        $this->SendDebug('ERROR', utf8_decode($errstr) . PHP_EOL, 0);
-        echo $errstr;
-    }
-
-    private function PerformModulUpdate()
-    {
-        set_error_handler([$this, 'ModulUpdateErrorHandler']);
-        $this->UnregisterVariable('ReplyAPIData');
-        // Update machen !!!
-        $Zone = $this->OnkyoZone;
-        $OldProfileList = [
-            'NetRadioPreset.Onkyo',
-            'SpeakerLayout.Onkyo',
-            'ToneOffset.Onkyo',
-            'Sleep.Onkyo',
-            'DisplayMode.Onkyo',
-            'DisplayDimmer.Onkyo',
-            'SelectInput.Onkyo',
-            'SelectInputAudio.Onkyo',
-            'HDMIOutput.Onkyo',
-            'HDMIAudioOutput.Onkyo',
-            'VideoResolution.Onkyo',
-            'VideoWideMode.Onkyo',
-            'VideoPictureMode.Onkyo',
-            'LMD.Onkyo',
-            'LateNight.Onkyo',
-            'Audyssey.Onkyo',
-            'AudysseyDynamic.Onkyo',
-            'DolbyVolume.Onkyo',
-            'RadioPreset.Onkyo'
-        ];
-        $OldVariableNames = [
-            'Subwoofer Bass'       => 'Subwoofer Level',
-            'Sleep Set'            => 'Sleeptimer',
-            'Audio Input Selector' => 'Audio Input',
-            'Video Wide Mode'      => 'Video Mode',
-            'Input Selector'       => 'Input'
-        ];
-        $OldVariables = [
-            \OnkyoAVR\ISCP_API_Commands::TUN,
-            \OnkyoAVR\ISCP_API_Commands::PRS,
-            'LMZ',
-            'LTZ',
-            'RAZ',
-            \OnkyoAVR\ISCP_API_Commands::TUZ,
-            \OnkyoAVR\ISCP_API_Commands::PRZ,
-            \OnkyoAVR\ISCP_API_Commands::TU3,
-            \OnkyoAVR\ISCP_API_Commands::PR3,
-            \OnkyoAVR\ISCP_API_Commands::TU4,
-            \OnkyoAVR\ISCP_API_Commands::PR4,
-            \OnkyoAVR\ISCP_API_Commands::NTC,
-            \OnkyoAVR\ISCP_API_Commands::NTZ,
-            \OnkyoAVR\ISCP_API_Commands::NT3,
-            \OnkyoAVR\ISCP_API_Commands::NT4,
-            \OnkyoAVR\ISCP_API_Commands::NPR,
-            \OnkyoAVR\ISCP_API_Commands::NPZ,
-            \OnkyoAVR\ISCP_API_Commands::NP3,
-            \OnkyoAVR\ISCP_API_Commands::NP4
-        ];
-        foreach ($OldVariables as $OldVariable) {
-            @$this->UnregisterVariable($OldVariable);
-        }
-
-        $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
-        foreach (IPS_GetChildrenIDs($this->InstanceID)as $ObjectID) {
-            $Object = IPS_GetObject($ObjectID);
-
-            if ($Object['ObjectType'] != OBJECTTYPE_VARIABLE) {
-                continue;
-            }
-            $Variable = IPS_GetVariable($ObjectID);
-
-            $ApiCmd = substr($Object['ObjectIdent'], 0, 3);
-            if (!$Zone->CmdAvaiable($ApiCmd)) {
-                $this->SendDebug('Wrong Zone UnregisterVariable', $ApiCmd, 0);
-                $this->UnregisterVariable($ApiCmd);
-            }
-            $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd);
-            if ($Mapping != null) { //Variable bekannt
-                if (array_key_exists($ApiCmd, $MyPropertys)) {
-                    // Werkssettings sagt false
-                    if ($MyPropertys[$ApiCmd] === false) {
-                        //Aber alte Variable vorhanden => settings updaten
-                        $this->SendDebug('Update Property', $ApiCmd, 0);
-                        IPS_SetProperty($this->InstanceID, $ApiCmd, true);
-                    }
-                }
-                $Profile = $Mapping->Profile;
-                if (strpos($Profile, '%d')) {
-                    $Profile = sprintf($Profile, $this->InstanceID);
-                }
-                if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
-                    $Mapping->VarType = \OnkyoAVR\IPSVarType::vtInteger;
-                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$Object['ObjectIdent'][3]];
-                    $Mapping->VarName = $Mapping->VarName[$ISCP_ValuePrefix];
-                }
-                //Profile neu setzen
-                $this->SendDebug('Update Profile', $Object, 0);
-                $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
-                // Hat sich der Variabletyp verändert?
-                if ($Variable['VariableType'] != $Mapping->VarType) {
-                    $ObjectID = $this->GetIDForIdent($Object['ObjectIdent']); //neue VariableID
-                }
-                //Name ist unverändert
-                if ($Object['ObjectName'] == $Mapping->VarName) {
-                    $this->SendDebug('Update Translated Name', $Object['ObjectName'], 0);
-                    IPS_SetName($ObjectID, $this->Translate($Object['ObjectName']));
-                    continue;
-                }
-                if (array_key_exists($Object['ObjectName'], $OldVariableNames)) {
-                    $this->SendDebug('Update Old Name', $Object['ObjectName'], 0);
-                    IPS_SetName($ObjectID, $this->Translate($Mapping->VarName));
-                }
-            } else {
-                $this->SendDebug('Skip Variable', $ApiCmd, 0);
-            }
-        }
-        foreach ($OldProfileList as $OldProfile) {
-            $this->UnregisterProfile($OldProfile);
-        }
-
-        if (IPS_HasChanges($this->InstanceID)) {
-            IPS_RunScriptText('IPS_ApplyChanges(' . $this->InstanceID . ');');
-        }
-        restore_error_handler();
-    }
-
     /**
      * Interne Funktion des SDK.
      */
@@ -375,151 +246,9 @@ class OnkyoAVR extends IPSModule
         }
     }
 
-    /**
-     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
-     */
-    protected function KernelReady()
-    {
-        $this->RegisterParent();
-    }
-
-    /**
-     * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     */
-    protected function IOChangeState($State)
-    {
-        if ($State == IS_ACTIVE) {
-            if ($this->CheckZone()) {
-                if ($this->HasActiveParent()) {
-                    $this->RequestProfile();
-                    $this->RequestZoneState();
-                }
-            }
-        }
-    }
-
     public function GetConfigurationForm()
     {
         return file_get_contents(__DIR__ . '/form_' . $this->OnkyoZone->thisZone . '.json');
-    }
-
-    //################# PRIVATE
-
-    private function CheckZone()
-    {
-        if ($this->OnkyoZone->thisZone == \OnkyoAVR\ONKYO_Zone::None) {
-            $this->SendDebug('Error', $this->Translate('Zone not set.'), 0);
-            $this->LogMessage($this->Translate('Zone not set.'), KL_ERROR);
-            return false;
-        }
-        return true;
-    }
-
-    private function sdechex(int $d)
-    {
-        return ($d < 0) ? ('-' . strtoupper(dechex(-$d))) : ($d == 0 ? '00' : '+' . strtoupper(dechex($d)));
-    }
-
-    private function shexdec(string $h)
-    {
-        return ($h[0] === '-') ? -(hexdec($h)) : hexdec($h);
-    }
-
-    private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
-    {
-        if ($APIData->Data == 'N/A') {
-            return;
-        }
-        $Mapping = $APIData->GetMapping();
-        if ($Mapping == null) {
-            return;
-        }
-        if (!$Mapping->IsVariable) {
-            return;
-        }
-        if (strpos($Mapping->Profile, '%d')) {
-            $Profile = sprintf($Mapping->Profile, $this->InstanceID);
-        } else {
-            $Profile = $Mapping->Profile;
-        }
-        if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
-            $Prefix = substr($APIData->Data, 0, 1);
-            $this->MaintainVariable($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
-            if ($Mapping->EnableAction) {
-                $this->EnableAction($APIData->APICommand . $Mapping->ValuePrefix[$Prefix]);
-            }
-            $Value = $Mapping->ValueMapping[substr($APIData->Data, 1, 2)];
-            $this->SetValueInteger($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $Value);
-            if (strlen($APIData->Data) > 3) {
-                $Prefix = substr($APIData->Data, 3, 1);
-                $this->MaintainVariable($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
-                if ($Mapping->EnableAction) {
-                    $this->EnableAction($APIData->APICommand . $Mapping->ValuePrefix[$Prefix]);
-                }
-                $Value = $Mapping->ValueMapping[substr($APIData->Data, 4, 2)];
-                $this->SetValueInteger($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $Value);
-            }
-            return;
-        }
-
-        $this->MaintainVariable($APIData->APICommand, $this->Translate($Mapping->VarName), $Mapping->VarType, $Profile, 0, true);
-        if ($Mapping->EnableAction) {
-            $this->EnableAction($APIData->APICommand);
-        }
-        switch ($Mapping->VarType) {
-            case \OnkyoAVR\IPSVarType::vtBoolean:
-                $this->SetValueBoolean($APIData->APICommand, \OnkyoAVR\ISCP_API_Commands::$BoolValueMapping[$APIData->Data]);
-                break;
-            case \OnkyoAVR\IPSVarType::vtFloat:
-                if (is_string($Mapping->ValueMapping)) {
-                    switch ($Mapping->ValueMapping) {
-                        case 'Level':
-                            $Value = $this->shexdec($APIData->Data);
-                            $MyProfile = $this->ToneProfile;
-                            if (array_key_exists($Mapping->Profile, $MyProfile)) {
-                                if ($MyProfile[$Mapping->Profile][2] < 1) {
-                                    $Value = $Value / 2;
-                                }
-                            }
-                            break;
-                        default:
-                            $Value = hexdec($APIData->Data);
-                            break;
-                    }
-                } else {
-                    $Value = $APIData->Data / 100;
-                }
-                $this->SetValueFloat($APIData->APICommand, $Value);
-                break;
-            case \OnkyoAVR\IPSVarType::vtInteger:
-                if (is_array($Mapping->ValueMapping)) {
-                    if (array_key_exists($APIData->Data, $Mapping->ValueMapping)) {
-                        $Value = $Mapping->ValueMapping[$APIData->Data];
-                    } else {
-                        $Value = hexdec($APIData->Data);
-                    }
-                } elseif (is_string($Mapping->ValueMapping)) {
-                    switch ($Mapping->ValueMapping) {
-                        case 'Level':
-                            $Value = $this->shexdec($APIData->Data);
-                            break;
-                        default:
-                            $Value = hexdec($APIData->Data);
-                            break;
-                    }
-                } else {
-                    $Value = hexdec($APIData->Data);
-                }
-                $this->SetValueInteger($APIData->APICommand, $Value);
-                break;
-            case \OnkyoAVR\IPSVarType::vtString:
-                $Value = $APIData->Data;
-                if ($Mapping->ValueMapping != null) {
-                    $Value = implode("\r\n", array_filter(explode($Mapping->ValueMapping, $APIData->Data)));
-                }
-                $this->SetValueString($APIData->APICommand, $Value);
-                break;
-        }
     }
 
     //################# ActionHandler
@@ -586,28 +315,6 @@ class OnkyoAVR extends IPSModule
     public function PowerOff()
     {
         return $this->SendPower(false);
-    }
-
-    private function SendPower(bool $Value)
-    {
-        if (!$this->CheckZone()) {
-            return false;
-        }
-        switch ($this->OnkyoZone->thisZone) {
-            case \OnkyoAVR\ONKYO_Zone::ZoneMain:
-                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PWR, $Value);
-                break;
-            case \OnkyoAVR\ONKYO_Zone::Zone2:
-                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::ZPW, $Value);
-                break;
-            case \OnkyoAVR\ONKYO_Zone::Zone3:
-                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PW3, $Value);
-                break;
-            case \OnkyoAVR\ONKYO_Zone::Zone4:
-                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PW4, $Value);
-                break;
-        }
-        return $this->SendAPIData($APIData);
     }
 
     public function SetVolume(int $Value)
@@ -717,7 +424,7 @@ class OnkyoAVR extends IPSModule
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
             return false;
         }
-        if (($Duration < 0) or ($Duration > 0x5A)) {
+        if (($Duration < 0) || ($Duration > 0x5A)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
             return false;
         }
@@ -872,6 +579,305 @@ class OnkyoAVR extends IPSModule
         $this->UpdateVariable($APIData);
     }
 
+    protected function ModulUpdateErrorHandler($errno, $errstr)
+    {
+        $this->SendDebug('ERROR', utf8_decode($errstr) . PHP_EOL, 0);
+        echo $errstr;
+    }
+
+    /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->RegisterParent();
+    }
+
+    /**
+     * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     */
+    protected function IOChangeState($State)
+    {
+        if ($State == IS_ACTIVE) {
+            if ($this->CheckZone()) {
+                if ($this->HasActiveParent()) {
+                    $this->RequestProfile();
+                    $this->RequestZoneState();
+                }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+    protected function RequestZoneStateErrorHandler($errno, $errstr)
+    {
+        //echo $errstr . PHP_EOL;
+    }
+
+    private function PerformModulUpdate()
+    {
+        set_error_handler([$this, 'ModulUpdateErrorHandler']);
+        $this->UnregisterVariable('ReplyAPIData');
+        // Update machen !!!
+        $Zone = $this->OnkyoZone;
+        $OldProfileList = [
+            'NetRadioPreset.Onkyo',
+            'SpeakerLayout.Onkyo',
+            'ToneOffset.Onkyo',
+            'Sleep.Onkyo',
+            'DisplayMode.Onkyo',
+            'DisplayDimmer.Onkyo',
+            'SelectInput.Onkyo',
+            'SelectInputAudio.Onkyo',
+            'HDMIOutput.Onkyo',
+            'HDMIAudioOutput.Onkyo',
+            'VideoResolution.Onkyo',
+            'VideoWideMode.Onkyo',
+            'VideoPictureMode.Onkyo',
+            'LMD.Onkyo',
+            'LateNight.Onkyo',
+            'Audyssey.Onkyo',
+            'AudysseyDynamic.Onkyo',
+            'DolbyVolume.Onkyo',
+            'RadioPreset.Onkyo'
+        ];
+        $OldVariableNames = [
+            'Subwoofer Bass'       => 'Subwoofer Level',
+            'Sleep Set'            => 'Sleeptimer',
+            'Audio Input Selector' => 'Audio Input',
+            'Video Wide Mode'      => 'Video Mode',
+            'Input Selector'       => 'Input'
+        ];
+        $OldVariables = [
+            \OnkyoAVR\ISCP_API_Commands::TUN,
+            \OnkyoAVR\ISCP_API_Commands::PRS,
+            'LMZ',
+            'LTZ',
+            'RAZ',
+            \OnkyoAVR\ISCP_API_Commands::TUZ,
+            \OnkyoAVR\ISCP_API_Commands::PRZ,
+            \OnkyoAVR\ISCP_API_Commands::TU3,
+            \OnkyoAVR\ISCP_API_Commands::PR3,
+            \OnkyoAVR\ISCP_API_Commands::TU4,
+            \OnkyoAVR\ISCP_API_Commands::PR4,
+            \OnkyoAVR\ISCP_API_Commands::NTC,
+            \OnkyoAVR\ISCP_API_Commands::NTZ,
+            \OnkyoAVR\ISCP_API_Commands::NT3,
+            \OnkyoAVR\ISCP_API_Commands::NT4,
+            \OnkyoAVR\ISCP_API_Commands::NPR,
+            \OnkyoAVR\ISCP_API_Commands::NPZ,
+            \OnkyoAVR\ISCP_API_Commands::NP3,
+            \OnkyoAVR\ISCP_API_Commands::NP4
+        ];
+        foreach ($OldVariables as $OldVariable) {
+            @$this->UnregisterVariable($OldVariable);
+        }
+
+        $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
+        foreach (IPS_GetChildrenIDs($this->InstanceID)as $ObjectID) {
+            $Object = IPS_GetObject($ObjectID);
+
+            if ($Object['ObjectType'] != OBJECTTYPE_VARIABLE) {
+                continue;
+            }
+            $Variable = IPS_GetVariable($ObjectID);
+
+            $ApiCmd = substr($Object['ObjectIdent'], 0, 3);
+            if (!$Zone->CmdAvaiable($ApiCmd)) {
+                $this->SendDebug('Wrong Zone UnregisterVariable', $ApiCmd, 0);
+                $this->UnregisterVariable($ApiCmd);
+            }
+            $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd);
+            if ($Mapping != null) { //Variable bekannt
+                if (array_key_exists($ApiCmd, $MyPropertys)) {
+                    // Werkssettings sagt false
+                    if ($MyPropertys[$ApiCmd] === false) {
+                        //Aber alte Variable vorhanden => settings updaten
+                        $this->SendDebug('Update Property', $ApiCmd, 0);
+                        IPS_SetProperty($this->InstanceID, $ApiCmd, true);
+                    }
+                }
+                $Profile = $Mapping->Profile;
+                if (strpos($Profile, '%d')) {
+                    $Profile = sprintf($Profile, $this->InstanceID);
+                }
+                if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
+                    $Mapping->VarType = \OnkyoAVR\IPSVarType::vtInteger;
+                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$Object['ObjectIdent'][3]];
+                    $Mapping->VarName = $Mapping->VarName[$ISCP_ValuePrefix];
+                }
+                //Profile neu setzen
+                $this->SendDebug('Update Profile', $Object, 0);
+                $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
+                // Hat sich der Variabletyp verändert?
+                if ($Variable['VariableType'] != $Mapping->VarType) {
+                    $ObjectID = $this->GetIDForIdent($Object['ObjectIdent']); //neue VariableID
+                }
+                //Name ist unverändert
+                if ($Object['ObjectName'] == $Mapping->VarName) {
+                    $this->SendDebug('Update Translated Name', $Object['ObjectName'], 0);
+                    IPS_SetName($ObjectID, $this->Translate($Object['ObjectName']));
+                    continue;
+                }
+                if (array_key_exists($Object['ObjectName'], $OldVariableNames)) {
+                    $this->SendDebug('Update Old Name', $Object['ObjectName'], 0);
+                    IPS_SetName($ObjectID, $this->Translate($Mapping->VarName));
+                }
+            } else {
+                $this->SendDebug('Skip Variable', $ApiCmd, 0);
+            }
+        }
+        foreach ($OldProfileList as $OldProfile) {
+            $this->UnregisterProfile($OldProfile);
+        }
+
+        if (IPS_HasChanges($this->InstanceID)) {
+            IPS_RunScriptText('IPS_ApplyChanges(' . $this->InstanceID . ');');
+        }
+        restore_error_handler();
+    }
+
+    //################# PRIVATE
+
+    private function CheckZone()
+    {
+        if ($this->OnkyoZone->thisZone == \OnkyoAVR\ONKYO_Zone::None) {
+            $this->SendDebug('Error', $this->Translate('Zone not set.'), 0);
+            $this->LogMessage($this->Translate('Zone not set.'), KL_ERROR);
+            return false;
+        }
+        return true;
+    }
+
+    private function sdechex(int $d)
+    {
+        return ($d < 0) ? ('-' . strtoupper(dechex(-$d))) : ($d == 0 ? '00' : '+' . strtoupper(dechex($d)));
+    }
+
+    private function shexdec(string $h)
+    {
+        return ($h[0] === '-') ? -(hexdec($h)) : hexdec($h);
+    }
+
+    private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
+    {
+        if ($APIData->Data == 'N/A') {
+            return;
+        }
+        $Mapping = $APIData->GetMapping();
+        if ($Mapping == null) {
+            return;
+        }
+        if (!$Mapping->IsVariable) {
+            return;
+        }
+        if (strpos($Mapping->Profile, '%d')) {
+            $Profile = sprintf($Mapping->Profile, $this->InstanceID);
+        } else {
+            $Profile = $Mapping->Profile;
+        }
+        if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
+            $Prefix = substr($APIData->Data, 0, 1);
+            $this->MaintainVariable($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
+            if ($Mapping->EnableAction) {
+                $this->EnableAction($APIData->APICommand . $Mapping->ValuePrefix[$Prefix]);
+            }
+            $Value = $Mapping->ValueMapping[substr($APIData->Data, 1, 2)];
+            $this->SetValueInteger($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $Value);
+            if (strlen($APIData->Data) > 3) {
+                $Prefix = substr($APIData->Data, 3, 1);
+                $this->MaintainVariable($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
+                if ($Mapping->EnableAction) {
+                    $this->EnableAction($APIData->APICommand . $Mapping->ValuePrefix[$Prefix]);
+                }
+                $Value = $Mapping->ValueMapping[substr($APIData->Data, 4, 2)];
+                $this->SetValueInteger($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $Value);
+            }
+            return;
+        }
+
+        $this->MaintainVariable($APIData->APICommand, $this->Translate($Mapping->VarName), $Mapping->VarType, $Profile, 0, true);
+        if ($Mapping->EnableAction) {
+            $this->EnableAction($APIData->APICommand);
+        }
+        switch ($Mapping->VarType) {
+            case \OnkyoAVR\IPSVarType::vtBoolean:
+                $this->SetValueBoolean($APIData->APICommand, \OnkyoAVR\ISCP_API_Commands::$BoolValueMapping[$APIData->Data]);
+                break;
+            case \OnkyoAVR\IPSVarType::vtFloat:
+                if (is_string($Mapping->ValueMapping)) {
+                    switch ($Mapping->ValueMapping) {
+                        case 'Level':
+                            $Value = $this->shexdec($APIData->Data);
+                            $MyProfile = $this->ToneProfile;
+                            if (array_key_exists($Mapping->Profile, $MyProfile)) {
+                                if ($MyProfile[$Mapping->Profile][2] < 1) {
+                                    $Value = $Value / 2;
+                                }
+                            }
+                            break;
+                        default:
+                            $Value = hexdec($APIData->Data);
+                            break;
+                    }
+                } else {
+                    $Value = $APIData->Data / 100;
+                }
+                $this->SetValueFloat($APIData->APICommand, $Value);
+                break;
+            case \OnkyoAVR\IPSVarType::vtInteger:
+                if (is_array($Mapping->ValueMapping)) {
+                    if (array_key_exists($APIData->Data, $Mapping->ValueMapping)) {
+                        $Value = $Mapping->ValueMapping[$APIData->Data];
+                    } else {
+                        $Value = hexdec($APIData->Data);
+                    }
+                } elseif (is_string($Mapping->ValueMapping)) {
+                    switch ($Mapping->ValueMapping) {
+                        case 'Level':
+                            $Value = $this->shexdec($APIData->Data);
+                            break;
+                        default:
+                            $Value = hexdec($APIData->Data);
+                            break;
+                    }
+                } else {
+                    $Value = hexdec($APIData->Data);
+                }
+                $this->SetValueInteger($APIData->APICommand, $Value);
+                break;
+            case \OnkyoAVR\IPSVarType::vtString:
+                $Value = $APIData->Data;
+                if ($Mapping->ValueMapping != null) {
+                    $Value = implode("\r\n", array_filter(explode($Mapping->ValueMapping, $APIData->Data)));
+                }
+                $this->SetValueString($APIData->APICommand, $Value);
+                break;
+        }
+    }
+
+    private function SendPower(bool $Value)
+    {
+        if (!$this->CheckZone()) {
+            return false;
+        }
+        switch ($this->OnkyoZone->thisZone) {
+            case \OnkyoAVR\ONKYO_Zone::ZoneMain:
+                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PWR, $Value);
+                break;
+            case \OnkyoAVR\ONKYO_Zone::Zone2:
+                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::ZPW, $Value);
+                break;
+            case \OnkyoAVR\ONKYO_Zone::Zone3:
+                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PW3, $Value);
+                break;
+            case \OnkyoAVR\ONKYO_Zone::Zone4:
+                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PW4, $Value);
+                break;
+        }
+        return $this->SendAPIData($APIData);
+    }
+
     private function RequestProfile()
     {
         $zone = $this->OnkyoZone->thisZone;
@@ -969,12 +975,6 @@ class OnkyoAVR extends IPSModule
                 $this->UnregisterProfile($ptSelectLMDProfile);
             }
         }
-    }
-
-    //------------------------------------------------------------------------------
-    protected function RequestZoneStateErrorHandler($errno, $errstr)
-    {
-        //echo $errstr . PHP_EOL;
     }
 
     private function RequestZoneState()

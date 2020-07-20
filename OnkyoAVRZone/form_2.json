@@ -1,90 +1,90 @@
 {
-    "elements":
-            [
+    "elements": [
+        {
+            "name": "Zone",
+            "type": "Select",
+            "caption": "Zone",
+            "options": [
                 {
-                    "name": "Zone",
-                    "type": "Select",
-                    "caption": "Zone",
-                    "options": [
-                        {
-                            "caption": "not set",
-                            "value": 0
-                        },
-                        {
-                            "caption": "Main",
-                            "value": 1
-                        },
-                        {
-                            "caption": "Zone 2",
-                            "value": 2
-                        },
-                        {
-                            "caption": "Zone 3",
-                            "value": 3
-                        },
-                        {
-                            "caption": "Zone 4",
-                            "value": 4
-                        }
-                    ]
-                }, {
-                    "type": "ExpansionPanel",
-                    "caption": "Default variables",
-                    "items": [
-                        { 
-                            "type": "RowLayout",
-                            "items": [
-                                {
-                                    "type": "CheckBox",
-                                    "name": "ZVL",
-                                    "caption": "volume control"
-                                }, 
-                                {
-                                    "type": "CheckBox",
-                                    "name": "ZMT",
-                                    "caption": "mute control"
-                                },
-                                {
-                                    "type": "CheckBox",
-                                    "name": "SLZ",
-                                    "caption": "input control"
-                                }
-                            ]
-                        }
-                    ]
+                    "caption": "not set",
+                    "value": 0
                 },
                 {
-                    "type": "ExpansionPanel",
-                    "caption": "Speaker sound variables",
+                    "caption": "Main",
+                    "value": 1
+                },
+                {
+                    "caption": "Zone 2",
+                    "value": 2
+                },
+                {
+                    "caption": "Zone 3",
+                    "value": 3
+                },
+                {
+                    "caption": "Zone 4",
+                    "value": 4
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Default variables",
+            "items": [
+                {
+                    "type": "RowLayout",
                     "items": [
                         {
                             "type": "CheckBox",
-                            "name": "ZTN",
-                            "caption": "front speaker"
+                            "name": "ZVL",
+                            "caption": "volume control"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "ZMT",
+                            "caption": "mute control"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "SLZ",
+                            "caption": "input control"
                         }
                     ]
                 }
-            ],
-    "actions":
-            [{
-                    "type": "PopupAlert",
-                    "popup": {
-                        "closeCaption": "I understand",
-                        "items": [
-                            {
-                                "type": "Label",
-                                "caption": "Be careful when configuring the zone and checkboxes. Modification may delete variables!"
-                            }
-                        ]
-                    }
-                },
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Speaker sound variables",
+            "items": [
                 {
-                    "type": "TestCenter"
-                },
-                {
-                    "type": "Button",
-                    "caption": "Request State",
-                    "onClick": "OAVR_RequestState($id,'ALL');"
+                    "type": "CheckBox",
+                    "name": "ZTN",
+                    "caption": "front speaker"
                 }
             ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "PopupAlert",
+            "popup": {
+                "closeCaption": "I understand",
+                "items": [
+                    {
+                        "type": "Label",
+                        "caption": "Be careful when configuring the zone and checkboxes. Modification may delete variables!"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "TestCenter"
+        },
+        {
+            "type": "Button",
+            "caption": "Request State",
+            "onClick": "OAVR_RequestState($id,'ALL');"
+        }
+    ]
 }

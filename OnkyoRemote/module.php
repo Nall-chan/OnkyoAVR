@@ -14,9 +14,12 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
  */
 class OnkyoRemote extends IPSModule
 {
-    use \OnkyoRemote\DebugHelper,
-        \OnkyoRemote\WebhookHelper,
-        \OnkyoRemote\Bufferhelper,
+    use \OnkyoRemote\DebugHelper;
+    use
+        \OnkyoRemote\WebhookHelper;
+    use
+        \OnkyoRemote\Bufferhelper;
+    use
         \OnkyoRemote\VariableProfileHelper;
     protected static $APICommands = [
         \OnkyoAVR\Remotes::OSD => 'OSD',
@@ -205,6 +208,11 @@ class OnkyoRemote extends IPSModule
         ],
     ];
 
+    public function Setup()
+    {
+        return $this->Send(strtoupper(__FUNCTION__));
+    }
+
     /**
      * Interne Funktion des SDK.
      */
@@ -288,48 +296,6 @@ class OnkyoRemote extends IPSModule
         }
 
         parent::ApplyChanges();
-    }
-
-    //################# PRIVATE
-
-    /**
-     * Verarbeitet Daten aus dem Webhook.
-     *
-     * @global array $_GET
-     */
-    protected function ProcessHookdata()
-    {
-        if (isset($_GET['button'])) {
-            $Command = strtoupper($_GET['button']);
-            switch ($this->Type) {
-                case \OnkyoAVR\Remotes::CAP:
-                    switch ($Command) {
-                        case 'VLDN':
-                            $Command = 'MVLDOWN';
-                            break;
-                        case 'VLUP':
-                            $Command = 'MVLUP';
-                            break;
-                        case 'POWER':
-                            $Command = 'PWRTG';
-                            break;
-                    }
-                    break;
-                /* case \OnkyoAVR\Remotes::OSD:
-                  switch ($Command) {
-                  case 'RETURN':
-                  $Command = 'MVLDOWN';
-                  break;
-                  }
-                  break; */
-            }
-            if ($this->Send($Command) === true) {
-                echo 'OK';
-            }
-        } else {
-            $this->SendDebug('illegal HOOK', $_GET, 0);
-            echo $this->Translate('Illegal hook');
-        }
     }
 
     //################# ActionHandler
@@ -537,11 +503,6 @@ class OnkyoRemote extends IPSModule
         return $this->Send(strtoupper(__FUNCTION__));
     }
 
-    public function Setup()
-    {
-        return $this->Send(strtoupper(__FUNCTION__));
-    }
-
     public function Return()
     {
         return $this->Send(strtoupper(__FUNCTION__));
@@ -601,6 +562,48 @@ class OnkyoRemote extends IPSModule
     public function SendKey(string $Key)
     {
         return $this->Send(strtoupper($Key));
+    }
+
+    //################# PRIVATE
+
+    /**
+     * Verarbeitet Daten aus dem Webhook.
+     *
+     * @global array $_GET
+     */
+    protected function ProcessHookdata()
+    {
+        if (isset($_GET['button'])) {
+            $Command = strtoupper($_GET['button']);
+            switch ($this->Type) {
+                case \OnkyoAVR\Remotes::CAP:
+                    switch ($Command) {
+                        case 'VLDN':
+                            $Command = 'MVLDOWN';
+                            break;
+                        case 'VLUP':
+                            $Command = 'MVLUP';
+                            break;
+                        case 'POWER':
+                            $Command = 'PWRTG';
+                            break;
+                    }
+                    break;
+                /* case \OnkyoAVR\Remotes::OSD:
+                  switch ($Command) {
+                  case 'RETURN':
+                  $Command = 'MVLDOWN';
+                  break;
+                  }
+                  break; */
+            }
+            if ($this->Send($Command) === true) {
+                echo 'OK';
+            }
+        } else {
+            $this->SendDebug('illegal HOOK', $_GET, 0);
+            echo $this->Translate('Illegal hook');
+        }
     }
 
     private function Send(string $Command)

@@ -1,34 +1,32 @@
 {
-    "elements":
-            [
+    "elements": [
+        {
+            "name": "Zone",
+            "type": "Select",
+            "caption": "Zone",
+            "options": [
                 {
-                    "name": "Zone",
-                    "type": "Select",
-                    "caption": "Zone",
-                    "options": [
-                        {
-                            "caption": "not set",
-                            "value": 0
-                        },
-                        {
-                            "caption": "Main",
-                            "value": 1
-                        },
-                        {
-                            "caption": "Zone 2",
-                            "value": 2
-                        },
-                        {
-                            "caption": "Zone 3",
-                            "value": 3
-                        },
-                        {
-                            "caption": "Zone 4",
-                            "value": 4
-                        }
-                    ]
+                    "caption": "not set",
+                    "value": 0
+                },
+                {
+                    "caption": "Main",
+                    "value": 1
+                },
+                {
+                    "caption": "Zone 2",
+                    "value": 2
+                },
+                {
+                    "caption": "Zone 3",
+                    "value": 3
+                },
+                {
+                    "caption": "Zone 4",
+                    "value": 4
                 }
-            ],
-    "actions":
-            []
+            ]
+        }
+    ],
+    "actions": []
 }

@@ -1,41 +1,41 @@
 {
-    "elements":
-            [{
-                    "type": "Label",
-                    "caption": "When send commands the following zone is used for"
+    "elements": [
+        {
+            "type": "Label",
+            "caption": "When send commands the following zone is used for"
+        },
+        {
+            "name": "Zone",
+            "type": "Select",
+            "caption": "Zone",
+            "options": [
+                {
+                    "caption": "Tuner Main Zone",
+                    "value": 1
                 },
                 {
-                    "name": "Zone",
-                    "type": "Select",
-                    "caption": "Zone",
-                    "options": [
-                        {
-                            "caption": "Tuner Main Zone",
-                            "value": 1
-                        },
-                        {
-                            "caption": "Tuner Zone 2",
-                            "value": 2
-                        },
-                        {
-                            "caption": "Tuner Zone 3",
-                            "value": 3
-                        },
-                        {
-                            "caption": "Tuner Zone 4",
-                            "value": 4
-                        }
-                    ]
-                }
-            ],
-    "actions":
-            [{
-                    "type": "TestCenter"
+                    "caption": "Tuner Zone 2",
+                    "value": 2
                 },
                 {
-                    "type": "Button",
-                    "caption": "Request State",
-                    "onClick": "OAVR_RequestState($id,'ALL');"
+                    "caption": "Tuner Zone 3",
+                    "value": 3
+                },
+                {
+                    "caption": "Tuner Zone 4",
+                    "value": 4
                 }
             ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "TestCenter"
+        },
+        {
+            "type": "Button",
+            "caption": "Request State",
+            "onClick": "OAVR_RequestState($id,'ALL');"
+        }
+    ]
 }

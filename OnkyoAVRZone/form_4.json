@@ -1,79 +1,79 @@
 {
-    "elements":
-            [
+    "elements": [
+        {
+            "name": "Zone",
+            "type": "Select",
+            "caption": "Zone",
+            "options": [
                 {
-                    "name": "Zone",
-                    "type": "Select",
-                    "caption": "Zone",
-                    "options": [
-                        {
-                            "caption": "not set",
-                            "value": 0
-                        },
-                        {
-                            "caption": "Main",
-                            "value": 1
-                        },
-                        {
-                            "caption": "Zone 2",
-                            "value": 2
-                        },
-                        {
-                            "caption": "Zone 3",
-                            "value": 3
-                        },
-                        {
-                            "caption": "Zone 4",
-                            "value": 4
-                        }
-                    ]
-                }, {
-                    "type": "ExpansionPanel",
-                    "caption": "Default variables",
-                    "items": [
-                        { 
-                            "type": "RowLayout",
-                            "items": [
-                                {
-                                    "type": "CheckBox",
-                                    "name": "VL4",
-                                    "caption": "volume control"
-                                }, 
-                                {
-                                    "type": "CheckBox",
-                                    "name": "MT4",
-                                    "caption": "mute control"
-                                },
-                                {
-                                    "type": "CheckBox",
-                                    "name": "SL4",
-                                    "caption": "input control"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
-    "actions":
-            [{
-                    "type": "PopupAlert",
-                    "popup": {
-                        "closeCaption": "I understand",
-                        "items": [
-                            {
-                                "type": "Label",
-                                "caption": "Be careful when configuring the zone and checkboxes. Modification may delete variables!"
-                            }
-                        ]
-                    }
+                    "caption": "not set",
+                    "value": 0
                 },
                 {
-                    "type": "TestCenter"
+                    "caption": "Main",
+                    "value": 1
                 },
                 {
-                    "type": "Button",
-                    "caption": "Request State",
-                    "onClick": "OAVR_RequestState($id,'ALL');"
+                    "caption": "Zone 2",
+                    "value": 2
+                },
+                {
+                    "caption": "Zone 3",
+                    "value": 3
+                },
+                {
+                    "caption": "Zone 4",
+                    "value": 4
                 }
             ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Default variables",
+            "items": [
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "CheckBox",
+                            "name": "VL4",
+                            "caption": "volume control"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "MT4",
+                            "caption": "mute control"
+                        },
+                        {
+                            "type": "CheckBox",
+                            "name": "SL4",
+                            "caption": "input control"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "PopupAlert",
+            "popup": {
+                "closeCaption": "I understand",
+                "items": [
+                    {
+                        "type": "Label",
+                        "caption": "Be careful when configuring the zone and checkboxes. Modification may delete variables!"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "TestCenter"
+        },
+        {
+            "type": "Button",
+            "caption": "Request State",
+            "onClick": "OAVR_RequestState($id,'ALL');"
+        }
+    ]
 }

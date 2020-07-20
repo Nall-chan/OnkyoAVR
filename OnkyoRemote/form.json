@@ -1,90 +1,103 @@
 {
-    "elements":
-            [
+    "elements": [
+        {
+            "name": "Type",
+            "type": "Select",
+            "caption": "Type",
+            "options": [
                 {
-                    "name": "Type",
-                    "type": "Select",
-                    "caption": "Type",
-                    "options": [
-                        {
-                            "caption": "OSD Receiver",
-                            "value": 0
-                        }, {
-                            "caption": "TV",
-                            "value": 1
-                        }, {
-                            "caption": "DVD/BD-Player",
-                            "value": 2
-                        }, {
-                            "caption": "CD-Player",
-                            "value": 3
-                        }, {
-                            "caption": "ext. Amplifier",
-                            "value": 4
-                        }
-                    ]
-                }, {
-                    "name": "showSVGRemote",
-                    "type": "CheckBox",
-                    "caption": "Show SVG-Remotecontrol"
-                }, {
-                    "name": "RemoteId",
-                    "type": "Select",
-                    "caption": "Remote:",
-                    "options": [
-                        {
-                            "caption": "vertical",
-                            "value": 1
-                        },
-                        {
-                            "caption": "horizontal",
-                            "value": 2
-                        }
-                    ]
-                }, {
-                    "name": "showNavigationButtons",
-                    "type": "CheckBox",
-                    "caption": "Show Action-Variable for navigate"
-                }, {
-                    "name": "showControlButtons",
-                    "type": "CheckBox",
-                    "caption": "Show Action-Variable for control"
-                }
-            ],
-    "actions":
-            [
+                    "caption": "OSD Receiver",
+                    "value": 0
+                },
                 {
-                    "type": "Button",
-                    "caption": "up",
-                    "onClick": "OAVR_Up($id);"
-                }, {
-                    "type": "Button",
-                    "caption": "down",
-                    "onClick": "OAVR_Down($id);"
-                }, {
-                    "type": "Button",
-                    "caption": "left",
-                    "onClick": "OAVR_Left($id);"
-                }, {
-                    "type": "Button",
-                    "caption": "right",
-                    "onClick": "OAVR_Right($id);"
-                }, {
-                    "type": "Button",
-                    "caption": "menu",
-                    "onClick": "OAVR_Menu($id);"
-                }, {
-                    "type": "Button",
-                    "caption": "enter",
-                    "onClick": "OAVR_Enter($id);"
-                }, {
-                    "type": "Button",
-                    "caption": "exit",
-                    "onClick": "OAVR_Exit($id);"
-                }, {
-                    "type": "Button",
-                    "caption": "home",
-                    "onClick": "OAVR_Home($id);"
+                    "caption": "TV",
+                    "value": 1
+                },
+                {
+                    "caption": "DVD/BD-Player",
+                    "value": 2
+                },
+                {
+                    "caption": "CD-Player",
+                    "value": 3
+                },
+                {
+                    "caption": "ext. Amplifier",
+                    "value": 4
                 }
             ]
+        },
+        {
+            "name": "showSVGRemote",
+            "type": "CheckBox",
+            "caption": "Show SVG-Remotecontrol"
+        },
+        {
+            "name": "RemoteId",
+            "type": "Select",
+            "caption": "Remote:",
+            "options": [
+                {
+                    "caption": "vertical",
+                    "value": 1
+                },
+                {
+                    "caption": "horizontal",
+                    "value": 2
+                }
+            ]
+        },
+        {
+            "name": "showNavigationButtons",
+            "type": "CheckBox",
+            "caption": "Show Action-Variable for navigate"
+        },
+        {
+            "name": "showControlButtons",
+            "type": "CheckBox",
+            "caption": "Show Action-Variable for control"
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "up",
+            "onClick": "OAVR_Up($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "down",
+            "onClick": "OAVR_Down($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "left",
+            "onClick": "OAVR_Left($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "right",
+            "onClick": "OAVR_Right($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "menu",
+            "onClick": "OAVR_Menu($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "enter",
+            "onClick": "OAVR_Enter($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "exit",
+            "onClick": "OAVR_Exit($id);"
+        },
+        {
+            "type": "Button",
+            "caption": "home",
+            "onClick": "OAVR_Home($id);"
+        }
+    ]
 }

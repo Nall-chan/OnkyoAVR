@@ -29,6 +29,65 @@ class OnkyoConfigurator extends IPSModule
         parent::ApplyChanges();
     }
 
+    public function GetConfigurationForm()
+    {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+        if (!$this->HasActiveParent()) {
+            $Form['actions'][] = [
+                'type'  => 'PopupAlert',
+                'popup' => [
+                    'items' => [[
+                        'type'    => 'Label',
+                        'caption' => 'Instance has no active parent.'
+                    ]]
+                ]
+            ];
+            $this->SendDebug('FORM', json_encode($Form), 0);
+            $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+            return json_encode($Form);
+        }
+        $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        $IO = IPS_GetInstance($Splitter)['ConnectionID'];
+        if ($IO == 0) {
+            $Form['actions'][] = [
+                'type'  => 'PopupAlert',
+                'popup' => [
+                    'items' => [[
+                        'type'    => 'Label',
+                        'caption' => 'Splitter has no IO instance.'
+                    ]]
+                ]
+            ];
+            $this->SendDebug('FORM', json_encode($Form), 0);
+            $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+            return json_encode($Form);
+        }
+        $ZoneValues = $this->GetZoneConfigFormValues($Splitter);
+        if (count($ZoneValues) == 0) {
+            $Form['actions'][0]['visible']=false;
+            $Form['actions'][] = [
+                'type'  => 'PopupAlert',
+                'popup' => [
+                    'items' => [[
+                        'type'    => 'Label',
+                        'caption' => 'This device does not support the NRI command. Please create the required instances manually.'
+                    ]]
+                ]
+            ];
+        } else {
+            $RemoteValues = $this->GetRemoteConfigFormValues($Splitter);
+            $NetworkValues = $this->GetNetworkConfigFormValues($Splitter);
+            $Form['actions'][0]['values'] = array_merge($ZoneValues, $RemoteValues, $NetworkValues);
+        }
+
+        $this->SendDebug('FORM', json_encode($Form), 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+        return json_encode($Form);
+    }
+
     private function GetInstanceList(string $GUID, int $Parent, string $ConfigParam)
     {
         $InstanceIDList = [];
@@ -55,12 +114,15 @@ class OnkyoConfigurator extends IPSModule
      */
     private function GetZoneConfigFormValues(int $Splitter)
     {
+        $ZoneValues = [];
         $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
         $this->Zones = $FoundZones = $this->Send($APIDataZoneList);
         $this->SendDebug('Found Zones', $FoundZones, 0);
+        if (count($FoundZones) == 0) {
+            return $ZoneValues;
+        }
         $InstanceIDListZones = $this->GetInstanceList('{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}', $Splitter, 'Zone');
         $this->SendDebug('IPS Zones', $InstanceIDListZones, 0);
-        $ZoneValues = [];
         foreach ($FoundZones as $ZoneID => $Zone) {
             $InstanceIDZone = array_search($ZoneID, $InstanceIDListZones);
             if ($InstanceIDZone !== false) {
@@ -103,12 +165,13 @@ class OnkyoConfigurator extends IPSModule
 
     private function GetRemoteConfigFormValues(int $Splitter)
     {
+        $RemoteValues = [];
         $APIDataRemoteList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ControlList);
         $FoundRemotes = $this->Send($APIDataRemoteList);
         $this->SendDebug('Found Remotes', $FoundRemotes, 0);
         $InstanceIDListRemotes = $this->GetInstanceList('{C7EA583D-2BAC-41B7-A85A-AD0DF648E514}', $Splitter, 'Type');
         $this->SendDebug('IPS Remotes', $InstanceIDListRemotes, 0);
-        $RemoteValues = [];
+
         $HasTuner = false;
         foreach ($FoundRemotes as $RemoteName) {
             $RemoteID = \OnkyoAVR\Remotes::ToRemoteID($RemoteName);
@@ -180,7 +243,7 @@ class OnkyoConfigurator extends IPSModule
             }
             $TunerValues[] = $AddValue;
         }
-        if ($HasTuner and (count($TunerValues) == 0)) {
+        if ($HasTuner && (count($TunerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
                 $Create['Tuner ' . $Zone['Name']] = [
                     'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
@@ -226,7 +289,7 @@ class OnkyoConfigurator extends IPSModule
             }
             $NetPlayerValues[] = $AddValue;
         }
-        if ($HasNetPlayer and (count($NetPlayerValues) == 0)) {
+        if ($HasNetPlayer && (count($NetPlayerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
                 $Create['Netplayer ' . $Zone['Name']] = [
                     'moduleID'      => '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}',
@@ -243,52 +306,6 @@ class OnkyoConfigurator extends IPSModule
             ];
         }
         return $NetPlayerValues;
-    }
-
-    public function GetConfigurationForm()
-    {
-        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-
-        if (!$this->HasActiveParent()) {
-            $Form['actions'][] = [
-                'type'  => 'PopupAlert',
-                'popup' => [
-                    'items' => [[
-                    'type'    => 'Label',
-                    'caption' => 'Instance has no active parent.'
-                        ]]
-                ]
-            ];
-            $this->SendDebug('FORM', json_encode($Form), 0);
-            $this->SendDebug('FORM', json_last_error_msg(), 0);
-
-            return json_encode($Form);
-        }
-        $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        $IO = IPS_GetInstance($Splitter)['ConnectionID'];
-        if ($IO == 0) {
-            $Form['actions'][] = [
-                'type'  => 'PopupAlert',
-                'popup' => [
-                    'items' => [[
-                    'type'    => 'Label',
-                    'caption' => 'Splitter has no IO instance.'
-                        ]]
-                ]
-            ];
-            $this->SendDebug('FORM', json_encode($Form), 0);
-            $this->SendDebug('FORM', json_last_error_msg(), 0);
-
-            return json_encode($Form);
-        }
-        $ZoneValues = $this->GetZoneConfigFormValues($Splitter);
-        $RemoteValues = $this->GetRemoteConfigFormValues($Splitter);
-        $NetworkValues = $this->GetNetworkConfigFormValues($Splitter);
-        $Form['actions'][0]['values'] = array_merge($ZoneValues, $RemoteValues, $NetworkValues);
-
-        $this->SendDebug('FORM', json_encode($Form), 0);
-        $this->SendDebug('FORM', json_last_error_msg(), 0);
-        return json_encode($Form);
     }
 
     private function Send(\OnkyoAVR\ISCP_API_Data $APIData)

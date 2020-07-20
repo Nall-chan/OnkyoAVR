@@ -10,7 +10,8 @@ eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>' . file_get_conten
  */
 class OnkyoAVRDiscovery extends ipsmodule
 {
-    use \OnkyoAVRDiscovery\DebugHelper,
+    use \OnkyoAVRDiscovery\DebugHelper;
+    use
         \OnkyoAVRDiscovery\BufferHelper;
 
     /**
@@ -53,22 +54,6 @@ class OnkyoAVRDiscovery extends ipsmodule
                 IPS_RunScriptText('OAVR_Discover(' . $this->InstanceID . ');');
                 break;
         }
-    }
-
-    private function GetIPSInstances(): array
-    {
-        $InstanceIDList = IPS_GetInstanceListByModuleID('{251DAC2C-5B1F-4B1F-B843-B22D518F553E}');
-        $Devices = [];
-        foreach ($InstanceIDList as $InstanceID) {
-            $Splitter = IPS_GetInstance($InstanceID)['ConnectionID'];
-            if ($Splitter > 0) {
-                $IO = IPS_GetInstance($Splitter)['ConnectionID'];
-                if ($IO > 0) {
-                    $Devices[$InstanceID] = IPS_GetProperty($IO, 'Host');
-                }
-            }
-        }
-        return $Devices;
     }
 
     /**
@@ -131,6 +116,29 @@ class OnkyoAVRDiscovery extends ipsmodule
         return json_encode($Form);
     }
 
+    public function Discover()
+    {
+        $this->LogMessage($this->Translate('Background discovery of Onkyo/Pioneer AV-Receiver'), KL_NOTIFY);
+        $this->Devices = $this->DiscoverDevices();
+        // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
+    }
+
+    private function GetIPSInstances(): array
+    {
+        $InstanceIDList = IPS_GetInstanceListByModuleID('{251DAC2C-5B1F-4B1F-B843-B22D518F553E}');
+        $Devices = [];
+        foreach ($InstanceIDList as $InstanceID) {
+            $Splitter = IPS_GetInstance($InstanceID)['ConnectionID'];
+            if ($Splitter > 0) {
+                $IO = IPS_GetInstance($Splitter)['ConnectionID'];
+                if ($IO > 0) {
+                    $Devices[$InstanceID] = IPS_GetProperty($IO, 'Host');
+                }
+            }
+        }
+        return $Devices;
+    }
+
     private function DiscoverDevices(): array
     {
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
@@ -170,12 +178,5 @@ class OnkyoAVRDiscovery extends ipsmodule
         socket_close($socket);
         $this->SendDebug('Discover', $DeviceData, 0);
         return $DeviceData;
-    }
-
-    public function Discover()
-    {
-        $this->LogMessage($this->Translate('Background discovery of Onkyo/Pioneer AV-Receiver'), KL_NOTIFY);
-        $this->Devices = $this->DiscoverDevices();
-        // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
 }

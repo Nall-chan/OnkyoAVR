@@ -114,6 +114,128 @@ class OnkyoTuner extends IPSModule
         }
     }
 
+    //################# ActionHandler
+
+    public function RequestAction($Ident, $Value)
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case 'SLI':
+                return $this->SetBand($Value);
+            case 'TUN':
+                return $this->SetFrequency($Value);
+            case 'PRS':
+                return $this->CallPreset($Value);
+        }
+    }
+
+    //################# PUBLIC
+
+    /**
+     * This function will be available automatically after the module is imported with the module control.
+     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
+     */
+    public function RequestState(string $Ident)
+    {
+        if ($Ident == 'ALL') {
+            return $this->RequestZoneState();
+        }
+        $ApiCmd = substr($Ident, 0, 3);
+        if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_Tuner::$ZoneCMDs[$this->OnkyoZone->thisZone])) {
+            trigger_error($this->Translate('Invalid ident.'), E_USER_NOTICE);
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetReadAPICommands($ApiCmd), \OnkyoAVR\ISCP_API_Commands::Request);
+        $ResultData = $this->Send($APIData);
+        if ($ResultData === null) {
+            return false;
+        }
+        $APIData->Data = $ResultData;
+        $this->UpdateVariable($APIData);
+        return true;
+    }
+
+    public function SetFrequency(float $Value)
+    {
+        $ValueValid = false;
+        $NewBand = 0;
+        foreach ($this->TunerProfile as $Profile) {
+            if (($Value >= $Profile['Min']) && ($Value <= $Profile['Max'])) {
+                $ValueValid = true;
+                $NewBand = $Profile['SLI'];
+            }
+        }
+        if (!$ValueValid) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $result = true;
+        if ($NewBand == \OnkyoAVR\ONKYO_Zone_Tuner::SLI_FM) { //FM
+            $Value = $Value * 100;
+        }
+        if ($this->GetValue('SLI') != $NewBand) {
+            $APIData = new \OnkyoAVR\ISCP_API_Data(
+                    $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI), sprintf('%02X', $NewBand), false);
+            $ResultData = $this->Send($APIData);
+            if ($ResultData === null) {
+                $result = false;
+            }
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(
+                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::TUN), sprintf('%05.0F', $Value), false);
+        $ResultData = $this->Send($APIData);
+        if ($ResultData === null) {
+            $result = false;
+        }
+        return $result;
+    }
+
+    public function SetBand(int $Value)
+    {
+        $ValueValid = false;
+        foreach ($this->TunerProfile as $Profile) {
+            if ($Value == $Profile['SLI']) {
+                $ValueValid = true;
+            }
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(
+                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI), sprintf('%02X', $Value));
+        return $this->SendAPIData($APIData);
+    }
+
+    public function CallPreset(int $Value)
+    {
+        if (($Value < 1) || ($Value > $this->MaxPreset)) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(
+                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::PRS), sprintf('%02X', $Value));
+        return $this->SendAPIData($APIData);
+    }
+
+    public function SetPreset(int $Value)
+    {
+        if (($Value < 1) || ($Value > $this->MaxPreset)) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $APIData = new \OnkyoAVR\ISCP_API_Data(
+                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::PRM), sprintf('%02X', $Value));
+        return $this->SendAPIData($APIData);
+    }
+
+    //################# Datapoints
+
+    public function ReceiveData($JSONString)
+    {
+        $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
+        $this->SendDebug('ReceiveData', $APIData, 0);
+        $this->UpdateVariable($APIData);
+    }
+
     /**
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
      */
@@ -181,128 +303,6 @@ class OnkyoTuner extends IPSModule
             default:
                 return;
         }
-    }
-
-    //################# ActionHandler
-
-    public function RequestAction($Ident, $Value)
-    {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case 'SLI':
-                return $this->SetBand($Value);
-            case 'TUN':
-                return $this->SetFrequency($Value);
-            case 'PRS':
-                return $this->CallPreset($Value);
-        }
-    }
-
-    //################# PUBLIC
-
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
-     */
-    public function RequestState(string $Ident)
-    {
-        if ($Ident == 'ALL') {
-            return $this->RequestZoneState();
-        }
-        $ApiCmd = substr($Ident, 0, 3);
-        if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_Tuner::$ZoneCMDs[$this->OnkyoZone->thisZone])) {
-            trigger_error($this->Translate('Invalid ident.'), E_USER_NOTICE);
-            return false;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetReadAPICommands($ApiCmd), \OnkyoAVR\ISCP_API_Commands::Request);
-        $ResultData = $this->Send($APIData);
-        if ($ResultData === null) {
-            return false;
-        }
-        $APIData->Data = $ResultData;
-        $this->UpdateVariable($APIData);
-        return true;
-    }
-
-    public function SetFrequency(float $Value)
-    {
-        $ValueValid = false;
-        $NewBand = 0;
-        foreach ($this->TunerProfile as $Profile) {
-            if (($Value >= $Profile['Min']) and ($Value <= $Profile['Max'])) {
-                $ValueValid = true;
-                $NewBand = $Profile['SLI'];
-            }
-        }
-        if (!$ValueValid) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $result = true;
-        if ($NewBand == \OnkyoAVR\ONKYO_Zone_Tuner::SLI_FM) { //FM
-            $Value = $Value * 100;
-        }
-        if ($this->GetValue('SLI') != $NewBand) {
-            $APIData = new \OnkyoAVR\ISCP_API_Data(
-                    $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI), sprintf('%02X', $NewBand), false);
-            $ResultData = $this->Send($APIData);
-            if ($ResultData === null) {
-                $result = false;
-            }
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::TUN), sprintf('%05.0F', $Value), false);
-        $ResultData = $this->Send($APIData);
-        if ($ResultData === null) {
-            $result = false;
-        }
-        return $result;
-    }
-
-    public function SetBand(int $Value)
-    {
-        $ValueValid = false;
-        foreach ($this->TunerProfile as $Profile) {
-            if ($Value == $Profile['SLI']) {
-                $ValueValid = true;
-            }
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI), sprintf('%02X', $Value));
-        return $this->SendAPIData($APIData);
-    }
-
-    public function CallPreset(int $Value)
-    {
-        if (($Value < 1) or ($Value > $this->MaxPreset)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::PRS), sprintf('%02X', $Value));
-        return $this->SendAPIData($APIData);
-    }
-
-    public function SetPreset(int $Value)
-    {
-        if (($Value < 1) or ($Value > $this->MaxPreset)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data(
-                $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::PRM), sprintf('%02X', $Value));
-        return $this->SendAPIData($APIData);
-    }
-
-    //################# Datapoints
-
-    public function ReceiveData($JSONString)
-    {
-        $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
-        $this->SendDebug('ReceiveData', $APIData, 0);
-        $this->UpdateVariable($APIData);
     }
 
     private function RequestProfile()

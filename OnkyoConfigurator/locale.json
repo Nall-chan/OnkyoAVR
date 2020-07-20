@@ -6,7 +6,8 @@
             "Name": "Name",
             "Location": "Lokation",
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
-            "Splitter has no IO instance.": "Splitter hat keine IO Instanz."
+            "Splitter has no IO instance.": "Splitter hat keine IO Instanz.",
+            "This device does not support the NRI command. Please create the required instances manually.": "Dieses Gerät unterstützt den NRI-Befehl nicht. Bitte erstellen Sie die erforderlichen Instanzen manuell."
         }
     }
 }
