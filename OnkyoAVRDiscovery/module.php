@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
+eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
 
 /**
  * @property array $Devices
@@ -35,7 +35,7 @@ class OnkyoAVRDiscovery extends ipsmodule
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        IPS_RunScriptText('OAVR_Discover(' . $this->InstanceID . ');');
+        IPS_RunScriptText('OAVR_Discover('.$this->InstanceID.');');
     }
 
     /**
@@ -51,7 +51,7 @@ class OnkyoAVRDiscovery extends ipsmodule
     {
         switch ($Message) {
             case IPS_KERNELSTARTED:
-                IPS_RunScriptText('OAVR_Discover(' . $this->InstanceID . ');');
+                IPS_RunScriptText('OAVR_Discover('.$this->InstanceID.');');
                 break;
         }
     }
@@ -62,7 +62,7 @@ class OnkyoAVRDiscovery extends ipsmodule
     public function GetConfigurationForm()
     {
         $Devices = $this->DiscoverDevices();
-        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        $Form = json_decode(file_get_contents(__DIR__.'/form.json'), true);
         $IPSDevices = $this->GetIPSInstances();
         $this->SendDebug('IPS Devices', $IPSDevices, 0);
         $Values = [];
@@ -72,8 +72,8 @@ class OnkyoAVRDiscovery extends ipsmodule
             $AddValue = [
                 'IPAddress'  => $IPAddress,
                 'type'       => $Device[0],
-                'name'       => 'Onkyo/Pioneer AVR Splitter (' . $Device[0] . ')',
-                'instanceID' => 0
+                'name'       => 'Onkyo/Pioneer AVR Splitter ('.$Device[0].')',
+                'instanceID' => 0,
             ];
             if ($InstanceID !== false) {
                 unset($IPSDevices[$InstanceID]);
@@ -83,20 +83,20 @@ class OnkyoAVRDiscovery extends ipsmodule
             $AddValue['create'] = [
                 [
                     'moduleID'      => '{251DAC2C-5B1F-4B1F-B843-B22D518F553E}',
-                    'configuration' => new stdClass()
+                    'configuration' => new stdClass(),
                 ],
                 [
                     'moduleID'      => '{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}',
-                    'configuration' => new stdClass()
+                    'configuration' => new stdClass(),
                 ],
                 [
                     'moduleID'      => '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}',
                     'configuration' => [
                         'Host' => $IPAddress,
                         'Port' => (int) $Device[1],
-                        'Open' => true
-                    ]
-                ]
+                        'Open' => true,
+                    ],
+                ],
             ];
             $Values[] = $AddValue;
         }
@@ -106,13 +106,14 @@ class OnkyoAVRDiscovery extends ipsmodule
                 'IPAddress'  => $IPAddress,
                 'type'       => '',
                 'name'       => IPS_GetName($InstanceID),
-                'instanceID' => $InstanceID
+                'instanceID' => $InstanceID,
             ];
         }
         $Form['actions'][0]['values'] = $Values;
 
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
+
         return json_encode($Form);
     }
 
@@ -136,6 +137,7 @@ class OnkyoAVRDiscovery extends ipsmodule
                 }
             }
         }
+
         return $Devices;
     }
 
@@ -177,6 +179,7 @@ class OnkyoAVRDiscovery extends ipsmodule
         }
         socket_close($socket);
         $this->SendDebug('Discover', $DeviceData, 0);
+
         return $DeviceData;
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
 declare(strict_types=1);
-require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoConfigurator {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
 
 /**
  * @property array $Zones
@@ -31,7 +31,7 @@ class OnkyoConfigurator extends IPSModule
 
     public function GetConfigurationForm()
     {
-        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        $Form = json_decode(file_get_contents(__DIR__.'/form.json'), true);
 
         if (!$this->HasActiveParent()) {
             $Form['actions'][] = [
@@ -39,9 +39,9 @@ class OnkyoConfigurator extends IPSModule
                 'popup' => [
                     'items' => [[
                         'type'    => 'Label',
-                        'caption' => 'Instance has no active parent.'
-                    ]]
-                ]
+                        'caption' => 'Instance has no active parent.',
+                    ]],
+                ],
             ];
             $this->SendDebug('FORM', json_encode($Form), 0);
             $this->SendDebug('FORM', json_last_error_msg(), 0);
@@ -56,9 +56,9 @@ class OnkyoConfigurator extends IPSModule
                 'popup' => [
                     'items' => [[
                         'type'    => 'Label',
-                        'caption' => 'Splitter has no IO instance.'
-                    ]]
-                ]
+                        'caption' => 'Splitter has no IO instance.',
+                    ]],
+                ],
             ];
             $this->SendDebug('FORM', json_encode($Form), 0);
             $this->SendDebug('FORM', json_last_error_msg(), 0);
@@ -67,15 +67,15 @@ class OnkyoConfigurator extends IPSModule
         }
         $ZoneValues = $this->GetZoneConfigFormValues($Splitter);
         if (count($ZoneValues) == 0) {
-            $Form['actions'][0]['visible']=false;
+            $Form['actions'][0]['visible'] = false;
             $Form['actions'][] = [
                 'type'  => 'PopupAlert',
                 'popup' => [
                     'items' => [[
                         'type'    => 'Label',
-                        'caption' => 'This device does not support the NRI command. Please create the required instances manually.'
-                    ]]
-                ]
+                        'caption' => 'This device does not support the NRI command. Please create the required instances manually.',
+                    ]],
+                ],
             ];
         } else {
             $RemoteValues = $this->GetRemoteConfigFormValues($Splitter);
@@ -85,6 +85,7 @@ class OnkyoConfigurator extends IPSModule
 
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
+
         return json_encode($Form);
     }
 
@@ -101,6 +102,7 @@ class OnkyoConfigurator extends IPSModule
             $InstanceIDList = array_flip(array_values($InstanceIDList));
             array_walk($InstanceIDList, [$this, 'GetConfigParam'], $ConfigParam);
         }
+
         return $InstanceIDList;
     }
 
@@ -131,7 +133,7 @@ class OnkyoConfigurator extends IPSModule
                     'name'       => IPS_GetName($InstanceIDZone),
                     'type'       => 'Zone',
                     'zone'       => $Zone['Name'],
-                    'location'   => stristr(IPS_GetLocation($InstanceIDZone), IPS_GetName($InstanceIDZone), true)
+                    'location'   => stristr(IPS_GetLocation($InstanceIDZone), IPS_GetName($InstanceIDZone), true),
                 ];
                 unset($InstanceIDListZones[$InstanceIDZone]);
             } else {
@@ -140,12 +142,12 @@ class OnkyoConfigurator extends IPSModule
                     'name'       => $Zone['Name'],
                     'type'       => 'Zone',
                     'zone'       => $Zone['Name'],
-                    'location'   => ''
+                    'location'   => '',
                 ];
             }
             $AddValue['create'] = [
                 'moduleID'      => '{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}',
-                'configuration' => ['Zone' => $ZoneID]
+                'configuration' => ['Zone' => $ZoneID],
             ];
 
             $ZoneValues[] = $AddValue;
@@ -157,9 +159,10 @@ class OnkyoConfigurator extends IPSModule
                 'name'       => IPS_GetName($InstanceIDZone),
                 'type'       => 'Zone',
                 'zone'       => $Zone,
-                'location'   => stristr(IPS_GetLocation($InstanceIDZone), IPS_GetName($InstanceIDZone), true)
+                'location'   => stristr(IPS_GetLocation($InstanceIDZone), IPS_GetName($InstanceIDZone), true),
             ];
         }
+
         return $ZoneValues;
     }
 
@@ -189,7 +192,7 @@ class OnkyoConfigurator extends IPSModule
                     'name'       => IPS_GetName($InstanceIDRemote),
                     'type'       => 'Remote',
                     'zone'       => $RemoteName,
-                    'location'   => stristr(IPS_GetLocation($InstanceIDRemote), IPS_GetName($InstanceIDRemote), true)
+                    'location'   => stristr(IPS_GetLocation($InstanceIDRemote), IPS_GetName($InstanceIDRemote), true),
                 ];
                 unset($InstanceIDListRemotes[$InstanceIDRemote]);
             } else {
@@ -198,12 +201,12 @@ class OnkyoConfigurator extends IPSModule
                     'name'       => $RemoteName,
                     'type'       => 'Remote',
                     'zone'       => $RemoteName,
-                    'location'   => ''
+                    'location'   => '',
                 ];
             }
             $AddValue['create'] = [
                 'moduleID'      => '{C7EA583D-2BAC-41B7-A85A-AD0DF648E514}',
-                'configuration' => ['Type' => $RemoteID]
+                'configuration' => ['Type' => $RemoteID],
             ];
             $RemoteValues[] = $AddValue;
         }
@@ -214,7 +217,7 @@ class OnkyoConfigurator extends IPSModule
                 'name'       => IPS_GetName($InstanceIDRemote),
                 'type'       => 'Remote',
                 'zone'       => $RemoteName,
-                'location'   => stristr(IPS_GetLocation($InstanceIDRemote), IPS_GetName($InstanceIDRemote), true)
+                'location'   => stristr(IPS_GetLocation($InstanceIDRemote), IPS_GetName($InstanceIDRemote), true),
             ];
         }
         $TunerValues = $this->GetTunerConfigFormValues($Splitter, $HasTuner);
@@ -233,21 +236,21 @@ class OnkyoConfigurator extends IPSModule
                 'name'       => IPS_GetName($InstanceIDTuner),
                 'type'       => 'Tuner',
                 'zone'       => '',
-                'location'   => stristr(IPS_GetLocation($InstanceIDTuner), IPS_GetName($InstanceIDTuner), true)
+                'location'   => stristr(IPS_GetLocation($InstanceIDTuner), IPS_GetName($InstanceIDTuner), true),
             ];
             if ($HasTuner) {
                 $AddValue['create'] = [
                     'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
-                    'configuration' => ['Zone' => $ZoneID]
+                    'configuration' => ['Zone' => $ZoneID],
                 ];
             }
             $TunerValues[] = $AddValue;
         }
         if ($HasTuner && (count($TunerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
-                $Create['Tuner ' . $Zone['Name']] = [
+                $Create['Tuner '.$Zone['Name']] = [
                     'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
-                    'configuration' => ['Zone' => $ZoneID]
+                    'configuration' => ['Zone' => $ZoneID],
                 ];
             }
             $TunerValues[] = [
@@ -256,9 +259,10 @@ class OnkyoConfigurator extends IPSModule
                 'type'       => 'Tuner',
                 'zone'       => '',
                 'location'   => '',
-                'create'     => $Create
+                'create'     => $Create,
             ];
         }
+
         return $TunerValues;
     }
 
@@ -279,21 +283,21 @@ class OnkyoConfigurator extends IPSModule
                 'name'       => IPS_GetName($InstanceIDNetPlayer),
                 'type'       => 'Netplayer',
                 'zone'       => '',
-                'location'   => stristr(IPS_GetLocation($InstanceIDNetPlayer), IPS_GetName($InstanceIDNetPlayer), true)
+                'location'   => stristr(IPS_GetLocation($InstanceIDNetPlayer), IPS_GetName($InstanceIDNetPlayer), true),
             ];
             if ($HasNetPlayer) {
                 $AddValue['create'] = [
                     'moduleID'      => '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}',
-                    'configuration' => ['Zone' => $ZoneID]
+                    'configuration' => ['Zone' => $ZoneID],
                 ];
             }
             $NetPlayerValues[] = $AddValue;
         }
         if ($HasNetPlayer && (count($NetPlayerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
-                $Create['Netplayer ' . $Zone['Name']] = [
+                $Create['Netplayer '.$Zone['Name']] = [
                     'moduleID'      => '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}',
-                    'configuration' => ['Zone' => $ZoneID]
+                    'configuration' => ['Zone' => $ZoneID],
                 ];
             }
             $NetPlayerValues[] = [
@@ -302,9 +306,10 @@ class OnkyoConfigurator extends IPSModule
                 'type'       => 'Netplayer',
                 'zone'       => '',
                 'location'   => '',
-                'create'     => $Create
+                'create'     => $Create,
             ];
         }
+
         return $NetPlayerValues;
     }
 
@@ -319,13 +324,16 @@ class OnkyoConfigurator extends IPSModule
             $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
             if ($ret === false) {
                 $this->SendDebug('Response', 'No answer', 0);
+
                 return null;
             }
             $result = unserialize($ret);
             $this->SendDebug('Response', $result, 0);
+
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
+
             return null;
         }
     }

@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-$remote = '<svg id="svgrc' . $this->InstanceID . '" version="1.2" baseProfile="tiny" width="80mm" height="148mm" viewBox="0 0 8000 14800" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+$remote = '<svg id="svgrc'.$this->InstanceID.'" version="1.2" baseProfile="tiny" width="80mm" height="148mm" viewBox="0 0 8000 14800" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
   <defs>
   <font id="EmbeddedFont_1" horiz-adv-x="2048">
    <font-face font-family="Arial embedded" units-per-em="2048" font-weight="bold" font-style="normal" ascent="1879" descent="476"/>
@@ -311,9 +311,9 @@ $remote = '<svg id="svgrc' . $this->InstanceID . '" version="1.2" baseProfile="t
  </g>
 </svg>
  <script>
-	document.getElementById("svgrc' . $this->InstanceID . '").addEventListener("click", sendclick' . $this->InstanceID . ', false);
+	document.getElementById("svgrc'.$this->InstanceID.'").addEventListener("click", sendclick'.$this->InstanceID.', false);
 
-    function sendError' . $this->InstanceID . '(data)
+    function sendError'.$this->InstanceID.'(data)
     {
         var notify = document.getElementsByClassName("ipsNotifications")[0];
         var newDiv = document.createElement("div");
@@ -333,24 +333,24 @@ $remote = '<svg id="svgrc' . $this->InstanceID . '" version="1.2" baseProfile="t
         })
     }
 
-    function xhrGet' . $this->InstanceID . '(url)
+    function xhrGet'.$this->InstanceID.'(url)
     {
         var HTTP = new XMLHttpRequest();
-	HTTP.open("GET","hook/OnkyoRemote' . $this->InstanceID . '?button=" + url,true);
+	HTTP.open("GET","hook/OnkyoRemote'.$this->InstanceID.'?button=" + url,true);
         HTTP.send();
         HTTP.addEventListener(\'load\', function(event)
         {
             if (HTTP.status >= 200 && HTTP.status < 300)
             {
                 if (HTTP.responseText != \'OK\')
-                    sendError' . $this->InstanceID . '(HTTP.responseText);
+                    sendError'.$this->InstanceID.'(HTTP.responseText);
             } else {
-                sendError' . $this->InstanceID . '(HTTP.statusText);
+                sendError'.$this->InstanceID.'(HTTP.statusText);
             }
         });
     };
 
-    function sendclick' . $this->InstanceID . '(evt) {
+    function sendclick'.$this->InstanceID.'(evt) {
 	
       var item = evt.target.parentNode;
 	  while (item.hasAttribute("id") == false)
@@ -363,8 +363,9 @@ $remote = '<svg id="svgrc' . $this->InstanceID . '" version="1.2" baseProfile="t
 	setTimeout(function(){
 		button.setAttribute("fill-opacity", "1");
 		}, 100);
-	xhrGet' . $this->InstanceID . '(button.getAttribute("id"));
+	xhrGet'.$this->InstanceID.'(button.getAttribute("id"));
     }
     
   </script>';
+
 return $remote;
