@@ -1,13 +1,13 @@
 <?php
 
 declare(strict_types=1);
-require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace OnkyoTuner {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
-eval('namespace OnkyoTuner {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
-eval('namespace OnkyoTuner {?>'.file_get_contents(__DIR__.'/../libs/helper/ParentIOHelper.php').'}');
-eval('namespace OnkyoTuner {?>'.file_get_contents(__DIR__.'/../libs/helper/SemaphoreHelper.php').'}');
-eval('namespace OnkyoTuner {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableHelper.php').'}');
-eval('namespace OnkyoTuner {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableProfileHelper.php').'}');
+require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
+eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
+eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
 /**
  * @property int $ParentID Die InstanzeID des IO-Parent
@@ -45,9 +45,9 @@ class OnkyoTuner extends IPSModule
             return parent::Destroy();
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('Onkyo.TunerBand.'.$this->InstanceID);
-            $this->UnregisterProfile('Onkyo.TunerPreset.'.$this->InstanceID);
-            $this->UnregisterProfile('Onkyo.TunerFreq.'.$this->InstanceID);
+            $this->UnregisterProfile('Onkyo.TunerBand.' . $this->InstanceID);
+            $this->UnregisterProfile('Onkyo.TunerPreset.' . $this->InstanceID);
+            $this->UnregisterProfile('Onkyo.TunerFreq.' . $this->InstanceID);
         }
 
         parent::Destroy();
@@ -68,10 +68,10 @@ class OnkyoTuner extends IPSModule
         $APICommands = $Zone->GetAPICommands();
         if (count($APICommands) > 0) {
             foreach ($APICommands as $APICommand) {
-                $Lines[] = '.*"APICommand":"'.$APICommand.'".*';
+                $Lines[] = '.*"APICommand":"' . $APICommand . '".*';
             }
             $Line = implode('|', $Lines);
-            $this->SetReceiveDataFilter('('.$Line.')');
+            $this->SetReceiveDataFilter('(' . $Line . ')');
             $this->SendDebug('FILTER', $Line, 0);
         } else {
             $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
@@ -81,14 +81,14 @@ class OnkyoTuner extends IPSModule
             [\OnkyoAVR\ONKYO_Zone_Tuner::SLI_FM, 'FM', '', -1],
             [\OnkyoAVR\ONKYO_Zone_Tuner::SLI_AM, 'AM', '', -1],
         ];
-        $this->RegisterProfileIntegerEx('Onkyo.TunerBand.'.$this->InstanceID, '', '', '', $BandAssociation);
-        $this->RegisterVariableInteger('SLI', 'Tuner Band', 'Onkyo.TunerBand.'.$this->InstanceID, 0);
+        $this->RegisterProfileIntegerEx('Onkyo.TunerBand.' . $this->InstanceID, '', '', '', $BandAssociation);
+        $this->RegisterVariableInteger('SLI', 'Tuner Band', 'Onkyo.TunerBand.' . $this->InstanceID, 0);
         $this->EnableAction('SLI');
-        $this->RegisterProfileInteger('Onkyo.TunerPreset.'.$this->InstanceID, '', '', '', 0, 0, 0);
-        $this->RegisterVariableInteger('PRS', $this->Translate('Radio Stations'), 'Onkyo.TunerPreset.'.$this->InstanceID, 0);
+        $this->RegisterProfileInteger('Onkyo.TunerPreset.' . $this->InstanceID, '', '', '', 0, 0, 0);
+        $this->RegisterVariableInteger('PRS', $this->Translate('Radio Stations'), 'Onkyo.TunerPreset.' . $this->InstanceID, 0);
         $this->EnableAction('PRS');
-        $this->RegisterProfileFloat('Onkyo.TunerFreq'.$this->InstanceID, '', '', ' MHz', 87, 108, 0.5, 1);
-        $this->RegisterVariableFloat('TUN', $this->Translate('Tuner Frequency'), 'Onkyo.TunerFreq'.$this->InstanceID, 0);
+        $this->RegisterProfileFloat('Onkyo.TunerFreq' . $this->InstanceID, '', '', ' MHz', 87, 108, 0.5, 1);
+        $this->RegisterVariableFloat('TUN', $this->Translate('Tuner Frequency'), 'Onkyo.TunerFreq' . $this->InstanceID, 0);
         $this->EnableAction('TUN');
 
         if (IPS_GetKernelRunlevel() != KR_READY) {
@@ -314,7 +314,7 @@ class OnkyoTuner extends IPSModule
                         break;
                 }
                 if (isset($Profile)) {
-                    $this->RegisterProfileFloat('Onkyo.TunerFreq'.$this->InstanceID, '', '', $Profile['Suffix'], $Profile['Min'], $Profile['Max'], $Profile['Step'], $Profile['Digits']);
+                    $this->RegisterProfileFloat('Onkyo.TunerFreq' . $this->InstanceID, '', '', $Profile['Suffix'], $Profile['Min'], $Profile['Max'], $Profile['Step'], $Profile['Digits']);
                 }
                 $this->SetValue('SLI', hexdec($APIData->Data));
                 break;
@@ -340,7 +340,7 @@ class OnkyoTuner extends IPSModule
             $this->MaxPreset = $ResultDataPresetList['MaxPreset'];
         }
         $this->SendDebug('PresetAssociation', $PresetAssociation, 0);
-        $this->RegisterProfileIntegerEx('Onkyo.TunerPreset.'.$this->InstanceID, '', '', '', $PresetAssociation);
+        $this->RegisterProfileIntegerEx('Onkyo.TunerPreset.' . $this->InstanceID, '', '', '', $PresetAssociation);
 
         $APIDataTunerList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::TunerList);
         $ResultDataTunerList = $this->Send($APIDataTunerList);
@@ -355,7 +355,7 @@ class OnkyoTuner extends IPSModule
         $this->SendDebug('PresetAssociation', $ResultDataTunerList, 0);
         $this->SendDebug('BandAssociation', $BandAssociation, 0);
         $this->TunerProfile = $ResultDataTunerList;
-        $this->RegisterProfileIntegerEx('Onkyo.TunerBand.'.$this->InstanceID, '', '', '', $BandAssociation);
+        $this->RegisterProfileIntegerEx('Onkyo.TunerBand.' . $this->InstanceID, '', '', '', $BandAssociation);
     }
 
     //------------------------------------------------------------------------------
@@ -399,7 +399,7 @@ class OnkyoTuner extends IPSModule
                 return null;
             }
             $result = unserialize($ret);
-            $this->SendDebug('Response '.$APIData->APICommand, $result, 0);
+            $this->SendDebug('Response ' . $APIData->APICommand, $result, 0);
 
             return $result;
         } catch (Exception $exc) {

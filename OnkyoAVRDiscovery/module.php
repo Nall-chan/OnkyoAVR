@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
-eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
+eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace OnkyoAVRDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 
 /**
  * @property array $Devices
@@ -35,7 +35,7 @@ class OnkyoAVRDiscovery extends ipsmodule
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        IPS_RunScriptText('OAVR_Discover('.$this->InstanceID.');');
+        IPS_RunScriptText('OAVR_Discover(' . $this->InstanceID . ');');
     }
 
     /**
@@ -51,7 +51,7 @@ class OnkyoAVRDiscovery extends ipsmodule
     {
         switch ($Message) {
             case IPS_KERNELSTARTED:
-                IPS_RunScriptText('OAVR_Discover('.$this->InstanceID.');');
+                IPS_RunScriptText('OAVR_Discover(' . $this->InstanceID . ');');
                 break;
         }
     }
@@ -62,7 +62,7 @@ class OnkyoAVRDiscovery extends ipsmodule
     public function GetConfigurationForm()
     {
         $Devices = $this->DiscoverDevices();
-        $Form = json_decode(file_get_contents(__DIR__.'/form.json'), true);
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         $IPSDevices = $this->GetIPSInstances();
         $this->SendDebug('IPS Devices', $IPSDevices, 0);
         $Values = [];
@@ -72,7 +72,7 @@ class OnkyoAVRDiscovery extends ipsmodule
             $AddValue = [
                 'IPAddress'  => $IPAddress,
                 'type'       => $Device[0],
-                'name'       => 'Onkyo/Pioneer AVR Splitter ('.$Device[0].')',
+                'name'       => 'Onkyo/Pioneer AVR Splitter (' . $Device[0] . ')',
                 'instanceID' => 0,
             ];
             if ($InstanceID !== false) {

@@ -1,8 +1,8 @@
 <?php
 
 declare(strict_types=1);
-require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace OnkyoConfigurator {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
+require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 
 /**
  * @property array $Zones
@@ -31,7 +31,7 @@ class OnkyoConfigurator extends IPSModule
 
     public function GetConfigurationForm()
     {
-        $Form = json_decode(file_get_contents(__DIR__.'/form.json'), true);
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
 
         if (!$this->HasActiveParent()) {
             $Form['actions'][] = [
@@ -248,7 +248,7 @@ class OnkyoConfigurator extends IPSModule
         }
         if ($HasTuner && (count($TunerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
-                $Create['Tuner '.$Zone['Name']] = [
+                $Create['Tuner ' . $Zone['Name']] = [
                     'moduleID'      => '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}',
                     'configuration' => ['Zone' => $ZoneID],
                 ];
@@ -295,7 +295,7 @@ class OnkyoConfigurator extends IPSModule
         }
         if ($HasNetPlayer && (count($NetPlayerValues) == 0)) {
             foreach ($this->Zones as $ZoneID => $Zone) {
-                $Create['Netplayer '.$Zone['Name']] = [
+                $Create['Netplayer ' . $Zone['Name']] = [
                     'moduleID'      => '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}',
                     'configuration' => ['Zone' => $ZoneID],
                 ];

@@ -1,13 +1,13 @@
 <?php
 
 declare(strict_types=1);
-require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace OnkyoAVR {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
-eval('namespace OnkyoAVR {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
-eval('namespace OnkyoAVR {?>'.file_get_contents(__DIR__.'/../libs/helper/ParentIOHelper.php').'}');
-eval('namespace OnkyoAVR {?>'.file_get_contents(__DIR__.'/../libs/helper/SemaphoreHelper.php').'}');
-eval('namespace OnkyoAVR {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableHelper.php').'}');
-eval('namespace OnkyoAVR {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableProfileHelper.php').'}');
+require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
+eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
+eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
 /**
  * @property int $ParentID Die InstanzeID des IO-Parent
@@ -194,10 +194,10 @@ class OnkyoAVR extends IPSModule
                         continue;
                     }
                 }
-                $Lines[] = '.*"APICommand":"'.$APICommand.'".*';
+                $Lines[] = '.*"APICommand":"' . $APICommand . '".*';
             }
             $Line = implode('|', $Lines);
-            $this->SetReceiveDataFilter('('.$Line.')');
+            $this->SetReceiveDataFilter('(' . $Line . ')');
             $this->SendDebug('FILTER', $Line, 0);
         }
         unset($MyPropertys['Zone']);
@@ -213,7 +213,7 @@ class OnkyoAVR extends IPSModule
                 if ($Mapping != null) {
                     if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
                         foreach ($Mapping->ValuePrefix as $Prefix) {
-                            $this->UnregisterVariable($VariableIdent.$Prefix);
+                            $this->UnregisterVariable($VariableIdent . $Prefix);
                         }
                         continue;
                     }
@@ -249,7 +249,7 @@ class OnkyoAVR extends IPSModule
 
     public function GetConfigurationForm()
     {
-        return file_get_contents(__DIR__.'/form_'.$this->OnkyoZone->thisZone.'.json');
+        return file_get_contents(__DIR__ . '/form_' . $this->OnkyoZone->thisZone . '.json');
     }
 
     //################# ActionHandler
@@ -604,7 +604,7 @@ class OnkyoAVR extends IPSModule
 
     protected function ModulUpdateErrorHandler($errno, $errstr)
     {
-        $this->SendDebug('ERROR', utf8_decode($errstr).PHP_EOL, 0);
+        $this->SendDebug('ERROR', utf8_decode($errstr) . PHP_EOL, 0);
         echo $errstr;
     }
 
@@ -755,7 +755,7 @@ class OnkyoAVR extends IPSModule
         }
 
         if (IPS_HasChanges($this->InstanceID)) {
-            IPS_RunScriptText('IPS_ApplyChanges('.$this->InstanceID.');');
+            IPS_RunScriptText('IPS_ApplyChanges(' . $this->InstanceID . ');');
         }
         restore_error_handler();
     }
@@ -776,7 +776,7 @@ class OnkyoAVR extends IPSModule
 
     private function sdechex(int $d)
     {
-        return ($d < 0) ? ('-'.strtoupper(dechex(-$d))) : ($d == 0 ? '00' : '+'.strtoupper(dechex($d)));
+        return ($d < 0) ? ('-' . strtoupper(dechex(-$d))) : ($d == 0 ? '00' : '+' . strtoupper(dechex($d)));
     }
 
     private function shexdec(string $h)
@@ -803,20 +803,20 @@ class OnkyoAVR extends IPSModule
         }
         if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
             $Prefix = substr($APIData->Data, 0, 1);
-            $this->MaintainVariable($APIData->APICommand.$Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
+            $this->MaintainVariable($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
             if ($Mapping->EnableAction) {
-                $this->EnableAction($APIData->APICommand.$Mapping->ValuePrefix[$Prefix]);
+                $this->EnableAction($APIData->APICommand . $Mapping->ValuePrefix[$Prefix]);
             }
             $Value = $Mapping->ValueMapping[substr($APIData->Data, 1, 2)];
-            $this->SetValueInteger($APIData->APICommand.$Mapping->ValuePrefix[$Prefix], $Value);
+            $this->SetValueInteger($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $Value);
             if (strlen($APIData->Data) > 3) {
                 $Prefix = substr($APIData->Data, 3, 1);
-                $this->MaintainVariable($APIData->APICommand.$Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
+                $this->MaintainVariable($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
                 if ($Mapping->EnableAction) {
-                    $this->EnableAction($APIData->APICommand.$Mapping->ValuePrefix[$Prefix]);
+                    $this->EnableAction($APIData->APICommand . $Mapping->ValuePrefix[$Prefix]);
                 }
                 $Value = $Mapping->ValueMapping[substr($APIData->Data, 4, 2)];
-                $this->SetValueInteger($APIData->APICommand.$Mapping->ValuePrefix[$Prefix], $Value);
+                $this->SetValueInteger($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $Value);
             }
 
             return;
@@ -1107,9 +1107,9 @@ class OnkyoAVR extends IPSModule
                     $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$SubIndex];
                     $ValueMapping = array_flip($Mapping->ValueMapping);
                     if (array_key_exists($APIData->Data, $ValueMapping)) {
-                        $APIData->Data = $ISCP_ValuePrefix.$ValueMapping[$APIData->Data];
+                        $APIData->Data = $ISCP_ValuePrefix . $ValueMapping[$APIData->Data];
                     } else {
-                        $APIData->Data = $ISCP_ValuePrefix.sprintf('%02X', $APIData->Data);
+                        $APIData->Data = $ISCP_ValuePrefix . sprintf('%02X', $APIData->Data);
                     }
                     break;
                 default:
@@ -1158,12 +1158,12 @@ class OnkyoAVR extends IPSModule
             }
             $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
             if ($ret === false) {
-                $this->SendDebug('Response'.$APIData->APICommand, 'No answer', 0);
+                $this->SendDebug('Response' . $APIData->APICommand, 'No answer', 0);
 
                 return null;
             }
             $result = unserialize($ret);
-            $this->SendDebug('Response'.$APIData->APICommand, $result, 0);
+            $this->SendDebug('Response' . $APIData->APICommand, $result, 0);
 
             return $result;
         } catch (Exception $exc) {

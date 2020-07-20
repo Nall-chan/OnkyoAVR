@@ -1,12 +1,12 @@
 <?php
 
 declare(strict_types=1);
-require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace ISCPSplitter {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
-eval('namespace ISCPSplitter {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
-eval('namespace ISCPSplitter {?>'.file_get_contents(__DIR__.'/../libs/helper/ParentIOHelper.php').'}');
-eval('namespace ISCPSplitter {?>'.file_get_contents(__DIR__.'/../libs/helper/SemaphoreHelper.php').'}');
-eval('namespace ISCPSplitter {?>'.file_get_contents(__DIR__.'/../libs/helper/UTF8Helper.php').'}');
+require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
+eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/UTF8Helper.php') . '}');
 
 /**
  * @property array $ReplyISCPData Enthält die versendeten Befehle und buffert die Antworten.
@@ -172,7 +172,7 @@ class ISCPSplitter extends IPSModule
             $eISCPHeaderlen = $len[1];
             $PayloadLen = $len[2];
             if (strlen($stream) < $eISCPHeaderlen + $PayloadLen) {
-                $this->SendDebug('Waiting', 'eISCP Frame must have '.$eISCPHeaderlen.'+'.$PayloadLen.' Bytes. '.strlen($stream).' Bytes given.', 0);
+                $this->SendDebug('Waiting', 'eISCP Frame must have ' . $eISCPHeaderlen . '+' . $PayloadLen . ' Bytes. ' . strlen($stream) . ' Bytes given.', 0);
                 $this->Multi_Buffer = $stream;
 
                 return;
@@ -182,8 +182,8 @@ class ISCPSplitter extends IPSModule
             $tail = substr($stream, $eISCPHeaderlen + $PayloadLen);
             if ($this->eISCPVersion != $header[12]) {
                 $frame = false;
-                $this->SendDebug('Error', 'eISCP Version not supportet: '.ord($header[12]), 0);
-                $this->LogMessage('eISCP Version not supportet:'.ord($header[12]), KL_ERROR);
+                $this->SendDebug('Error', 'eISCP Version not supportet: ' . ord($header[12]), 0);
+                $this->LogMessage('eISCP Version not supportet:' . ord($header[12]), KL_ERROR);
             }
         } else {
             $minTail = 7;
@@ -285,7 +285,7 @@ class ISCPSplitter extends IPSModule
             $this->SendDataToParent($Data);
             $ReplyData = $this->WaitForResponse($APIData->APICommand);
             if ($ReplyData === null) {
-                throw new Exception($this->Translate('Timeout').' '.$APIData->APICommand, E_USER_NOTICE);
+                throw new Exception($this->Translate('Timeout') . ' ' . $APIData->APICommand, E_USER_NOTICE);
             }
 
             return $ReplyData;
@@ -329,13 +329,13 @@ class ISCPSplitter extends IPSModule
         foreach ($Xml->xpath('//model') as $model) {
             $this->RegisterVariableString('Model', $this->Translate('Model'), '', 0);
             $this->SetValue(('Model'), (string) $model);
-            $this->LogMessage('Connected to '.(string) $model, KL_NOTIFY);
+            $this->LogMessage('Connected to ' . (string) $model, KL_NOTIFY);
         }
 
         foreach ($Xml->xpath('//firmwareversion') as $firmwareversion) {
             $this->RegisterVariableString('Firmware', $this->Translate('Firmware'), '', 0);
             $this->SetValue('Firmware', (string) $firmwareversion);
-            $this->LogMessage('Firmware: '.(string) $firmwareversion, KL_NOTIFY);
+            $this->LogMessage('Firmware: ' . (string) $firmwareversion, KL_NOTIFY);
         }
         $NetserviceList = [];
         foreach ($Xml->xpath('//netservice') as $Netservice) {
@@ -344,7 +344,7 @@ class ISCPSplitter extends IPSModule
             }
             $NetserviceList[hexdec((string) $Netservice['id'])] = trim((string) $Netservice['name']);
         }
-        $this->LogMessage('Netservices: '.count($NetserviceList), KL_NOTIFY);
+        $this->LogMessage('Netservices: ' . count($NetserviceList), KL_NOTIFY);
         $this->NetserviceList = $NetserviceList;
 
         $SelectorList = [];
@@ -357,7 +357,7 @@ class ISCPSplitter extends IPSModule
                 'Zone' => (int) $Selector['zone'],
             ];
         }
-        $this->LogMessage('Input Selector: '.count($SelectorList), KL_NOTIFY);
+        $this->LogMessage('Input Selector: ' . count($SelectorList), KL_NOTIFY);
         $this->SelectorList = $SelectorList;
 
         $ZoneList = [];
@@ -371,7 +371,7 @@ class ISCPSplitter extends IPSModule
                 'Volsetep' => (int) $Zone['volstep'],
             ];
         }
-        $this->LogMessage('Zones: '.count($ZoneList), KL_NOTIFY);
+        $this->LogMessage('Zones: ' . count($ZoneList), KL_NOTIFY);
         $this->ZoneList = $ZoneList;
         $PresetList = [];
         foreach ($Xml->xpath('//presetlist') as $Presetlist) {
@@ -383,7 +383,7 @@ class ISCPSplitter extends IPSModule
                 $PresetList[(int) hexdec((string) $Preset['id'])] = $Name;
             }
         }
-        $this->LogMessage('Presets: '.count($PresetList), KL_NOTIFY);
+        $this->LogMessage('Presets: ' . count($PresetList), KL_NOTIFY);
         $this->PresetList = $PresetList;
 
         $TunerList = [];
@@ -396,7 +396,7 @@ class ISCPSplitter extends IPSModule
                 'Digits' => 0,
             ];
         }
-        $this->LogMessage('Tuners: '.count($TunerList), KL_NOTIFY);
+        $this->LogMessage('Tuners: ' . count($TunerList), KL_NOTIFY);
         $this->TunerList = $TunerList;
 
         $ControlList = [];
@@ -431,7 +431,7 @@ class ISCPSplitter extends IPSModule
             }
         }
         $ControlList[] = 'OSD Control';
-        $this->LogMessage('Controls: '.count($ControlList), KL_NOTIFY);
+        $this->LogMessage('Controls: ' . count($ControlList), KL_NOTIFY);
         $this->ControlList = $ControlList;
         $this->ProfileList = $ProfileList;
         $this->LMDList = $LMDList;
@@ -453,12 +453,12 @@ class ISCPSplitter extends IPSModule
             return false;
         }
         if ($Frame[1] != '1') {
-            $this->SendDebug('Error', 'Device Typ '.$Frame[1].' not implemented', 0);
+            $this->SendDebug('Error', 'Device Typ ' . $Frame[1] . ' not implemented', 0);
 
             return false;
         }
         if ($Frame[strlen($Frame) - 1] != "\x1A") {
-            $this->SendDebug('Error', 'ISCP Frame have no EOT '.bin2hex($Frame[strlen($Frame) - 1]), 0);
+            $this->SendDebug('Error', 'ISCP Frame have no EOT ' . bin2hex($Frame[strlen($Frame) - 1]), 0);
 
             return false;
         }

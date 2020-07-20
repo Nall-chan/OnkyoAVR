@@ -3,11 +3,11 @@
 // todo secure webhook
 
 declare(strict_types=1);
-require_once __DIR__.'/../libs/OnkyoAVRClass.php';  // diverse Klassen
-eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/DebugHelper.php').'}');
-eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/BufferHelper.php').'}');
-eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/WebhookHelper.php').'}');
-eval('namespace OnkyoRemote {?>'.file_get_contents(__DIR__.'/../libs/helper/VariableProfileHelper.php').'}');
+require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
+eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
+eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
 /**
  * @property int $Type
@@ -237,7 +237,7 @@ class OnkyoRemote extends IPSModule
             return parent::Destroy();
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook('/hook/OnkyoRemote'.$this->InstanceID);
+            $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
         }
 
         parent::Destroy();
@@ -251,16 +251,16 @@ class OnkyoRemote extends IPSModule
         $this->Type = $this->ReadPropertyInteger('Type');
         if ($this->ReadPropertyBoolean('showSVGRemote')) {
             if (IPS_GetKernelRunlevel() == KR_READY) {
-                $this->RegisterHook('/hook/OnkyoRemote'.$this->InstanceID);
+                $this->RegisterHook('/hook/OnkyoRemote' . $this->InstanceID);
             }
 
             $this->RegisterVariableString('Remote', $this->Translate('Remote'), '~HTMLBox', 1);
             /* @var $remote string */
-            include 'generateRemote'.($this->ReadPropertyInteger('RemoteId')).'.php';
+            include 'generateRemote' . ($this->ReadPropertyInteger('RemoteId')) . '.php';
             $this->SetValue('Remote', $remote);
         } else {
             if (IPS_GetKernelRunlevel() == KR_READY) {
-                $this->UnregisterHook('/hook/OnkyoRemote'.$this->InstanceID);
+                $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
             }
             $this->UnregisterVariable('Remote');
         }
