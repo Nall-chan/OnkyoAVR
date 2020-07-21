@@ -336,7 +336,7 @@ $remote = '<svg id="svgrc' . $this->InstanceID . '" version="1.2" baseProfile="t
     function xhrGet' . $this->InstanceID . '(url)
     {
         var HTTP = new XMLHttpRequest();
-	HTTP.open("GET","hook/OnkyoRemote' . $this->InstanceID . '?button=" + url,true);
+	      HTTP.open("GET","hook/OnkyoRemote' . $this->InstanceID . '?Secret=' . rawurlencode($Secret) . '&button=" + url,true);
         HTTP.send();
         HTTP.addEventListener(\'load\', function(event)
         {

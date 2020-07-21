@@ -1,8 +1,13 @@
 <?php
 
-// todo secure webhook
-
 declare(strict_types=1);
+/**
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2020 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
+ * @version       2.0
+ */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
@@ -312,6 +317,7 @@ class OnkyoNetplayer extends IPSModule
                     $Title = $this->FolderName;
                     break;
                 }
+                // No break ist Absicht. Warum, habe ich vergessen :D
                 // FIXME: No break. Please add proper comment if intentional
             default:
                 if ($this->UiType == 3) { //menü screen
@@ -657,10 +663,10 @@ class OnkyoNetplayer extends IPSModule
         //$this->SendDebug('CalcSecret', $CalcSecret, 0);
         //$this->SendDebug('GetSecret', $_GET['Secret'], 0);
         //$this->SendDebug('GetSecret', rawurldecode($_GET['Secret']), 0);
-        /* if ($CalcSecret != rawurldecode($_GET['Secret'])) {
-          echo $this->Translate('Access denied');
-          return;
-          } */
+        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+            echo $this->Translate('Access denied');
+            return;
+        }
         if ($_GET['Type'] != 'Index') {
             echo $this->Translate('Bad Request');
 

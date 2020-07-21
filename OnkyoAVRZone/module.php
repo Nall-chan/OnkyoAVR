@@ -1,6 +1,13 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2020 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
+ * @version       2.0
+ */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
@@ -497,7 +504,7 @@ class OnkyoAVR extends IPSModule
         return $this->SendAPIData($APIData);
     }
 
-    public function GetAudioInfomation()
+    public function GetAudioInformation()
     {
         if (!$this->CheckZone()) {
             return false;
@@ -533,7 +540,7 @@ class OnkyoAVR extends IPSModule
         return array_combine($Keys, array_pad(explode(',', substr($ret, 0, -1)), count($Keys), ''));
     }
 
-    public function GetVideoInfomation()
+    public function GetVideoInformation()
     {
         if (!$this->CheckZone()) {
             return false;
@@ -567,32 +574,6 @@ class OnkyoAVR extends IPSModule
         return array_combine($Keys, array_pad(explode(',', substr($ret, 0, -1)), count($Keys), ''));
     }
 
-    /*    public function SendCommand(string $Command, string $Value, bool $needResponse)
-      {
-      trigger_error('Diese Funktion wird nicht mehr unterstützt!', E_USER_DEPRECATED);
-      if (!$this->CheckZone()) {
-      return false;
-      }
-      $APIData = new \OnkyoAVR\ISCP_API_Data($Command, $Value, $needResponse);
-      $ResultData = $this->Send($APIData);
-      if ($ResultData === null) {
-      trigger_error('Error on send command.', E_USER_NOTICE);
-      return false;
-      }
-      if ($needResponse) {
-      if ($ResultData == 'N/A') {
-      trigger_error('Command (temporally) not available.', E_USER_NOTICE);
-      return false;
-      }
-      return $ResultData;
-      } else {
-      if ($APIData === false) {
-      trigger_error('Error on send command.', E_USER_NOTICE);
-      return false;
-      }
-      }
-      return true;
-      } */
     //################# Datapoints
 
     public function ReceiveData($JSONString)

@@ -1,6 +1,13 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2020 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
+ * @version       2.0
+ */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 
@@ -17,7 +24,7 @@ class OnkyoConfigurator extends IPSModule
     public function Create()
     {
         parent::Create();
-        $this->ConnectParent('{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}');
+        $this->RequireParent('{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}');
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
     }
 

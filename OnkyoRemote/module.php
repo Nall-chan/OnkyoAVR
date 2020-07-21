@@ -1,8 +1,13 @@
 <?php
 
-// todo secure webhook
-
 declare(strict_types=1);
+/**
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2020 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
+ * @version       2.0
+ */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
@@ -15,12 +20,10 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
 class OnkyoRemote extends IPSModule
 {
     use \OnkyoRemote\DebugHelper;
-    use
-        \OnkyoRemote\WebhookHelper;
-    use
-        \OnkyoRemote\Bufferhelper;
-    use
-        \OnkyoRemote\VariableProfileHelper;
+    use \OnkyoRemote\WebhookHelper;
+    use \OnkyoRemote\Bufferhelper;
+    use \OnkyoRemote\VariableProfileHelper;
+
     protected static $APICommands = [
         \OnkyoAVR\Remotes::OSD => 'OSD',
         \OnkyoAVR\Remotes::CTV => 'CTV',
@@ -226,6 +229,7 @@ class OnkyoRemote extends IPSModule
         $this->RegisterPropertyBoolean('showNavigationButtons', true);
         $this->RegisterPropertyBoolean('showControlButtons', true);
         $this->Type = 0;
+        $this->WebHookSecret = '';
     }
 
     /**
@@ -253,9 +257,10 @@ class OnkyoRemote extends IPSModule
             if (IPS_GetKernelRunlevel() == KR_READY) {
                 $this->RegisterHook('/hook/OnkyoRemote' . $this->InstanceID);
             }
-
+            $NewSecret = base64_encode(openssl_random_pseudo_bytes(12));
+            $this->WebHookSecret = $Secret = base64_encode(sha1($NewSecret . '0' . (string) $this->InstanceID, true));
             $this->RegisterVariableString('Remote', $this->Translate('Remote'), '~HTMLBox', 1);
-            /* @var $remote string */
+            /** @var string $remote  */
             include 'generateRemote' . ($this->ReadPropertyInteger('RemoteId')) . '.php';
             $this->SetValue('Remote', $remote);
         } else {
@@ -576,9 +581,16 @@ class OnkyoRemote extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if (isset($_GET['button'])) {
-            $Command = strtoupper($_GET['button']);
-            switch ($this->Type) {
+        if ((!isset($_GET['button'])) || (!isset($_GET['Secret']))) {
+            echo $this->Translate('Bad Request');
+            return;
+        }
+        if ($this->WebHookSecret != rawurldecode($_GET['Secret'])) {
+            echo $this->Translate('Access denied');
+            return;
+        }
+        $Command = strtoupper($_GET['button']);
+        switch ($this->Type) {
                 case \OnkyoAVR\Remotes::CAP:
                     switch ($Command) {
                         case 'VLDN':
@@ -600,12 +612,8 @@ class OnkyoRemote extends IPSModule
                   }
                   break; */
             }
-            if ($this->Send($Command) === true) {
-                echo 'OK';
-            }
-        } else {
-            $this->SendDebug('illegal HOOK', $_GET, 0);
-            echo $this->Translate('Illegal hook');
+        if ($this->Send($Command) === true) {
+            echo 'OK';
         }
     }
 
@@ -638,5 +646,3 @@ class OnkyoRemote extends IPSModule
         }
     }
 }
-
-/* @} */

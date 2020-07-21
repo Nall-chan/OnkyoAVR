@@ -1,17 +1,12 @@
 <?php
 
 declare(strict_types=1);
-/*
- * @addtogroup onkyoavr
- * @{
- *
- * @file          OnkyoAVRClass.php
- *
+/**
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       1.0
+ * @version       2.0
  */
 
 namespace OnkyoAVR;

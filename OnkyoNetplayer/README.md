@@ -1,24 +1,23 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
-[![StyleCI](https://styleci.io/repos/45338104/shield?style=flat)](https://styleci.io/repos/45338104)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
+
 
 # Onkyo & Pioneer AVR NetPlayer (Onkyo Netplayer)
 Bildet die Netzwerkfunktionen eines Gerätes in IP-Symcon ab.  
 
-## Dokumentation
+## Inhaltsverzeichnis  <!-- omit in toc -->
 
-**Inhaltsverzeichnis**
-
-1. [Funktionsumfang](#1-funktionsumfang) 
-2. [Voraussetzungen](#2-voraussetzungen)
-3. [Software-Installation](#3-software-installation)
-4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)
-6. [WebFront](#6-webfront)
-7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz) 
-8. [Lizenz](#8-lizenz)
+- [1. Funktionsumfang](#1-funktionsumfang)
+- [2. Voraussetzungen](#2-voraussetzungen)
+- [3. Software-Installation](#3-software-installation)
+- [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
+- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
+- [6. WebFront](#6-webfront)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
+- [8. Lizenz](#8-lizenz)
 
 ## 1. Funktionsumfang
 
@@ -29,7 +28,7 @@ Bildet die Netzwerkfunktionen eines Gerätes in IP-Symcon ab.
 ## 2. Voraussetzungen
 
  - IPS ab Version 5.1  
- - kompatibler AV-Receiver mit LAN-Anschluß  
+ - kompatibler AV-Receiver mit LAN-Anschluss  
 
 ## 3. Software-Installation
 
@@ -37,9 +36,9 @@ Dieses Modul ist ein Bestandteil des Symcon-Modul: [Onkyo & Pioneer AVR](../)
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Eine einfache Einrichtung ist über die im Objektbaum unter 'Konfigurator' zu findene Instanz [Onkyo bzw Pioneer Configurator'](../OnkyoConfigurator/readme.md) möglich.  
+Eine einfache Einrichtung ist über die im Objektbaum unter 'Konfigurator' zu findende Instanz [Onkyo bzw Pioneer Configurator'](../OnkyoConfigurator/) möglich.  
 
-Bei der manuellen Einrichtung ist das Modul im Dialog 'Instanz hinzufügen' unter den Hersteller 'Onkyo' zufinden.  
+Bei der manuellen Einrichtung ist das Modul im Dialog 'Instanz hinzufügen' unter den Hersteller 'Onkyo' zu finden.  
 ![Instanz hinzufügen](../imgs/instanzen.png)  
 
 In dem sich öffnenden Konfigurationsformular ist die gewünschte Zone auszuwählen, welche beim senden vom Kommandos an das Gerät benutzt wird.  
@@ -54,24 +53,24 @@ Jede Instanz erstellt einige Profile dynamisch, je nach Fähigkeiten der Geräte
 
 **Statusvariablen MainZone:**  
 
-| Name                        | Typ     | Ident     | Beschreibung                                              |
-| :-------------------------: | :-----: | :-------: | :-------------------------------------------------------: |
-| Internet Radio Favoriten    | integer | NPR       | Favorit aufrufen                                          |
-| Status                      | integer | NST0      | Status der Wiedergabe                                     |
-| Wiederholen                 | integer | NST1      | Wiederholung durchschalten                                |
-| Mischen                     | integer | NST2      | Mischen durchschalten                                     |
-| Aktueller Track             | integer | NTR0      | Aktueller Track der Wiedergabe                            |
-| Anzahl Tracks               | integer | NTR1      | Anzahl von Tracks welche gespielt werden                  |
-| Spielzeit                   | string  | NTM0      | Aktuelle Position im aktuellen Track                      |
-| Dauer                       | string  | NTM1      | Laufzeit des Track                                        |
-| Spielzeit                   | integer | NTM       | Aktuelle Position in Prozent                              |
-| Album                       | string  | NAL       | Album des aktuellen Track                                 |
-| Titel                       | string  | NTI       | Titel des aktuellen Track                                 |
-| Interpret                   | string  | NAT       | Interpret des aktuellen Track                             |
-| Netzwerk                    | integer | NDS0      | Status Netzwerkanschluß                                   |
-| USB vorne                   | integer | NDS1      | Erkanntes Gerät an USB-Anschluß                           |
-| USB hinten                  | integer | NDS2      | Erkanntes Gerät an USB-Anschluß                           |
-| Netzwerkdienst              | integer | NSV       | Aktiver Netzwerkdienst                                    |
+|           Name           |   Typ   | Ident |               Beschreibung               |
+| :----------------------: | :-----: | :---: | :--------------------------------------: |
+| Internet Radio Favoriten | integer |  NPR  |             Favorit aufrufen             |
+|          Status          | integer | NST0  |          Status der Wiedergabe           |
+|       Wiederholen        | integer | NST1  |        Wiederholung durchschalten        |
+|         Mischen          | integer | NST2  |          Mischen durchschalten           |
+|     Aktueller Track      | integer | NTR0  |      Aktueller Track der Wiedergabe      |
+|      Anzahl Tracks       | integer | NTR1  | Anzahl von Tracks welche gespielt werden |
+|        Spielzeit         | string  | NTM0  |   Aktuelle Position im aktuellen Track   |
+|          Dauer           | string  | NTM1  |            Laufzeit des Track            |
+|        Spielzeit         | integer |  NTM  |       Aktuelle Position in Prozent       |
+|          Album           | string  |  NAL  |        Album des aktuellen Track         |
+|          Titel           | string  |  NTI  |        Titel des aktuellen Track         |
+|        Interpret         | string  |  NAT  |      Interpret des aktuellen Track       |
+|         Netzwerk         | integer | NDS0  |         Status Netzwerkanschluß          |
+|        USB vorne         | integer | NDS1  |     Erkanntes Gerät an USB-Anschluß      |
+|        USB hinten        | integer | NDS2  |     Erkanntes Gerät an USB-Anschluß      |
+|      Netzwerkdienst      | integer |  NSV  |          Aktiver Netzwerkdienst          |
 
 
 **Profile**:
@@ -79,16 +78,16 @@ Jede Instanz erstellt einige Profile dynamisch, je nach Fähigkeiten der Geräte
  Alle Profile mit .* am Ende, enthalten immer die InstanzID und sind dynamische Profile.  
  Diese können sich während des Betriebes, oder beim ändern von Geräteeinstellungen dynamisch verändern.  
 
-| Name                          | Typ     | verwendet von Statusvariablen  (Ident) |
-| :---------------------------: | :-----: | :------------------------------------: |
-| Onkyo.NetTunerPreset          | integer | NPR                                    |
-| Onkyo.Status                  | integer | NST0                                   |
-| Onkyo.Repeat.*                | integer | NST1                                   |
-| Onkyo.Shuffle.*               | integer | NST2                                   |
-| Onkyo.Tracks                  | integer | NTR0                                   |
-| Onkyo.Network                 | integer | NDS0                                   |
-| Onkyo.USB                     | integer | NDS1, NDS2                             |
-| Onkyo.SelectNetworkService.*  | integer | NSV                                    |
+|             Name             |   Typ   | verwendet von Statusvariablen  (Ident) |
+| :--------------------------: | :-----: | :------------------------------------: |
+|     Onkyo.NetTunerPreset     | integer |                  NPR                   |
+|         Onkyo.Status         | integer |                  NST0                  |
+|        Onkyo.Repeat.*        | integer |                  NST1                  |
+|       Onkyo.Shuffle.*        | integer |                  NST2                  |
+|         Onkyo.Tracks         | integer |                  NTR0                  |
+|        Onkyo.Network         | integer |                  NDS0                  |
+|          Onkyo.USB           | integer |               NDS1, NDS2               |
+| Onkyo.SelectNetworkService.* | integer |                  NSV                   |
 
 ## 6. WebFront
 
@@ -98,6 +97,11 @@ Die direkte Darstellung im WebFront ist möglich, es wird aber empfohlen mit Lin
 
 
 ## 7. PHP-Befehlsreferenz
+
+**Schaltbare Statusvariablen können universell mit RequestAction angesteuert werden.**  
+Siehe Symcon Dokumentation: [RequestAction](https://www.symcon.de/service/dokumentation/befehlsreferenz/variablenzugriff/requestaction/)
+
+---  
 
 **Folgende Funktionen liefern 'TRUE' oder ein Array bei Erfolg.  
 Im Fehlerfall wird eine Warnung erzeugt und 'FALSE' zurückgegeben.**  
