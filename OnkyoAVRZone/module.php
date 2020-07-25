@@ -762,7 +762,7 @@ class OnkyoAVR extends IPSModule
 
     private function shexdec(string $h)
     {
-        return ($h[0] === '-') ? -(hexdec(substr($h,1))) : (($h[0] === '+') ? (hexdec(substr($h,1))) : hexdec($h));
+        return ($h[0] === '-') ? -(hexdec(substr($h, 1))) : (($h[0] === '+') ? (hexdec(substr($h, 1))) : hexdec($h));
     }
 
     private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
@@ -1011,7 +1011,7 @@ class OnkyoAVR extends IPSModule
                         if (is_array($VarName)) {
                             $VarName = implode(' & ', array_values($VarName));
                         }
-                        echo sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName))."\r\n";
+                        echo sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName)) . "\r\n";
                         continue;
                     }
                     $APIData->Data = $ResultData;

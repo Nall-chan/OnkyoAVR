@@ -1138,7 +1138,7 @@ sleep(10).then(() => {
             case \OnkyoAVR\ISCP_API_Commands::NAL:
             case \OnkyoAVR\ISCP_API_Commands::NTI:
             case \OnkyoAVR\ISCP_API_Commands::NAT:
-                $this->SetValue((string)$APIData->APICommand, (string) $APIData->Data);
+                $this->SetValue((string) $APIData->APICommand, (string) $APIData->Data);
                 break;
         }
     }

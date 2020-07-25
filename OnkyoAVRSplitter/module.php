@@ -217,7 +217,7 @@ class ISCPSplitter extends IPSModule
         if ($frame != '') {
             $APIData = $this->DecodeData(rtrim($frame));
             if ($APIData !== false) {
-                if (!$this->SendQueueUpdate((string)$APIData->APICommand, $APIData->Data)) {
+                if (!$this->SendQueueUpdate((string) $APIData->APICommand, $APIData->Data)) {
                     $this->SendDataToZone($APIData);
                 }
             }
@@ -290,9 +290,9 @@ class ISCPSplitter extends IPSModule
 
                 return true;
             }
-            $this->SendQueuePush((string)$APIData->APICommand);
+            $this->SendQueuePush((string) $APIData->APICommand);
             $this->SendDataToParent($Data);
-            $ReplyData = $this->WaitForResponse((string)$APIData->APICommand);
+            $ReplyData = $this->WaitForResponse((string) $APIData->APICommand);
             if ($ReplyData === null) {
                 throw new Exception($this->Translate('Timeout') . ' ' . $APIData->APICommand, E_USER_NOTICE);
             }
@@ -377,7 +377,7 @@ class ISCPSplitter extends IPSModule
             $ZoneList[hexdec((string) $Zone['id'])] = [
                 'Name'     => trim((string) $Zone['name']),
                 'Volmax'   => (int) $Zone['volmax'],
-                'Volstep' => (int) $Zone['volstep'],
+                'Volstep'  => (int) $Zone['volstep'],
             ];
         }
         $this->LogMessage('Zones: ' . count($ZoneList), KL_NOTIFY);
