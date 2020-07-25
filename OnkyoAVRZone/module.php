@@ -291,7 +291,7 @@ class OnkyoAVR extends IPSModule
             return $this->RequestZoneState();
         }
         $ApiCmd = substr($Ident, 0, 3);
-        if (!$this->OnkyoZone->CmdAvaiable($ApiCmd)) {
+        if (!$this->OnkyoZone->CmdAvailable($ApiCmd)) {
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
 
             return false;
@@ -393,7 +393,7 @@ class OnkyoAVR extends IPSModule
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SL3, $Value);
                 break;
             case \OnkyoAVR\ONKYO_Zone::Zone4:
-                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SL5, $Value);
+                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SL4, $Value);
                 break;
         }
 
@@ -615,7 +615,7 @@ class OnkyoAVR extends IPSModule
     //------------------------------------------------------------------------------
     protected function RequestZoneStateErrorHandler($errno, $errstr)
     {
-        //echo $errstr . PHP_EOL;
+        //empty
     }
 
     private function PerformModulUpdate()
@@ -687,14 +687,14 @@ class OnkyoAVR extends IPSModule
             $Variable = IPS_GetVariable($ObjectID);
 
             $ApiCmd = substr($Object['ObjectIdent'], 0, 3);
-            if (!$Zone->CmdAvaiable($ApiCmd)) {
+            if (!$Zone->CmdAvailable($ApiCmd)) {
                 $this->SendDebug('Wrong Zone UnregisterVariable', $ApiCmd, 0);
                 $this->UnregisterVariable($ApiCmd);
             }
             $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd);
             if ($Mapping != null) { //Variable bekannt
                 if (array_key_exists($ApiCmd, $MyPropertys)) {
-                    // Werkssettings sagt false
+                    // WerksSettings sagt false
                     if ($MyPropertys[$ApiCmd] === false) {
                         //Aber alte Variable vorhanden => settings updaten
                         $this->SendDebug('Update Property', $ApiCmd, 0);
@@ -762,7 +762,7 @@ class OnkyoAVR extends IPSModule
 
     private function shexdec(string $h)
     {
-        return ($h[0] === '-') ? -(hexdec($h)) : hexdec($h);
+        return ($h[0] === '-') ? -(hexdec(substr($h,1))) : (($h[0] === '+') ? (hexdec(substr($h,1))) : hexdec($h));
     }
 
     private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
@@ -913,13 +913,13 @@ class OnkyoAVR extends IPSModule
         $ResultDataZoneList = $this->Send($APIDataZoneList);
         if (array_key_exists($zone, $ResultDataZoneList)) {
             $Volmax = (int) $ResultDataZoneList[$zone]['Volmax'];
-            $Volsetep = (float) $ResultDataZoneList[$zone]['Volsetep'];
+            $Volstep = (float) $ResultDataZoneList[$zone]['Volstep'];
         } else {
             $Volmax = 80;
-            $Volsetep = 1;
+            $Volstep = 1;
         }
         $ptVolumeProfile = sprintf(\OnkyoAVR\IPSProfiles::ptVolume, $this->InstanceID);
-        $this->RegisterProfileInteger($ptVolumeProfile, 'Speaker', '', ' %', 0, $Volmax, $Volsetep);
+        $this->RegisterProfileInteger($ptVolumeProfile, 'Speaker', '', ' %', 0, $Volmax, $Volstep);
 
         // PMB
         if ($zone == \OnkyoAVR\ONKYO_Zone::ZoneMain) {
@@ -1011,7 +1011,7 @@ class OnkyoAVR extends IPSModule
                         if (is_array($VarName)) {
                             $VarName = implode(' & ', array_values($VarName));
                         }
-                        echo sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName));
+                        echo sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName))."\r\n";
                         continue;
                     }
                     $APIData->Data = $ResultData;
@@ -1030,12 +1030,10 @@ class OnkyoAVR extends IPSModule
         }
 
         try {
-            if (!$this->OnkyoZone->CmdAvaiable($APIData->APICommand)) {
+            if (!$this->OnkyoZone->CmdAvailable($APIData->APICommand)) {
                 throw new Exception('Command not available at this zone.', E_USER_NOTICE);
             }
             $Mapping = $APIData->GetMapping();
-            //$this->SendDebug('SendAPIData', $APIData, 0);
-            //$this->SendDebug('SendAPIData Mapping', $Mapping, 0);
 
             switch ($Mapping->VarType) {
                 case \OnkyoAVR\IPSVarType::vtBoolean:
@@ -1094,7 +1092,7 @@ class OnkyoAVR extends IPSModule
                     }
                     break;
                 default:
-                    throw new Exception('Unknow VariableType.', E_USER_NOTICE);
+                    throw new Exception('Unknown VariableType.', E_USER_NOTICE);
             }
 
             $ResultData = $this->Send($APIData);

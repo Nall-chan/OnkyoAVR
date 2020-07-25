@@ -30,7 +30,7 @@
         {
             "name": "showSVGRemote",
             "type": "CheckBox",
-            "caption": "Show SVG-Remotecontrol"
+            "caption": "Show SVG-Remote-Control"
         },
         {
             "name": "RemoteId",

@@ -67,9 +67,9 @@ Jede Instanz erstellt einige Profile dynamisch, je nach Fähigkeiten der Geräte
 |          Album           | string  |  NAL  |        Album des aktuellen Track         |
 |          Titel           | string  |  NTI  |        Titel des aktuellen Track         |
 |        Interpret         | string  |  NAT  |      Interpret des aktuellen Track       |
-|         Netzwerk         | integer | NDS0  |         Status Netzwerkanschluß          |
-|        USB vorne         | integer | NDS1  |     Erkanntes Gerät an USB-Anschluß      |
-|        USB hinten        | integer | NDS2  |     Erkanntes Gerät an USB-Anschluß      |
+|         Netzwerk         | integer | NDS0  |         Status Netzwerkanschluss         |
+|        USB vorne         | integer | NDS1  |     Erkanntes Gerät an USB-Anschluss     |
+|        USB hinten        | integer | NDS2  |     Erkanntes Gerät an USB-Anschluss     |
 |      Netzwerkdienst      | integer |  NSV  |          Aktiver Netzwerkdienst          |
 
 

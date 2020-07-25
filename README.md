@@ -7,7 +7,7 @@
 # Symcon-Modul: Onkyo & Pioneer AVR
 
 Diese Implementierung des Integra Serial Communication Protocol 
-ermöglich die Einbindung von Onkyo und Pioneer AV-Receiver in IP-Symcon.  
+ermöglicht die Einbindung von Onkyo und Pioneer AV-Receiver in IP-Symcon.  
 
 
 
@@ -25,13 +25,13 @@ ermöglich die Einbindung von Onkyo und Pioneer AV-Receiver in IP-Symcon.
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Anhang](#5-anhang)
   - [1. GUID der Module](#1-guid-der-module)
-  - [2. Changlog](#2-changlog)
+  - [2. Changelog](#2-changelog)
   - [3. Spenden](#3-spenden)
 - [6. Lizenz](#6-lizenz)
 ## 1. Funktionsumfang
 
 ### [OnkyoAVRDiscovery:](OnkyoAVRDiscovery/)
-Ermöglicht das einfache Erkennen von Geräten im Netzwerk und anschließende anlegen eines Konfigurators in Symcon.
+Ermöglicht das einfache Erkennen von Geräten im Netzwerk und anschließende anlegen eines Konfigurator in Symcon.
 ### [OnkyoConfigurator:](OnkyoConfigurator/)
 Bei unterstützen Geräten listet der Konfigurator alle möglichen Instanzen auf, welche in Symcon angelegt werden können.
 ### [OnkyoAVRSplitter:](OnkyoAVRSplitter/)
@@ -41,14 +41,14 @@ Dieses Modul bildet jeweils eine Zone des Gerätes ab.
 ### [OnkyoNetplayer:](OnkyoNetplayer/)
 Über dieses Modul werden die Playerfunktionen der Netzwerk-Geräte abgebildet.
 ### [OnkyoRemote:](OnkyoRemote/)
-Je nach Fähigkeiten des Receivers können per HDMI-CEC angeschlossene Geräte fergesteuert werden, zusätzlich zum Receiver selber.
+Je nach Fähigkeiten des Receivers können per HDMI-CEC angeschlossene Geräte ferngesteuert werden, zusätzlich zum Receiver selber.
 ### [OnkyoTuner:](OnkyoTuner/)
 Dient der Integration der Tuner in Symcon.
 
 ## 2. Voraussetzungen
 
  - IPS 5.1 oder höher
- - kompatibler AV-Receiver mit LAN oder RS232-Anschluß(*)
+ - kompatibler AV-Receiver mit LAN oder RS232-Anschluss(*)
  
  (*) RS232-Geräte/Anbindung bieten eventuell nicht den vollen Funktionsumfang.  
 ## 3. Software-Installation
@@ -80,9 +80,7 @@ Soll ein Receiver per RS232 angebunden werden, so ist zuerst ein ([OnkyoConfigur
 |     Onkyo Tuner     |    Device    |  OAVR  | {47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F} |
 |    Onkyo Remote     |    Device    |  OAVR  | {C7EA583D-2BAC-41B7-A85A-AD0DF648E514} |
 
-### 2. Changlog
-
-**Changlog:**
+### 2. Changelog
 
  Version 2.0:  
  - Modul für IPS 5.1 komplett überarbeitet  
@@ -109,7 +107,7 @@ Soll ein Receiver per RS232 angebunden werden, so ist zuerst ein ([OnkyoConfigur
 
 ### 3. Spenden  
   
-  Die Library ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
 

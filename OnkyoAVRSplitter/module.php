@@ -16,8 +16,8 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
 eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/UTF8Helper.php') . '}');
 
 /**
- * @property array $ReplyISCPData Enthält die versendeten Befehle und buffert die Antworten.
- * @property string $Multi_Buffer Empfangsbuffer
+ * @property array $ReplyISCPData Enthält die versendeten Befehle und die empfangenen Antworten.
+ * @property string $Multi_Buffer EmpfangsBuffer
  * @property int $ParentID Die InstanzeID des IO-Parent
  * @property \OnkyoAVR\ISCP_API_Mode $Mode
  * @property array $NetserviceList
@@ -175,22 +175,21 @@ class ISCPSplitter extends IPSModule
                 return;
             }
             $len = unpack('N*', substr($stream, 4, 8));
-            //$this->SendDebug('eISCP Frame Lenght', $len, 0);
-            $eISCPHeaderlen = $len[1];
+            $eISCPHeaderLen = $len[1];
             $PayloadLen = $len[2];
-            if (strlen($stream) < $eISCPHeaderlen + $PayloadLen) {
-                $this->SendDebug('Waiting', 'eISCP Frame must have ' . $eISCPHeaderlen . '+' . $PayloadLen . ' Bytes. ' . strlen($stream) . ' Bytes given.', 0);
+            if (strlen($stream) < $eISCPHeaderLen + $PayloadLen) {
+                $this->SendDebug('Waiting', 'eISCP Frame must have ' . $eISCPHeaderLen . '+' . $PayloadLen . ' Bytes. ' . strlen($stream) . ' Bytes given.', 0);
                 $this->Multi_Buffer = $stream;
 
                 return;
             }
-            $header = substr($stream, 0, $eISCPHeaderlen);
-            $frame = substr($stream, $eISCPHeaderlen, $PayloadLen);
-            $tail = substr($stream, $eISCPHeaderlen + $PayloadLen);
+            $header = substr($stream, 0, $eISCPHeaderLen);
+            $frame = substr($stream, $eISCPHeaderLen, $PayloadLen);
+            $tail = substr($stream, $eISCPHeaderLen + $PayloadLen);
             if ($this->eISCPVersion != $header[12]) {
                 $frame = false;
-                $this->SendDebug('Error', 'eISCP Version not supportet: ' . ord($header[12]), 0);
-                $this->LogMessage('eISCP Version not supportet:' . ord($header[12]), KL_ERROR);
+                $this->SendDebug('Error', 'eISCP Version not supported: ' . ord($header[12]), 0);
+                $this->LogMessage('eISCP Version not supported:' . ord($header[12]), KL_ERROR);
             }
         } else {
             $minTail = 7;
@@ -218,7 +217,7 @@ class ISCPSplitter extends IPSModule
         if ($frame != '') {
             $APIData = $this->DecodeData(rtrim($frame));
             if ($APIData !== false) {
-                if (!$this->SendQueueUpdate($APIData->APICommand, $APIData->Data)) {
+                if (!$this->SendQueueUpdate((string)$APIData->APICommand, $APIData->Data)) {
                     $this->SendDataToZone($APIData);
                 }
             }
@@ -234,6 +233,9 @@ class ISCPSplitter extends IPSModule
     protected function KernelReady()
     {
         $this->RegisterParent();
+        if ($this->ParentID > 0) {
+            IPS_ApplyChanges($this->ParentID);
+        }
     }
 
     protected function RegisterParent()
@@ -263,7 +265,7 @@ class ISCPSplitter extends IPSModule
     {
         if ($State == IS_ACTIVE) {
             if ($this->HasActiveParent()) {
-                $this->RefreshCapas();
+                $this->RefreshCapabilities();
                 $this->SetStatus(IS_ACTIVE);
                 $this->SetTimerInterval('KeepAlive', 3600000);
 
@@ -288,9 +290,9 @@ class ISCPSplitter extends IPSModule
 
                 return true;
             }
-            $this->SendQueuePush($APIData->APICommand);
+            $this->SendQueuePush((string)$APIData->APICommand);
             $this->SendDataToParent($Data);
-            $ReplyData = $this->WaitForResponse($APIData->APICommand);
+            $ReplyData = $this->WaitForResponse((string)$APIData->APICommand);
             if ($ReplyData === null) {
                 throw new Exception($this->Translate('Timeout') . ' ' . $APIData->APICommand, E_USER_NOTICE);
             }
@@ -317,7 +319,7 @@ class ISCPSplitter extends IPSModule
         $this->ZoneList = [];
     }
 
-    private function RefreshCapas()
+    private function RefreshCapabilities()
     {
         $ret = $this->Send(new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NRI, \OnkyoAVR\ISCP_API_Commands::Request));
         if (is_null($ret)) {
@@ -375,7 +377,7 @@ class ISCPSplitter extends IPSModule
             $ZoneList[hexdec((string) $Zone['id'])] = [
                 'Name'     => trim((string) $Zone['name']),
                 'Volmax'   => (int) $Zone['volmax'],
-                'Volsetep' => (int) $Zone['volstep'],
+                'Volstep' => (int) $Zone['volstep'],
             ];
         }
         $this->LogMessage('Zones: ' . count($ZoneList), KL_NOTIFY);

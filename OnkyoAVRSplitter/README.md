@@ -5,7 +5,7 @@
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
 
 # Onkyo & Pioneer AVR Splitter (ISCP Splitter)
-Ermöglich die Kommunikation von IPS mit einem AV Receiver über das ISCP Protokoll.  
+Ermöglicht die Kommunikation von IPS mit einem AV Receiver über das ISCP Protokoll.  
 
 ## Inhaltsverzeichnis <!-- omit in toc -->
 

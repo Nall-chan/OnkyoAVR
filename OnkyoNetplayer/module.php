@@ -242,7 +242,7 @@ class OnkyoNetplayer extends IPSModule
                     $Input = 0x2E;
                     break;
                 default:
-                    trigger_error($this->Translate('Unknow NetworkService'), E_USER_NOTICE);
+                    trigger_error($this->Translate('Unknown NetworkService'), E_USER_NOTICE);
 
                     return false;
             }
@@ -285,7 +285,6 @@ class OnkyoNetplayer extends IPSModule
         if ($ret == null) {
             return false;
         }
-        //$this->ActiveIndex = $Index;
         return true;
     }
 
@@ -624,7 +623,6 @@ class OnkyoNetplayer extends IPSModule
      */
     protected function KernelReady()
     {
-        $this->LogMessage(__FUNCTION__, KL_DEBUG);
         $this->RegisterParent();
     }
 
@@ -633,7 +631,6 @@ class OnkyoNetplayer extends IPSModule
      */
     protected function IOChangeState($State)
     {
-        $this->LogMessage(__FUNCTION__, KL_DEBUG);
         if ($State == IS_ACTIVE) {
             if ($this->HasActiveParent()) {
                 $this->RequestProfile();
@@ -649,9 +646,6 @@ class OnkyoNetplayer extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        //$this->SendDebug('$_GET', $_GET, 0);
-        //
-        //Type=Index&ID=55&Secret=8XJKlIPXwJ3P8hOJgO3skdMLsys%3D
         if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
 
@@ -659,10 +653,6 @@ class OnkyoNetplayer extends IPSModule
         }
 
         $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
-        //$this->SendDebug('HookId', $_GET['ID'], 0);
-        //$this->SendDebug('CalcSecret', $CalcSecret, 0);
-        //$this->SendDebug('GetSecret', $_GET['Secret'], 0);
-        //$this->SendDebug('GetSecret', rawurldecode($_GET['Secret']), 0);
         if ($CalcSecret != rawurldecode($_GET['Secret'])) {
             echo $this->Translate('Access denied');
             return;
@@ -681,7 +671,7 @@ class OnkyoNetplayer extends IPSModule
     /**
      * Liefert den Header der HTML-Tabelle.
      *
-     * @param array $Config Die Kofiguration der Tabelle
+     * @param array $Config Die Konfiguration der Tabelle
      *
      * @return string HTML-String
      */
@@ -801,8 +791,6 @@ sleep(10).then(() => {
                     $Line['Icon'] = '<div class="iconMediumSpinner ipsIconTransparent" style="width: 100%; background-position: center center;"></div>';
                 }
                 $LineSecret = base64_encode(sha1($NewSecret . '0' . (string) $Line[$HookId], true));
-                //$this->SendDebug('HookId', $Line[$HookId], 0);
-                //$this->SendDebug('LineSecret', $LineSecret, 0);
                 $LineIndex = ($Line['Type'] == 0x36 ? 'active' : ($pos % 2 ? 'odd' : 'even'));
                 $TrStyle = [];
                 if ($Config_Rows_BgColor[$LineIndex] >= 0) {
@@ -1150,7 +1138,7 @@ sleep(10).then(() => {
             case \OnkyoAVR\ISCP_API_Commands::NAL:
             case \OnkyoAVR\ISCP_API_Commands::NTI:
             case \OnkyoAVR\ISCP_API_Commands::NAT:
-                $this->SetValue($APIData->APICommand, (string) $APIData->Data);
+                $this->SetValue((string)$APIData->APICommand, (string) $APIData->Data);
                 break;
         }
     }
@@ -1164,13 +1152,11 @@ sleep(10).then(() => {
         $APIDataSelectorList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::SelectorList);
         $ResultDataSelectorList = $this->Send($APIDataSelectorList);
         if (count($ResultDataSelectorList) > 0) {
-            //$AssociationSLI = [];
             foreach ($ResultDataSelectorList as $Value => $SelectorProfileData) {
                 if (($Value < 0x29) || ($Value > 0x2E)) {
                     continue;
                 }
                 if (((int) $SelectorProfileData['Zone'] & $zone) == $zone) {
-                    //      $AssociationSLI[] = [$Value, $SelectorProfileData['Name'], '', -1];
                     switch ($Value) {
                         case 0x29:
                             $AssociationNSV[] = [0xF0, $SelectorProfileData['Name'], '', -1];
@@ -1251,7 +1237,6 @@ sleep(10).then(() => {
     //------------------------------------------------------------------------------
     private function RequestZoneState()
     {
-        $this->LogMessage(__FUNCTION__, KL_DEBUG);
         $ApiCmds = \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands;
         foreach ($ApiCmds as $ApiCmd) {
             $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -1374,15 +1359,6 @@ sleep(10).then(() => {
                 'style'   => '',
             ],
         ];
-        /*
-          '29' : Folder, '2A' : Folder X, '2B' : Server, '2C' : Server X, '2D' : Title, '2E' : Title X,
-          '2F' : Program, '31' : USB, '36' : Play, '37' : MultiAccount,
-          for Spotify
-          '38' : Account, '39' : Album, '3A' : Playlist, '3B' : Playlist-C, '3C' : starred,
-          '3D' : What'sNew, '3E' : Artist, '3F' : Track, '40' : unstarred, '41' : Play, '43' : Search, '44' : Folder
-          for AUPEO!
-          '42' : Program
-         */
         $NewIconsConfig = [
             [
                 'typ'  => -1,
@@ -1390,7 +1366,7 @@ sleep(10).then(() => {
                 'icon' => 'Backspace',
             ], [
                 'typ'  => 0x00,
-                'name' => $this->Translate('unknow'),
+                'name' => $this->Translate('unknown'),
                 'icon' => 'Transparent',
             ], [
                 'typ'  => 0x29, // +0x44

@@ -61,7 +61,7 @@ Diese werden jedoch nur erzeugt, wenn das Gerät auch eine (sinnvolle) Antwort l
 **Beispiel Main Zone bei TX-626 mit allen Funktionen in der Instanz aktiviert:**  
 ![Objektbaum Main Zone](../imgs/logbaum_zone1_max.png)  
 
-Die Statusvariablen können in der Konfiguration der Instanz aktiviert / deaktiviert werden.  
+Die Statusvariablen können in der Konfiguration der Instanz aktiviert / desaktiviert werden.  
 
 **Statusvariablen MainZone:**  
 
@@ -69,12 +69,12 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / deaktiv
 | :-------------------------: | :-----: | :---: | :----------------------------------------: |
 |            Power            | boolean |  PWR  |        Zone ein- oder ausgeschaltet        |
 |           Volume            | integer |  MVL  |                 Lautstärke                 |
-|            Mute             | boolean |  AMT  |       Stummschaltung aktiv / deaktiv       |
+|            Mute             | boolean |  AMT  |       Stummschaltung aktiv / desaktiv       |
 |           Eingang           | integer |  SLI  |         Audio/Video Eingangsquelle         |
 |         Vorne Höhen         | integer | TFR0  |          Frontlautsprecher Höhen           |
 |         Vorne Bass          | integer | TFR1  |           Frontlautsprecher Bass           |
-|     Vorne aussen Höhen      | integer | TFW0  |       Front-Wide-Lautsprecher Höhen        |
-|      Vorne aussen Bass      | integer | TFW1  |        Front-Wide-Lautsprecher Bass        |
+|     Vorne außen Höhen      | integer | TFW0  |       Front-Wide-Lautsprecher Höhen        |
+|      Vorne außen Bass      | integer | TFW1  |        Front-Wide-Lautsprecher Bass        |
 |      Vorne oben Höhen       | integer | TFH0  |       Front-High-Lautsprecher Höhen        |
 |       Vorne oben Bass       | integer | TFH1  |        Front-High-Lautsprecher Bass        |
 |       Surround Höhen        | integer | TSR0  |        Surround-Lautsprecher Höhen         |
@@ -94,21 +94,21 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / deaktiv
 |        Audio Eingang        | integer |  SLA  |            Audio Eingangsquelle            |
 |        HDMI Ausgang         | integer |  HDO  |                HDMI Ausgang                |
 |     HDMI Audio Ausgang      | integer |  HAO  |             HDMI Audio Ausgang             |
-|  HDMI Audio Ausgang (Sub)   | boolean |  HAS  |  HDMI Audio Ausgang (Sub) aktiv / deaktiv  |
-|     HDMI CEC Steuerung      | boolean |  CEC  |     HDMI CEC Steuerung aktiv / deaktiv     |
+|  HDMI Audio Ausgang (Sub)   | boolean |  HAS  |  HDMI Audio Ausgang (Sub) aktiv / desaktiv  |
+|     HDMI CEC Steuerung      | boolean |  CEC  |     HDMI CEC Steuerung aktiv / desaktiv     |
 |      Monitorauflösung       | integer |  RES  |              Monitorauflösung              |
 |         Videomodus          | integer |  VWM  |                 Videomodus                 |
 |       Videobildmodus        | integer |  VPM  |               Videobildmodus               |
 |          Hörmodus           | integer |  LMD  |                  Hörmodus                  |
 |          Hörmodus           | integer | LMD2  |        Aktions-Tasten für Hörmodus         |
 |         Spät-Abends         | integer |  LTN  |   HTML-Box mit der Playlist des Players    |
-|    Re-EQ oder Kinofilter    | boolean |  RAS  |   Re-EQ oder Kinofilter aktiv / deaktiv    |
+|    Re-EQ oder Kinofilter    | boolean |  RAS  |   Re-EQ oder Kinofilter aktiv / desaktiv    |
 |       Audyssey Modus        | integer |  ADY  |               Audyssey Modus               |
-|     Audyssey Dynamic EQ     | boolean |  ADQ  |          Audyssey aktiv / deaktiv          |
+|     Audyssey Dynamic EQ     | boolean |  ADQ  |          Audyssey aktiv / desaktiv          |
 | Audyssey Dynamic Lautstärke | integer |  ADV  |            Audyssey Lautstärke             |
-|       Musikoptimierer       | boolean |  MOT  |      Musikoptimierer aktiv / deaktiv       |
-|    Phasenanpassungsbass     | boolean |  PMB  |    Phasenanpassungsbass aktiv / deaktiv    |
-|       Einschlaftimer        | integer |  SLP  |               Einschlaftimer               |
+|       Musikoptimierer       | boolean |  MOT  |      Musikoptimierer aktiv / desaktiv       |
+|    Phasenanpassungsbass     | boolean |  PMB  |    Phasenanpassungsbass aktiv / desaktiv    |
+|       EinschlafTimer        | integer |  SLP  |               EinschlafTimer               |
 
 **Statusvariablen Zone 2:**  
 
@@ -116,7 +116,7 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / deaktiv
 | :-----: | :-----: | :---: | :----------------------------: |
 |  Power  | boolean |  ZPW  |  Zone ein- oder ausgeschaltet  |
 | Volume  | integer |  ZVL  |           Lautstärke           |
-|  Mute   | boolean |  ZMT  | Stummschaltung aktiv / deaktiv |
+|  Mute   | boolean |  ZMT  | Stummschaltung aktiv / desaktiv |
 | Eingang | integer |  SLZ  |   Audio/Video Eingangsquelle   |
 |  Höhen  | integer | ZTN0  |       Lautsprecher Höhen       |
 |  Bass   | integer | ZTN0  |       Lautsprecher Bass        |
@@ -127,7 +127,7 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / deaktiv
 | :-----: | :-----: | :---: | :----------------------------: |
 |  Power  | boolean |  PW3  |  Zone ein- oder ausgeschaltet  |
 | Volume  | integer |  VL3  |           Lautstärke           |
-|  Mute   | boolean |  MT3  | Stummschaltung aktiv / deaktiv |
+|  Mute   | boolean |  MT3  | Stummschaltung aktiv / desaktiv |
 | Eingang | integer |  SL3  |   Audio/Video Eingangsquelle   |
 |  Höhen  | integer | TN30  |       Lautsprecher Höhen       |
 |  Bass   | integer | TN31  |       Lautsprecher Bass        |
@@ -138,7 +138,7 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / deaktiv
 | :-----: | :-----: | :---: | :----------------------------: |
 |  Power  | boolean |  PW4  |  Zone ein- oder ausgeschaltet  |
 | Volume  | integer |  VL4  |           Lautstärke           |
-|  Mute   | boolean |  MT4  | Stummschaltung aktiv / deaktiv |
+|  Mute   | boolean |  MT4  | Stummschaltung aktiv / desaktiv |
 | Eingang | integer |  SL4  |   Audio/Video Eingangsquelle   |
 |         |
 **Profile**:
@@ -216,7 +216,7 @@ Lautstärke der Zone setzen. 'Value' ist der absolute Wert (z.B. 0-80).
 ```php
 bool OAVR_SetMute(int $InstanzeID, bool $Value);
 ```
-Stummschaltung wird mit 'Value' bei 'True' aktiviert und bei 'False' deaktiviert.  
+Stummschaltung wird mit 'Value' bei 'True' aktiviert und bei 'False' desaktiviert.  
 
 ```php
 bool OAVR_SelectInput(int $InstanzeID, int $Value);
@@ -317,7 +317,7 @@ Werte aus der API sind, u.a.:
 ```php
 bool OAVR_SetSleep(int $InstanzeID, int $Duration);
 ```
-Aktiviert den Ausschalttimer mit den in 'Duration' übergeben Wert in Sekunden.  
+Aktiviert den AusschaltTimer mit den in 'Duration' übergeben Wert in Sekunden.  
 
 ```php
 bool OAVR_SetSubwooferLevel(int $InstanzeID, float $Level);

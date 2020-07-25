@@ -186,7 +186,7 @@ class IPSProfiles
             [0x05, '1080p', '', -1],
             [0x06, 'Source', '', -1],
             [0x07, '1080p/24fs', '', -1],
-            [0x08, '4K Upcaling', '', -1],
+            [0x08, '4K Upscaling', '', -1],
         ],
         self::ptVideoWideMode    => [
             [0x00, 'Auto', '', -1],
@@ -506,7 +506,7 @@ class ONKYO_Zone
             //'UHS' - HD Radio Tuner Status (Universal Port Dock Only)
             //'UPR' - DAB Preset Command (Universal Port Dock Only)
             //'UPM' - Preset Memory Command (Universal Port Dock Only)
-            //'UDS' - DAB Sation Name (Universal Port Dock Only)
+            //'UDS' - DAB Station Name (Universal Port Dock Only)
             //'UDD' - DAB Display Info (Universal Port Dock Only)
             //ENDE CMD via PORT
         ],
@@ -516,6 +516,7 @@ class ONKYO_Zone
             ISCP_API_Commands::ZVL,
             ISCP_API_Commands::SLZ,
             ISCP_API_Commands::ZTN,
+            ISCP_API_Commands::LMZ,
         ],
         self::Zone3     => [
             ISCP_API_Commands::PW3,
@@ -600,7 +601,7 @@ class ONKYO_Zone
         }
     }
 
-    public function CmdAvaiable(string $APICommand)
+    public function CmdAvailable(string $APICommand)
     {
         return in_array($APICommand, self::$ZoneCMDs[$this->thisZone]);
     }
@@ -651,8 +652,8 @@ class ISCP_API_Commands
     const DIM = 'DIM'; //'DIM' - Dimmer Level Command
     const OSD = 'OSD'; //'OSD' - Setup Operation Command
     const MEM = 'MEM'; //'MEM' - Memory Setup Command
-    const IFA = 'IFA'; //'IFA' - Audio Infomation Command
-    const IFV = 'IFV'; //'IFV' - Video Infomation Command
+    const IFA = 'IFA'; //'IFA' - Audio Information Command
+    const IFV = 'IFV'; //'IFV' - Video Information Command
     const SLI = 'SLI'; // 'SLI' - Input Selector Command
     const SLA = 'SLA'; //'SLA' - Audio Selector Command
     const TGA = 'TGA'; //'TGA' - 12V Trigger A Command
@@ -741,7 +742,7 @@ class ISCP_API_Commands
     //'UHS' - HD Radio Tuner Status (Universal Port Dock Only)
     //'UPR' - DAB Preset Command (Universal Port Dock Only)
     //'UPM' - Preset Memory Command (Universal Port Dock Only)
-    //'UDS' - DAB Sation Name (Universal Port Dock Only)
+    //'UDS' - DAB Station Name (Universal Port Dock Only)
     //'UDD' - DAB Display Info (Universal Port Dock Only)
     //ENDE CMD via PORT
     //MAIN end
@@ -753,6 +754,7 @@ class ISCP_API_Commands
     const SLZ = 'SLZ';
     const TUZ = 'TUZ';
     const PRZ = 'PRZ';
+    const LMZ = 'LMZ';
     const NTZ = 'NTZ'; // Network Zone
     const NPZ = 'NPZ'; //Network Zone
     //Zone3 Zone
@@ -1206,6 +1208,15 @@ class ISCP_API_Commands
             self::RequestValue => true,
             self::ValueMapping => null,
         ],
+        self::LMZ => [
+            self::VarType      => IPSVarType::vtInteger,
+            self::EnableAction => true,
+            self::Profile      => IPSProfiles::ptListeningMode,
+            self::IsVariable   => true,
+            self::VarName      => 'Listening Mode',
+            self::RequestValue => true,
+            self::ValueMapping => null,
+        ],
         // Zone 2 end
         // Zone 3 start
         self::PW3 => [
@@ -1370,7 +1381,7 @@ class ISCP_API_Data
     public function ToISCPString($Mode)
     {
         if (is_bool($this->Data)) {
-            $Value = \OnkyoAVR\ISCP_API_Commands::$BoolValueMapping($this->Data);
+            $Value = \OnkyoAVR\ISCP_API_Commands::$BoolValueMapping[$this->Data];
         } elseif (is_int($this->Data)) {
             $Value = sprintf('%02X', $this->Data);
         } else {
@@ -1380,8 +1391,8 @@ class ISCP_API_Data
         if ($Mode == \OnkyoAVR\ISCP_API_Mode::LAN) {
             $PayloadLen = pack('N', strlen($Payload));
             $eSICPHeader = $PayloadLen . "\x01\x00\x00\x00";
-            $eISCPHeaderlen = pack('N', strlen($eSICPHeader) + 8);
-            $Frame = 'ISCP' . $eISCPHeaderlen . $eSICPHeader . $Payload;
+            $eISCPHeaderLen = pack('N', strlen($eSICPHeader) + 8);
+            $Frame = 'ISCP' . $eISCPHeaderLen . $eSICPHeader . $Payload;
         } else {
             $Frame = $Payload;
         }

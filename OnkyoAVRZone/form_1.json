@@ -308,7 +308,7 @@
                         {
                             "type": "CheckBox",
                             "name": "PMB",
-                            "caption": "phase matching bass sontrol"
+                            "caption": "phase matching bass control"
                         }
                     ]
                 }

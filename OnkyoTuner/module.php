@@ -19,7 +19,7 @@ eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/V
 /**
  * @property int $ParentID Die InstanzeID des IO-Parent
  * @property int $MaxPreset
- * @property int $TunerProfile
+ * @property \OnkyoAVR\ONKYO_Zone_Tuner::$TunerProfile $TunerProfile
  * @property \OnkyoAVR\ONKYO_Zone_Tuner $OnkyoZone
  */
 class OnkyoTuner extends IPSModule
@@ -155,7 +155,7 @@ class OnkyoTuner extends IPSModule
 
             return false;
         }
-        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetReadAPICommands($ApiCmd), \OnkyoAVR\ISCP_API_Commands::Request);
+        $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetReadAPICommands()[$ApiCmd], \OnkyoAVR\ISCP_API_Commands::Request);
         $ResultData = $this->Send($APIData);
         if ($ResultData === null) {
             return false;

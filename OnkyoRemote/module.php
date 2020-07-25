@@ -21,7 +21,7 @@ class OnkyoRemote extends IPSModule
 {
     use \OnkyoRemote\DebugHelper;
     use \OnkyoRemote\WebhookHelper;
-    use \OnkyoRemote\Bufferhelper;
+    use \OnkyoRemote\BufferHelper;
     use \OnkyoRemote\VariableProfileHelper;
 
     protected static $APICommands = [
