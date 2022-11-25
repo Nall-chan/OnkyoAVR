@@ -1131,7 +1131,7 @@ sleep(10).then(() => {
                 if ($Data[1] != '--:--') {
                     $NTM0 = $this->StringToSeconds($Data[0]);
                     $NTM1 = $this->StringToSeconds($Data[1]);
-                    $Total = (100 / $NTM1) * $NTM0;
+                    $Total = (100 / ($NTM1 ? $NTM1 : 100)) * $NTM0;
                     $this->SetValueInteger('NTM', $Total);
                 }
                 break;
@@ -1418,9 +1418,9 @@ sleep(10).then(() => {
     private function StringToSeconds($Value)
     {
         $Parts = explode(':', $Value);
-        $Seconds = array_pop($Parts);
+        $Seconds = (int) array_pop($Parts);
         foreach ($Parts as $Part) {
-            $Seconds += $Part * 60;
+            $Seconds += (int) $Part * 60;
         }
 
         return $Seconds;
