@@ -1,10 +1,10 @@
-[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
 
-# Onkyo & Pioneer AVR Zone (Onkyo AVR)
+# Onkyo & Pioneer AVR Zone (Onkyo AVR) <!-- omit in toc -->
 Bildet eine der Zones eines Gerätes in IP-Symcon ab.  
 
 ## Inhaltsverzeichnis <!-- omit in toc -->
@@ -69,12 +69,12 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / desakti
 | :-------------------------: | :-----: | :---: | :----------------------------------------: |
 |            Power            | boolean |  PWR  |        Zone ein- oder ausgeschaltet        |
 |           Volume            | integer |  MVL  |                 Lautstärke                 |
-|            Mute             | boolean |  AMT  |       Stummschaltung aktiv / desaktiv       |
+|            Mute             | boolean |  AMT  |      Stummschaltung aktiv / desaktiv       |
 |           Eingang           | integer |  SLI  |         Audio/Video Eingangsquelle         |
 |         Vorne Höhen         | integer | TFR0  |          Frontlautsprecher Höhen           |
 |         Vorne Bass          | integer | TFR1  |           Frontlautsprecher Bass           |
-|     Vorne außen Höhen      | integer | TFW0  |       Front-Wide-Lautsprecher Höhen        |
-|      Vorne außen Bass      | integer | TFW1  |        Front-Wide-Lautsprecher Bass        |
+|      Vorne außen Höhen      | integer | TFW0  |       Front-Wide-Lautsprecher Höhen        |
+|      Vorne außen Bass       | integer | TFW1  |        Front-Wide-Lautsprecher Bass        |
 |      Vorne oben Höhen       | integer | TFH0  |       Front-High-Lautsprecher Höhen        |
 |       Vorne oben Bass       | integer | TFH1  |        Front-High-Lautsprecher Bass        |
 |       Surround Höhen        | integer | TSR0  |        Surround-Lautsprecher Höhen         |
@@ -94,52 +94,52 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / desakti
 |        Audio Eingang        | integer |  SLA  |            Audio Eingangsquelle            |
 |        HDMI Ausgang         | integer |  HDO  |                HDMI Ausgang                |
 |     HDMI Audio Ausgang      | integer |  HAO  |             HDMI Audio Ausgang             |
-|  HDMI Audio Ausgang (Sub)   | boolean |  HAS  |  HDMI Audio Ausgang (Sub) aktiv / desaktiv  |
-|     HDMI CEC Steuerung      | boolean |  CEC  |     HDMI CEC Steuerung aktiv / desaktiv     |
+|  HDMI Audio Ausgang (Sub)   | boolean |  HAS  | HDMI Audio Ausgang (Sub) aktiv / desaktiv  |
+|     HDMI CEC Steuerung      | boolean |  CEC  |    HDMI CEC Steuerung aktiv / desaktiv     |
 |      Monitorauflösung       | integer |  RES  |              Monitorauflösung              |
 |         Videomodus          | integer |  VWM  |                 Videomodus                 |
 |       Videobildmodus        | integer |  VPM  |               Videobildmodus               |
 |          Hörmodus           | integer |  LMD  |                  Hörmodus                  |
 |          Hörmodus           | integer | LMD2  |        Aktions-Tasten für Hörmodus         |
-|         Spät-Abends         | integer |  LTN  |   HTML-Box mit der Playlist des Players    |
-|    Re-EQ oder Kinofilter    | boolean |  RAS  |   Re-EQ oder Kinofilter aktiv / desaktiv    |
+|         Spät-Abends         | integer |  LTN  |            Late Night Steuerung            |
+|    Re-EQ oder Kinofilter    | boolean |  RAS  |   Re-EQ oder Kinofilter aktiv / desaktiv   |
 |       Audyssey Modus        | integer |  ADY  |               Audyssey Modus               |
-|     Audyssey Dynamic EQ     | boolean |  ADQ  |          Audyssey aktiv / desaktiv          |
+|     Audyssey Dynamic EQ     | boolean |  ADQ  |         Audyssey aktiv / desaktiv          |
 | Audyssey Dynamic Lautstärke | integer |  ADV  |            Audyssey Lautstärke             |
-|       Musikoptimierer       | boolean |  MOT  |      Musikoptimierer aktiv / desaktiv       |
-|    Phasenanpassungsbass     | boolean |  PMB  |    Phasenanpassungsbass aktiv / desaktiv    |
+|       Musikoptimierer       | boolean |  MOT  |      Musikoptimierer aktiv / desaktiv      |
+|    Phasenanpassungsbass     | boolean |  PMB  |   Phasenanpassungsbass aktiv / desaktiv    |
 |       EinschlafTimer        | integer |  SLP  |               EinschlafTimer               |
 
 **Statusvariablen Zone 2:**  
 
-|  Name   |   Typ   | Ident |          Beschreibung          |
-| :-----: | :-----: | :---: | :----------------------------: |
-|  Power  | boolean |  ZPW  |  Zone ein- oder ausgeschaltet  |
-| Volume  | integer |  ZVL  |           Lautstärke           |
+|  Name   |   Typ   | Ident |          Beschreibung           |
+| :-----: | :-----: | :---: | :-----------------------------: |
+|  Power  | boolean |  ZPW  |  Zone ein- oder ausgeschaltet   |
+| Volume  | integer |  ZVL  |           Lautstärke            |
 |  Mute   | boolean |  ZMT  | Stummschaltung aktiv / desaktiv |
-| Eingang | integer |  SLZ  |   Audio/Video Eingangsquelle   |
-|  Höhen  | integer | ZTN0  |       Lautsprecher Höhen       |
-|  Bass   | integer | ZTN0  |       Lautsprecher Bass        |
+| Eingang | integer |  SLZ  |   Audio/Video Eingangsquelle    |
+|  Höhen  | integer | ZTN0  |       Lautsprecher Höhen        |
+|  Bass   | integer | ZTN0  |        Lautsprecher Bass        |
 
 **Statusvariablen Zone 3:**  
 
-|  Name   |   Typ   | Ident |          Beschreibung          |
-| :-----: | :-----: | :---: | :----------------------------: |
-|  Power  | boolean |  PW3  |  Zone ein- oder ausgeschaltet  |
-| Volume  | integer |  VL3  |           Lautstärke           |
+|  Name   |   Typ   | Ident |          Beschreibung           |
+| :-----: | :-----: | :---: | :-----------------------------: |
+|  Power  | boolean |  PW3  |  Zone ein- oder ausgeschaltet   |
+| Volume  | integer |  VL3  |           Lautstärke            |
 |  Mute   | boolean |  MT3  | Stummschaltung aktiv / desaktiv |
-| Eingang | integer |  SL3  |   Audio/Video Eingangsquelle   |
-|  Höhen  | integer | TN30  |       Lautsprecher Höhen       |
-|  Bass   | integer | TN31  |       Lautsprecher Bass        |
+| Eingang | integer |  SL3  |   Audio/Video Eingangsquelle    |
+|  Höhen  | integer | TN30  |       Lautsprecher Höhen        |
+|  Bass   | integer | TN31  |        Lautsprecher Bass        |
 
 **Statusvariablen Zone 4:**  
 
-|  Name   |   Typ   | Ident |          Beschreibung          |
-| :-----: | :-----: | :---: | :----------------------------: |
-|  Power  | boolean |  PW4  |  Zone ein- oder ausgeschaltet  |
-| Volume  | integer |  VL4  |           Lautstärke           |
+|  Name   |   Typ   | Ident |          Beschreibung           |
+| :-----: | :-----: | :---: | :-----------------------------: |
+|  Power  | boolean |  PW4  |  Zone ein- oder ausgeschaltet   |
+| Volume  | integer |  VL4  |           Lautstärke            |
 |  Mute   | boolean |  MT4  | Stummschaltung aktiv / desaktiv |
-| Eingang | integer |  SL4  |   Audio/Video Eingangsquelle   |
+| Eingang | integer |  SL4  |   Audio/Video Eingangsquelle    |
 |         |
 **Profile**:
  

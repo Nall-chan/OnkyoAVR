@@ -1,10 +1,10 @@
-[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) 
 
-# Symcon-Modul: Onkyo & Pioneer AVR
+# Symcon-Modul: Onkyo & Pioneer AVR <!-- omit in toc -->
 
 Diese Implementierung des Integra Serial Communication Protocol 
 ermöglicht die Einbindung von Onkyo und Pioneer AV-Receiver in IP-Symcon.  
@@ -82,6 +82,9 @@ Soll ein Receiver per RS232 angebunden werden, so ist zuerst ein ([OnkyoConfigur
 
 ### 2. Changelog
 
+ Version 2.01:  
+ - OAVR_GetVideoInformation und OAVR_GetAudioInformation haben Fehler verursacht und ein falsches Array zurück gegeben  
+
  Version 2.0:  
  - Modul für IPS 5.1 komplett überarbeitet  
  - Neue Discovery Instanz zum auffinden und einrichten von Geräten in Symcon  
@@ -109,7 +112,7 @@ Soll ein Receiver per RS232 angebunden werden, so ist zuerst ein ([OnkyoConfigur
   
   Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
 
 ## 6. Lizenz
 

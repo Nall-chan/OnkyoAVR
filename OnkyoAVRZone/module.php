@@ -272,7 +272,6 @@ class OnkyoAVR extends IPSModule
         if ($Ident == 'LMD2') {
             $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::LMD, $this->LMDList[$Value]['Code'], false);
             $this->Send($APIData);
-
             return;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data($Ident, $Value);
@@ -526,7 +525,7 @@ class OnkyoAVR extends IPSModule
         $Keys = [
             'Audio Input Port',
             'Input Signal Format',
-            'Sampling Frequency',
+            'Input Sampling Frequency',
             'Input Signal Channel',
             'Listening Mode',
             'Output Signal Channel',
@@ -536,8 +535,13 @@ class OnkyoAVR extends IPSModule
             'Auto Phase Control Phase',
             'Upmix Mode',
         ];
-
-        return array_combine($Keys, array_pad(explode(',', substr($ret, 0, -1)), count($Keys), ''));
+        $Values = explode(',', $ret);
+        if (count($Values) > count($Keys)) {
+            array_splice($Values, count($Keys));
+        } else {
+            $Values = array_pad($Values, count($Keys), '');
+        }
+        return array_combine($Keys, $Values);
     }
 
     public function GetVideoInformation()
@@ -562,16 +566,21 @@ class OnkyoAVR extends IPSModule
         $Keys = [
             'Video Input Port',
             'Input Resolution',
-            'RGB/YCbCr',
-            'Color Depth',
+            'Input RGB/YCbCr',
+            'Input Color Depth',
             'Video Output Port',
             'Output Resolution',
-            'RGB/YCbCr',
-            'Color Depth',
+            'Output RGB/YCbCr',
+            'Output Color Depth',
             'Picture Mode',
         ];
-
-        return array_combine($Keys, array_pad(explode(',', substr($ret, 0, -1)), count($Keys), ''));
+        $Values = explode(',', $ret);
+        if (count($Values) > count($Keys)) {
+            array_splice($Values, count($Keys));
+        } else {
+            $Values = array_pad($Values, count($Keys), '');
+        }
+        return array_combine($Keys, $Values);
     }
 
     //################# Datapoints
@@ -747,11 +756,9 @@ class OnkyoAVR extends IPSModule
     {
         if ($this->OnkyoZone->thisZone == \OnkyoAVR\ONKYO_Zone::None) {
             $this->SendDebug('Error', $this->Translate('Zone not set.'), 0);
-            $this->LogMessage($this->Translate('Zone not set.'), KL_ERROR);
-
+            //$this->LogMessage($this->Translate('Zone not set.'), KL_ERROR);
             return false;
         }
-
         return true;
     }
 
@@ -861,6 +868,16 @@ class OnkyoAVR extends IPSModule
                 $this->SetValueString($APIData->APICommand, $Value);
                 break;
         }
+        // refreshs
+        switch ($APIData->APICommand){
+            case \OnkyoAVR\ISCP_API_Commands::SLI:
+                $this->RequestState(\OnkyoAVR\ISCP_API_Commands::IFV);
+                $this->RequestState(\OnkyoAVR\ISCP_API_Commands::IFA);
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::SLA:
+                $this->RequestState(\OnkyoAVR\ISCP_API_Commands::IFA);
+                break;
+            }
     }
 
     private function SendPower(bool $Value)
