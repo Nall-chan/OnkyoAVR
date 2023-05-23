@@ -1,12 +1,12 @@
 {
     "id": "{2EAC185C-D34C-433A-A5A5-4B146C89D44C}",
-    "author": "Michael Tr\u00f6ger",
+    "author": "Michael Tröger",
     "name": "Onkyo & Pioneer AVR (ISCP) Library",
     "url": "https://github.com/Nall-chan/OnkyoAVR",
     "compatibility": {
-        "version": "5.1"
+        "version": "6.4"
     },
-    "version": "2.0",
-    "build": 100,
+    "version": "2.5",
+    "build": 250,
     "date": 1556897642
 }

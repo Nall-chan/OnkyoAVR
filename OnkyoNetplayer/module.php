@@ -29,8 +29,17 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  * @property int $ActiveIndex
  * @property string $FolderName
  * @property string $WebHookSecret
+ * @method void SetValueInteger(string $Ident, int $value)
+ * @method void SetValueString(string $Ident, string $value)
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, float $StepSize)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void UnregisterProfile(string $Name)
+ * @method void RegisterHook(string $WebHook)
+ * @method void UnregisterHook(string $WebHook)
+ * @method int RegisterParent()
  */
-class OnkyoNetplayer extends IPSModule
+class OnkyoNetplayer extends IPSModuleStrict
 {
     use \OnkyoNetplayer\DebugHelper,
         \OnkyoNetplayer\BufferHelper,
@@ -38,14 +47,14 @@ class OnkyoNetplayer extends IPSModule
         \OnkyoNetplayer\VariableHelper,
         \OnkyoNetplayer\VariableProfileHelper,
         \OnkyoNetplayer\WebhookHelper {
-        \OnkyoNetplayer\InstanceStatus::MessageSink as IOMessageSink;
-        \OnkyoNetplayer\InstanceStatus::RequestAction as IORequestAction;
-    }
+            \OnkyoNetplayer\InstanceStatus::MessageSink as IOMessageSink;
+            \OnkyoNetplayer\InstanceStatus::RequestAction as IORequestAction;
+        }
 
-    public function Create()
+    public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent('{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}');
+        $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Zone', \OnkyoAVR\ONKYO_Zone_NetPlayer::ZoneMain);
         $this->RegisterPropertyBoolean('showCover', true);
         $this->RegisterPropertyBoolean('showNavigation', true);
@@ -68,10 +77,11 @@ class OnkyoNetplayer extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function Destroy()
+    public function Destroy(): void
     {
         if (IPS_GetKernelRunlevel() != KR_READY) {
-            return parent::Destroy();
+            parent::Destroy();
+            return;
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('Onkyo.NetTunerPreset');
@@ -82,7 +92,7 @@ class OnkyoNetplayer extends IPSModule
             $this->UnregisterProfile('Onkyo.Network');
             $this->UnregisterProfile('Onkyo.USB');
             $this->UnregisterProfile('Onkyo.SelectNetworkService.' . $this->InstanceID);
-            $CoverID = @IPS_GetObjectIDByIdent('Cover', $this->InstanceID);
+            $CoverID = $this->FindIDForIdent('Cover');
             if ($CoverID > 0) {
                 @IPS_DeleteMedia($CoverID, true);
             }
@@ -91,7 +101,7 @@ class OnkyoNetplayer extends IPSModule
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
@@ -139,7 +149,7 @@ class OnkyoNetplayer extends IPSModule
         $this->EnableAction('NST2');
         $this->RegisterVariableInteger('NST1', $this->Translate('Repeat'), 'Onkyo.Repeat.' . $this->InstanceID, 0);
         $this->EnableAction('NST1');
-        $this->RegisterVariableInteger('NST0', $this->Translate('State'), 'Onkyo.Status', 0);
+        $this->RegisterVariableInteger('NST0', $this->Translate('State'), '~PlaybackPreviousNext', 0);
         $this->EnableAction('NST0');
 
         $this->RegisterProfileIntegerEx('Onkyo.Tracks', '', '', '', [
@@ -167,8 +177,8 @@ class OnkyoNetplayer extends IPSModule
         $this->RegisterVariableString('NTM1', $this->Translate('Duration'), '', 0);
         $this->RegisterVariableInteger('NTM', $this->Translate('Position'), '~Intensity.100', 0);
         $this->RegisterVariableString('NAL', $this->Translate('Album'), '', 0);
-        $this->RegisterVariableString('NTI', $this->Translate('Title'), '', 0);
-        $this->RegisterVariableString('NAT', $this->Translate('Artist'), '', 0);
+        $this->RegisterVariableString('NTI', $this->Translate('Title'), '~Song', 0);
+        $this->RegisterVariableString('NAT', $this->Translate('Artist'), '~Artist', 0);
 
         $this->RegisterVariableInteger('NDS0', $this->Translate('Network'), 'Onkyo.Network', 0);
         $this->RegisterVariableInteger('NDS1', $this->Translate('Front USB'), 'Onkyo.USB', 0);
@@ -182,7 +192,7 @@ class OnkyoNetplayer extends IPSModule
             $this->SetCover();
         } else {
             unset($APICommands[array_search(\OnkyoAVR\ISCP_API_Commands::NJA, $APICommands)]);
-            $CoverID = @IPS_GetObjectIDByIdent('Cover', $this->InstanceID);
+            $CoverID = $this->FindIDForIdent('Cover');
             if ($CoverID > 0) {
                 @IPS_DeleteMedia($CoverID, true);
             }
@@ -209,7 +219,7 @@ class OnkyoNetplayer extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
 
@@ -220,12 +230,12 @@ class OnkyoNetplayer extends IPSModule
         }
     }
 
-    public function Menu()
+    public function Menu(): bool
     {
         return $this->SendKey('TOP');
     }
 
-    public function SelectNetworkService(int $ServiceIndex)
+    public function SelectNetworkService(int $ServiceIndex): bool
     {
         if ($ServiceIndex >= 0xf0) {
             switch ($ServiceIndex) {
@@ -243,7 +253,6 @@ class OnkyoNetplayer extends IPSModule
                     break;
                 default:
                     trigger_error($this->Translate('Unknown NetworkService'), E_USER_NOTICE);
-
                     return false;
             }
             $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI), sprintf('%02X', $Input));
@@ -251,7 +260,6 @@ class OnkyoNetplayer extends IPSModule
             if ($ResultData === null) {
                 return false;
             }
-
             return true;
         }
         $Data = sprintf('%02X', $ServiceIndex) . '0';
@@ -260,11 +268,10 @@ class OnkyoNetplayer extends IPSModule
         if ($ret == null) {
             return false;
         }
-
         return true;
     }
 
-    public function SelectInfoListItem(int $Index)
+    public function SelectInfoListItem(int $Index): bool
     {
         if ($this->ServiceType == 0xf3) {
             return $this->SelectNetworkService($Index);
@@ -288,7 +295,7 @@ class OnkyoNetplayer extends IPSModule
         return true;
     }
 
-    public function RequestInfoListData()
+    public function RequestInfoListData(): array
     {
         $Title = $this->Translate('empty');
         $List[] = [
@@ -312,12 +319,11 @@ class OnkyoNetplayer extends IPSModule
                             'Title' => $Item,
                         ];
                     }
-
                     $Title = $this->FolderName;
                     break;
                 }
                 // No break ist Absicht. Warum, habe ich vergessen :D
-                // FIXME: No break. Please add proper comment if intentional
+                // No break. Add additional comment above this line if intentional
             default:
                 if ($this->UiType == 3) { //menü screen
                     $Title = $this->FolderName;
@@ -384,7 +390,7 @@ class OnkyoNetplayer extends IPSModule
                 foreach ($xml->xpath('//item') as $Key => $Item) {
                     $List[] = [
                         'ID'    => (int) $Key,
-                        'Type'  => hexdec($Item['iconid']),
+                        'Type'  => hexdec((string) $Item['iconid']),
                         'Title' => (string) $Item['title'],
                     ];
                 }
@@ -392,104 +398,110 @@ class OnkyoNetplayer extends IPSModule
                 $this->SendDebug('NLA', $List, 0);
                 break;
         }
-
         return ['Title' => $Title, 'List' => $List];
     }
 
-    public function SendKey(string $Key)
+    public function SendKey(string $Key): bool
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NTC), $Key, false);
         $ResultData = $this->Send($APIData);
         if ($ResultData === null) {
             return false;
         }
-
         return true;
     }
 
     //################# ActionHandler
 
-    public function RequestAction($Ident, $Value)
+    public function RequestAction(string $Ident, mixed $Value): void
     {
         if ($this->IORequestAction($Ident, $Value)) {
-            return true;
+            return;
         }
         switch ($Ident) {
             /* case 'SLI':
               return $this->SelectInput($Value); */
-            case 'NPR':
-                $this->SetValue('NPR', $Value);
-
-                return $this->CallPreset($Value);
-            case 'NTM':
-                $Total = $this->StringToSeconds($this->GetValue('NTM1'));
+            case \OnkyoAVR\ISCP_API_Commands::NPR:
+                $this->SetValueInteger('NPR', $Value);
+                $this->CallPreset($Value);
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NTM:
+                $Total = $this->StringToSeconds($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTM . '1'));
                 $Time = ($Total / 100) * (int) $Value;
-
-                return $this->SetPosition(intval($Time));
-            case 'NTC':
-                return $this->SendKey($Value);
-            case 'NLA':
+                $this->SetPosition(intval($Time));
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NTC:
+                $this->SendKey($Value);
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NLA:
                 $this->SendDebug('RequestAction', 'NLA', 0);
                 if ($this->ReadPropertyBoolean('showNavigation')) {
                     $Result = $this->RequestInfoListData();
                     $this->RefreshNavigationTable($Result);
                 }
-
-                return true;
-            case 'NST0':
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NST . '0':
                 switch ($Value) {
                     case 0:
-                        return $this->Stop();
+                        $this->PreviousTrack();
+                        break;
                     case 1:
-                        if ($this->GetValue('NST0') == 1) {
-                            return true;
-                        }
-
-                        return $this->Pause();
+                        $this->Stop();
+                        break;
                     case 2:
-                        if ($this->GetValue('NST0') == 2) {
-                            return true;
+                        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 2) {
+                            break;
                         }
-
-                        return $this->Pause();
+                        $this->Pause();
+                        break;
+                    case 3:
+                        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 3) {
+                            break;
+                        }
+                        $this->Pause();
+                        break;
+                    case 4:
+                        $this->NextTrack();
+                        break;
                 }
                 echo 'Invalid Value';
-
-                return false;
-            case 'NST1':
-                return $this->Repeat();
-            case 'NST2':
-                return $this->Shuffle();
-            case 'NTR0':
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NST . '1':
+                $this->Repeat();
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NST . '2':
+                $this->Shuffle();
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NTR . '0':
                 switch ($Value) {
                     case -999:
-                        return $this->PreviousTrack();
+                        $this->PreviousTrack();
+                        break;
                     case 999:
-                        return $this->NextTrack();
+                        $this->NextTrack();
+                        break;
                 }
-
                 return;
-            case 'NSV':
-                return $this->SelectNetworkService($Value);
+            case \OnkyoAVR\ISCP_API_Commands::NSV:
+                $this->SelectNetworkService($Value);
+                break;
+            default:
+                echo $this->Translate('Invalid Ident');
+                break;
         }
-        echo $this->Translate('Invalid Ident');
     }
 
     //################# PUBLIC
 
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
-     */
-    public function RequestState(string $Ident)
+    public function RequestState(string $Ident): bool
     {
         if ($Ident == 'ALL') {
-            return $this->RequestZoneState();
+            $this->RequestZoneState();
+            return true;
         }
         $ApiCmd = substr($Ident, 0, 3);
         if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands)) {
             trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
-
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -499,13 +511,12 @@ class OnkyoNetplayer extends IPSModule
         }
         $APIData->Data = $ResultData;
         $this->UpdateVariable($APIData);
-
         return true;
     }
 
-    public function PreviousTrack()
+    public function PreviousTrack(): bool
     {
-        if ($this->GetValue('NST0') != 0) {
+        if ($this->GetValue('NST0') != 2) {
             $this->Stop();
             sleep(3);
         }
@@ -513,41 +524,40 @@ class OnkyoNetplayer extends IPSModule
         return $this->SendKey('TRDN');
     }
 
-    public function NextTrack()
+    public function NextTrack(): bool
     {
         return $this->SendKey('TRUP');
     }
 
-    public function Play()
+    public function Play(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
-    public function Pause()
+    public function Pause(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
-    public function Stop()
+    public function Stop(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
-    public function Shuffle()
+    public function Shuffle(): bool
     {
         return $this->SendKey('RANDOM');
     }
 
-    public function Repeat()
+    public function Repeat(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
-    public function SetPosition(int $Value)
+    public function SetPosition(int $Value): bool
     {
         if ($Value > $this->StringToSeconds($this->GetValue('NTM1'))) {
             trigger_error($this->Translate('Value greater as duration'), E_USER_NOTICE);
-
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NTS, $this->SecondsToString($Value), false);
@@ -555,15 +565,13 @@ class OnkyoNetplayer extends IPSModule
         if ($ResultData === null) {
             return false;
         }
-
         return true;
     }
 
-    public function CallPreset(int $Value)
+    public function CallPreset(int $Value): bool
     {
         if (($Value < 1) || ($Value > 40)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(
@@ -571,31 +579,34 @@ class OnkyoNetplayer extends IPSModule
             sprintf('%02X', $Value),
             false
         );
-
         return $this->Send($APIData);
     }
 
-    public function SavePreset()
+    public function SavePreset(): bool
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data(
             $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NPR),
             'SET',
             false
         );
-
         return $this->Send($APIData);
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
         $this->SendDebug('ReceiveData', $APIData, 0);
         $this->UpdateVariable($APIData);
+        return '';
     }
 
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
+
         if ($this->ReadPropertyBoolean('showNavigation')) {
             $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
             $Icons[] = [
@@ -621,7 +632,7 @@ class OnkyoNetplayer extends IPSModule
     /**
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
      */
-    protected function KernelReady()
+    protected function KernelReady(): void
     {
         $this->RegisterParent();
     }
@@ -629,7 +640,7 @@ class OnkyoNetplayer extends IPSModule
     /**
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      */
-    protected function IOChangeState($State)
+    protected function IOChangeState(int $State): void
     {
         if ($State == IS_ACTIVE) {
             if ($this->HasActiveParent()) {
@@ -644,11 +655,10 @@ class OnkyoNetplayer extends IPSModule
      *
      * @global array $_GET
      */
-    protected function ProcessHookdata()
+    protected function ProcessHookdata(): void
     {
         if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
-
             return;
         }
 
@@ -659,7 +669,6 @@ class OnkyoNetplayer extends IPSModule
         }
         if ($_GET['Type'] != 'Index') {
             echo $this->Translate('Bad Request');
-
             return;
         }
 
@@ -675,7 +684,7 @@ class OnkyoNetplayer extends IPSModule
      *
      * @return string HTML-String
      */
-    protected function GetTableHeader($Config_Table, $Config_Columns)
+    protected function GetTableHeader(array $Config_Table, array $Config_Columns): string
     {
         $table = '';
         // Kopf der Tabelle erzeugen
@@ -764,7 +773,7 @@ sleep(10).then(() => {
      *
      * @return string Der HTML-String.
      */
-    protected function GetTable($Array_Data, $HookPrefix, $HookType, $HookId)
+    protected function GetTable(array $Array_Data, string $HookPrefix, string $HookType, string $HookId): string
     {
         $Data = $Array_Data['List'];
         $Config_Table = array_column(json_decode($this->ReadPropertyString('Table'), true), 'style', 'tag');
@@ -832,7 +841,7 @@ sleep(10).then(() => {
      *
      * @return string HTML-String
      */
-    protected function GetTableFooter()
+    protected function GetTableFooter(): string
     {
         $table = '</tbody>' . PHP_EOL;
         $table .= '</table>' . PHP_EOL;
@@ -841,10 +850,10 @@ sleep(10).then(() => {
     }
 
     //################# PRIVATE
-    private function SetCover()
+    private function SetCover(): void
     {
         $this->SendDebug('Refresh Cover', '', 0);
-        $CoverID = @IPS_GetObjectIDByIdent('Cover', $this->InstanceID);
+        $CoverID = $this->FindIDForIdent('Cover');
         if ($CoverID === false) {
             $CoverID = IPS_CreateMedia(1);
             IPS_SetParent($CoverID, $this->InstanceID);
@@ -858,7 +867,7 @@ sleep(10).then(() => {
         }
         $CoverRAW = $this->Multi_Cover;
 
-        if ($this->GetValue('NST0') == 0) {
+        if ($this->GetValue('NST0') == 1) {
             $CoverRAW = '';
         }
         if ($CoverRAW === '') {
@@ -867,13 +876,13 @@ sleep(10).then(() => {
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
     }
 
-    private function RefreshNavigationTable(array $List)
+    private function RefreshNavigationTable(array $List): void
     {
         $HTML = $this->GetTable($List, 'OnkyoNetPlayer', 'Index', 'ID');
         $this->SetValueString('NLA', $HTML);
     }
 
-    private function ProcessPopUpInfo(string $NPUData)
+    private function ProcessPopUpInfo(string $NPUData): void
     {
         if ($NPUData[0] == 'L') { //list not supported
             return;
@@ -901,7 +910,7 @@ sleep(10).then(() => {
         $this->RefreshNavigationTable(['Title' => $Title, 'List' => $List]);
     }
 
-    private function ProcessListTitelInfo(string $NLTData)
+    private function ProcessListTitelInfo(string $NLTData): void
     {
         $FolderName = substr($NLTData, 22);
         $ServiceType = hexdec(substr($NLTData, 0, 2));
@@ -929,23 +938,13 @@ sleep(10).then(() => {
         } else {
             $this->FolderName = $FolderName;
         }
-        $this->SetValue('NSV', $ServiceType);
-
+        $this->SetValueInteger('NSV', $ServiceType);
         IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'NLA\',0);');
-
-        //      }
     }
 
-    private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
+    private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData): void
     {
         switch ($APIData->APICommand) {
-            /*            case \OnkyoAVR\ISCP_API_Commands::SLI:
-              case \OnkyoAVR\ISCP_API_Commands::SLZ:
-              case \OnkyoAVR\ISCP_API_Commands::SL3:
-              case \OnkyoAVR\ISCP_API_Commands::SL4:
-              $this->SetValue('SLI', hexdec($APIData->Data));
-              break;
-             */
             case \OnkyoAVR\ISCP_API_Commands::NMS:
 
                 if ($APIData->Data[5] == 'S') {
@@ -966,7 +965,7 @@ sleep(10).then(() => {
                         $StatusValue = 0;
                         break;
                 }
-                $this->SetValue('NDS0', $StatusValue);
+                $this->SetValueInteger('NDS0', $StatusValue);
 
                 switch ((string) $APIData->Data[1]) {
                     case 'x':
@@ -988,7 +987,7 @@ sleep(10).then(() => {
                         $StatusValue = 1;
                         break;
                 }
-                $this->SetValue('NDS1', $StatusValue);
+                $this->SetValueInteger('NDS1', $StatusValue);
 
                 switch ((string) $APIData->Data[2]) {
                     case 'x':
@@ -1010,7 +1009,7 @@ sleep(10).then(() => {
                         $StatusValue = 1;
                         break;
                 }
-                $this->SetValue('NDS2', $StatusValue);
+                $this->SetValueInteger('NDS2', $StatusValue);
 
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NPU:
@@ -1021,8 +1020,8 @@ sleep(10).then(() => {
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NTR:
                 $Data = explode('/', (string) $APIData->Data);
-                $this->SetValue('NTR0', (int) $Data[0]);
-                $this->SetValue('NTR1', (int) $Data[1]);
+                $this->SetValueInteger('NTR0', (int) $Data[0]);
+                $this->SetValueInteger('NTR1', (int) $Data[1]);
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NST:
                 switch ((string) $APIData->Data[0]) {
@@ -1031,12 +1030,12 @@ sleep(10).then(() => {
                         $StatusValue = 0;
                         $this->Multi_Cover = '';
                         $this->SetCover();
-                        $this->SetValue('NAL', '');
-                        $this->SetValue('NTI', '');
-                        $this->SetValue('NAT', '');
-                        $this->SetValue('NTM0', '--:--');
-                        $this->SetValue('NTM1', '--:--');
-                        $this->SetValue('NTM', 0);
+                        $this->SetValueString('NAL', '');
+                        $this->SetValueString('NTI', '');
+                        $this->SetValueString('NAT', '');
+                        $this->SetValueString('NTM0', '--:--');
+                        $this->SetValueString('NTM1', '--:--');
+                        $this->SetValueInteger('NTM', 0);
                         $this->DisableAction('NTM');
                         break;
                     case 'P':
@@ -1049,7 +1048,7 @@ sleep(10).then(() => {
                         $StatusValue = $this->GetValue('NST0');
                         break;
                 }
-                $this->SetValue('NST0', $StatusValue);
+                $this->SetValueInteger('NST0', $StatusValue);
                 switch ((string) $APIData->Data[1]) {
                     case 'x':
                         $RepeatValue = 'off';
@@ -1126,8 +1125,8 @@ sleep(10).then(() => {
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NTM:
                 $Data = explode('/', (string) $APIData->Data);
-                $this->SetValue('NTM0', $Data[0]);
-                $this->SetValue('NTM1', $Data[1]);
+                $this->SetValueString('NTM0', $Data[0]);
+                $this->SetValueString('NTM1', $Data[1]);
                 if ($Data[1] != '--:--') {
                     $NTM0 = $this->StringToSeconds($Data[0]);
                     $NTM1 = $this->StringToSeconds($Data[1]);
@@ -1138,13 +1137,13 @@ sleep(10).then(() => {
             case \OnkyoAVR\ISCP_API_Commands::NAL:
             case \OnkyoAVR\ISCP_API_Commands::NTI:
             case \OnkyoAVR\ISCP_API_Commands::NAT:
-                $this->SetValue((string) $APIData->APICommand, (string) $APIData->Data);
+                $this->SetValueString((string) $APIData->APICommand, (string) $APIData->Data);
                 break;
         }
     }
 
     //################# Datapoints
-    private function RequestProfile()
+    private function RequestProfile(): void
     {
         $AssociationNSV = [];
         $zone = $this->OnkyoZone->thisZone;
@@ -1235,22 +1234,22 @@ sleep(10).then(() => {
     }
 
     //------------------------------------------------------------------------------
-    private function RequestZoneState()
+    private function RequestZoneState(): void
     {
         $ApiCmds = \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands;
         foreach ($ApiCmds as $ApiCmd) {
             $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
             $ResultData = @$this->Send($APIData);
             if ($ResultData === null) {
-                $this->SetValue('NAL', '');
-                $this->SetValue('NTI', '');
-                $this->SetValue('NAT', '');
+                $this->SetValueString('NAL', '');
+                $this->SetValueString('NTI', '');
+                $this->SetValueString('NAT', '');
                 break;
             }
             if ($ResultData === '----/----') {
-                $this->SetValue('NAL', '');
-                $this->SetValue('NTI', '');
-                $this->SetValue('NAT', '');
+                $this->SetValueString('NAL', '');
+                $this->SetValueString('NTI', '');
+                $this->SetValueString('NAT', '');
                 break;
             }
             $APIData->Data = $ResultData;
@@ -1258,7 +1257,7 @@ sleep(10).then(() => {
         }
     }
 
-    private function Send(\OnkyoAVR\ISCP_API_Data $APIData)
+    private function Send(\OnkyoAVR\ISCP_API_Data $APIData): mixed
     {
         $this->SendDebug('ForwardData', $APIData, 0);
 
@@ -1266,15 +1265,13 @@ sleep(10).then(() => {
             if (!$this->HasActiveParent()) {
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             }
-            $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
+            $ret = $this->SendDataToParent($APIData->ToJSONString(\OnkyoAVR\GUID::SendToSplitter));
             if ($ret === false) {
                 $this->SendDebug('Response', 'No answer', 0);
-
                 return null;
             }
             $result = unserialize($ret);
             $this->SendDebug('Response ' . $APIData->APICommand, $result, 0);
-
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
@@ -1284,7 +1281,7 @@ sleep(10).then(() => {
         }
     }
 
-    private function GenerateHTMLStyleProperty()
+    private function GenerateHTMLStyleProperty(): array
     {
         $NewTableConfig = [
             [
@@ -1406,7 +1403,7 @@ sleep(10).then(() => {
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIconsConfig];
     }
 
-    private function SecondsToString($Time)
+    private function SecondsToString(int $Time): string
     {
         if ($Time > 3600) {
             return sprintf('%02d:%02d:%02d', ($Time / 3600), ($Time / 60 % 60), $Time % 60);
@@ -1415,14 +1412,13 @@ sleep(10).then(() => {
         }
     }
 
-    private function StringToSeconds($Value)
+    private function StringToSeconds(string $Value): int
     {
         $Parts = explode(':', $Value);
         $Seconds = (int) array_pop($Parts);
         foreach ($Parts as $Part) {
             $Seconds += (int) $Part * 60;
         }
-
         return $Seconds;
     }
 }

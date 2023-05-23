@@ -12,16 +12,25 @@ require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
+eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
 /**
  * @property int $Type
+ * @property string $WebHookSecret
+ * @method void SetValueString(string $Ident, string $value)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void UnregisterProfile(string $Name)
+ * @method void RegisterHook(string $WebHook)
+ * @method void UnregisterHook(string $WebHook)
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
-class OnkyoRemote extends IPSModule
+class OnkyoRemote extends IPSModuleStrict
 {
     use \OnkyoRemote\DebugHelper;
     use \OnkyoRemote\WebhookHelper;
     use \OnkyoRemote\BufferHelper;
+    use \OnkyoRemote\VariableHelper;
     use \OnkyoRemote\VariableProfileHelper;
 
     protected static $APICommands = [
@@ -211,7 +220,7 @@ class OnkyoRemote extends IPSModule
         ],
     ];
 
-    public function Setup()
+    public function Setup(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -219,10 +228,10 @@ class OnkyoRemote extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function Create()
+    public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent('{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}');
+        $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Type', 0);
         $this->RegisterPropertyBoolean('showSVGRemote', true);
         $this->RegisterPropertyInteger('RemoteId', 1);
@@ -235,13 +244,16 @@ class OnkyoRemote extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function Destroy()
+    public function Destroy(): void
     {
         if (IPS_GetKernelRunlevel() != KR_READY) {
-            return parent::Destroy();
+            parent::Destroy();
+            return;
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
+            $this->UnregisterProfile('Onkyo.Navigation');
+            $this->UnregisterProfile('Onkyo.Control');
         }
 
         parent::Destroy();
@@ -250,7 +262,7 @@ class OnkyoRemote extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->Type = $this->ReadPropertyInteger('Type');
         if ($this->ReadPropertyBoolean('showSVGRemote')) {
@@ -262,7 +274,7 @@ class OnkyoRemote extends IPSModule
             $this->RegisterVariableString('Remote', $this->Translate('Remote'), '~HTMLBox', 1);
             /** @var string $remote  */
             include 'generateRemote' . ($this->ReadPropertyInteger('RemoteId')) . '.php';
-            $this->SetValue('Remote', $remote);
+            $this->SetValueString('Remote', $remote);
         } else {
             if (IPS_GetKernelRunlevel() == KR_READY) {
                 $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
@@ -311,10 +323,10 @@ class OnkyoRemote extends IPSModule
      * @param string                $Ident Der Ident der Statusvariable.
      * @param bool|float|int|string $Value Der angeforderte neue Wert.
      */
-    public function RequestAction($Ident, $Value)
+    public function RequestAction(string $Ident, mixed $Value): void
     {
         if (parent::RequestAction($Ident, $Value)) {
-            return true;
+            return;
         }
         switch ($Ident) {
             case 'navremote':
@@ -341,7 +353,8 @@ class OnkyoRemote extends IPSModule
                         $ret = $this->Menu();
                         break;
                     default:
-                        return trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        return;
                 }
                 break;
             case 'ctrlremote':
@@ -362,12 +375,12 @@ class OnkyoRemote extends IPSModule
                         $ret = $this->Send('FF');
                         break;
                     default:
-                        return trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        return;
                 }
                 break;
             default:
                 trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-
                 return;
         }
         if (!$ret) {
@@ -382,7 +395,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Up()
+    public function Up(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -392,7 +405,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Down()
+    public function Down(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -402,7 +415,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Left()
+    public function Left(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -412,7 +425,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Right()
+    public function Right(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -422,7 +435,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Menu()
+    public function Menu(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -432,7 +445,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Enter()
+    public function Enter(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -442,7 +455,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Home()
+    public function Home(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -452,7 +465,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Exit()
+    public function Exit(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -462,7 +475,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Quick()
+    public function Quick(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -472,7 +485,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Power()
+    public function Power(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
@@ -482,7 +495,7 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function PowerOn()
+    public function PowerOn(): bool
     {
         return $this->Send('PWRON');
     }
@@ -494,37 +507,37 @@ class OnkyoRemote extends IPSModule
      *
      * @return bool true bei erfolgreicher Ausführung, sonst false.
      */
-    public function PowerOff()
+    public function PowerOff(): bool
     {
         return $this->Send('PWROFF');
     }
 
-    public function Mute()
+    public function Mute(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
 
-    public function Input()
+    public function Input(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
 
-    public function Return()
+    public function Return(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
 
-    public function ChannelDown()
+    public function ChannelDown(): bool
     {
         return $this->Send('CHDN');
     }
 
-    public function ChannelUp()
+    public function ChannelUp(): bool
     {
         return $this->Send('CHUP');
     }
 
-    public function VolumeDown()
+    public function VolumeDown(): bool
     {
         if ($this->Type == \OnkyoAVR\Remotes::CAP) {
             return $this->Send('MVLDOWN');
@@ -533,7 +546,7 @@ class OnkyoRemote extends IPSModule
         return $this->Send('VLDN');
     }
 
-    public function VolumeUp()
+    public function VolumeUp(): bool
     {
         if ($this->Type == \OnkyoAVR\Remotes::CAP) {
             return $this->Send('MVLUP');
@@ -542,32 +555,32 @@ class OnkyoRemote extends IPSModule
         return $this->Send('VLUP');
     }
 
-    public function Play()
+    public function Play(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
 
-    public function Stop()
+    public function Stop(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
 
-    public function Pause()
+    public function Pause(): bool
     {
         return $this->Send(strtoupper(__FUNCTION__));
     }
 
-    public function Next()
+    public function Next(): bool
     {
         return $this->Send('SKIP.F');
     }
 
-    public function Back()
+    public function Back(): bool
     {
         return $this->Send('SKIP.R');
     }
 
-    public function SendKey(string $Key)
+    public function SendKey(string $Key): bool
     {
         return $this->Send(strtoupper($Key));
     }
@@ -579,7 +592,7 @@ class OnkyoRemote extends IPSModule
      *
      * @global array $_GET
      */
-    protected function ProcessHookdata()
+    protected function ProcessHookdata(): void
     {
         if ((!isset($_GET['button'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
@@ -591,19 +604,19 @@ class OnkyoRemote extends IPSModule
         }
         $Command = strtoupper($_GET['button']);
         switch ($this->Type) {
-                case \OnkyoAVR\Remotes::CAP:
-                    switch ($Command) {
-                        case 'VLDN':
-                            $Command = 'MVLDOWN';
-                            break;
-                        case 'VLUP':
-                            $Command = 'MVLUP';
-                            break;
-                        case 'POWER':
-                            $Command = 'PWRTG';
-                            break;
-                    }
-                    break;
+            case \OnkyoAVR\Remotes::CAP:
+                switch ($Command) {
+                    case 'VLDN':
+                        $Command = 'MVLDOWN';
+                        break;
+                    case 'VLUP':
+                        $Command = 'MVLUP';
+                        break;
+                    case 'POWER':
+                        $Command = 'PWRTG';
+                        break;
+                }
+                break;
                 /* case \OnkyoAVR\Remotes::OSD:
                   switch ($Command) {
                   case 'RETURN':
@@ -611,13 +624,13 @@ class OnkyoRemote extends IPSModule
                   break;
                   }
                   break; */
-            }
+        }
         if ($this->Send($Command) === true) {
             echo 'OK';
         }
     }
 
-    private function Send(string $Command)
+    private function Send(string $Command): mixed
     {
         try {
             if (!in_array($Command, self::$Actions[$this->Type])) {
@@ -628,10 +641,9 @@ class OnkyoRemote extends IPSModule
             if (!$this->HasActiveParent()) {
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             }
-            $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
+            $ret = $this->SendDataToParent($APIData->ToJSONString(\OnkyoAVR\GUID::SendToSplitter));
             if ($ret === false) {
                 $this->SendDebug('Response', 'No answer', 0);
-
                 return false;
             }
             $result = unserialize($ret);
@@ -641,7 +653,6 @@ class OnkyoRemote extends IPSModule
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
-
             return false;
         }
     }

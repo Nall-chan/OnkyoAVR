@@ -11,17 +11,33 @@ declare(strict_types=1);
 
 namespace OnkyoAVR;
 
+class GUID
+{
+    // Modules
+    public const ClientSocket = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';
+    public const SerialPort = '{6DC3D946-0D31-450F-A8C6-C42DB8D7D4F1}';
+    public const Splitter = '{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}';
+    public const Configurator = '{251DAC2C-5B1F-4B1F-B843-B22D518F553E}';
+    public const Zone = '{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}';
+    public const Tuner = '{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}';
+    public const Remote = '{C7EA583D-2BAC-41B7-A85A-AD0DF648E514}';
+    public const NetPlayer = '{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}';
+    // DataFlow
+    public const SendToIO = '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}';
+    public const SendToDevices = '{43E4B48E-2345-4A9A-B506-3E8E7A964757}';
+    public const SendToSplitter = '{8F47273A-0B69-489E-AF36-F391AE5FBEC0}';
+}
 //  API Datentypen
 class Remotes
 {
-    const OSD = 0;
-    const CTV = 1;
-    const CDV = 2;
-    const CCD = 3;
-    const CAP = 4;
-    const TUN = 99;
+    public const OSD = 0;
+    public const CTV = 1;
+    public const CDV = 2;
+    public const CCD = 3;
+    public const CAP = 4;
+    public const TUN = 99;
 
-    public static function ToRemoteName($ID)
+    public static function ToRemoteName(int $ID): string
     {
         switch ($ID) {
             case self::OSD:
@@ -39,7 +55,7 @@ class Remotes
         }
     }
 
-    public static function ToRemoteID($Name)
+    public static function ToRemoteID(string $Name): int
     {
         $Parts = explode(' ', $Name);
         switch (strtoupper($Parts[0])) {
@@ -64,37 +80,38 @@ class Remotes
 
 class IPSVarType
 {
-    const vtNone = -1;
-    const vtBoolean = 0;
-    const vtInteger = 1;
-    const vtFloat = 2;
-    const vtString = 3;
-    const vtDualInteger = 10;
+    public const vtNone = -1;
+    public const vtBoolean = 0;
+    public const vtInteger = 1;
+    public const vtFloat = 2;
+    public const vtString = 3;
+    public const vtDualInteger = 10;
 }
 
 class IPSProfiles
 {
-    const ptSwitch = '~Switch';
-    const ptVolume = 'Onkyo.Volume.%d';
-    const ptToneOffset = 'Onkyo.ToneOffset.%d';
-    const ptCenterLevel = 'Onkyo.CenterLevel.%d'; //CTL
-    const ptSubwooferLevel = 'Onkyo.SubwooferLevel.%d'; //SWL
-    const ptSubwoofer2Level = 'Onkyo.Subwoofer2Level.%d'; //SW2
-    const ptSleep = 'Onkyo.Sleep';
-    const ptDisplayMode = 'Onkyo.DisplayMode';
-    const ptDisplayDimmer = 'Onkyo.DisplayDimmer';
-    const ptSelectInput = 'Onkyo.SelectInput.%d';
-    const ptSelectInputAudio = 'Onkyo.SelectInputAudio';
-    const ptSelectLMD = 'Onkyo.SelectLMD.%d';
-    const ptHDMIOutput = 'Onkyo.HDMIOutput';
-    const ptHDMIAudioOutput = 'Onkyo.HDMIAudioOutput';
-    const ptVideoResolution = 'Onkyo.VideoResolution';
-    const ptVideoWideMode = 'Onkyo.VideoWideMode';
-    const ptVideoPictureMode = 'Onkyo.VideoPictureMode';
-    const ptListeningMode = 'Onkyo.LMD';
-    const ptLateNight = 'Onkyo.LateNight';
-    const ptAudyssey = 'Onkyo.Audyssey';
-    const ptAudysseyDynamic = 'Onkyo.AudysseyDynamic';
+    public const ptSwitch = '~Switch';
+    public const ptMute = '~Mute';
+    public const ptVolume = 'Onkyo.Volume.%d';
+    public const ptToneOffset = 'Onkyo.ToneOffset.%d';
+    public const ptCenterLevel = 'Onkyo.CenterLevel.%d'; //CTL
+    public const ptSubwooferLevel = 'Onkyo.SubwooferLevel.%d'; //SWL
+    public const ptSubwoofer2Level = 'Onkyo.Subwoofer2Level.%d'; //SW2
+    public const ptSleep = 'Onkyo.Sleep';
+    public const ptDisplayMode = 'Onkyo.DisplayMode';
+    public const ptDisplayDimmer = 'Onkyo.DisplayDimmer';
+    public const ptSelectInput = 'Onkyo.SelectInput.%d';
+    public const ptSelectInputAudio = 'Onkyo.SelectInputAudio';
+    public const ptSelectLMD = 'Onkyo.SelectLMD.%d';
+    public const ptHDMIOutput = 'Onkyo.HDMIOutput';
+    public const ptHDMIAudioOutput = 'Onkyo.HDMIAudioOutput';
+    public const ptVideoResolution = 'Onkyo.VideoResolution';
+    public const ptVideoWideMode = 'Onkyo.VideoWideMode';
+    public const ptVideoPictureMode = 'Onkyo.VideoPictureMode';
+    public const ptListeningMode = 'Onkyo.LMD';
+    public const ptLateNight = 'Onkyo.LateNight';
+    public const ptAudyssey = 'Onkyo.Audyssey';
+    public const ptAudysseyDynamic = 'Onkyo.AudysseyDynamic';
 
     public static $ProfileListIndexToProfile = [
         'Bass'             => self::ptToneOffset,
@@ -265,12 +282,12 @@ class IPSProfiles
 
 class ONKYO_Zone_NetPlayer
 {
-    const ZoneMain = 1;
-    const Zone2 = 2;
-    const Zone3 = 3;
-    const Zone4 = 4;
+    public const ZoneMain = 1;
+    public const Zone2 = 2;
+    public const Zone3 = 3;
+    public const Zone4 = 4;
 
-    public $thisZone = self::ZoneMain;
+    public int $thisZone = self::ZoneMain;
 
     public static $ZoneCMDs = [
         self::ZoneMain => [
@@ -305,12 +322,12 @@ class ONKYO_Zone_NetPlayer
         ISCP_API_Commands::NMS,
     ];
 
-    public function __construct($Zone = self::ZoneMain)
+    public function __construct(int $Zone = self::ZoneMain)
     {
         $this->thisZone = $Zone;
     }
 
-    public function GetName()
+    public function GetName(): string
     {
         switch ($this->thisZone) {
             case 1:
@@ -324,7 +341,7 @@ class ONKYO_Zone_NetPlayer
         }
     }
 
-    public function GetZoneCommand(string $APICommand)
+    public function GetZoneCommand(string $APICommand): false|string
     {
         $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
         if ($key === false) {
@@ -337,16 +354,16 @@ class ONKYO_Zone_NetPlayer
 
 class ONKYO_Zone_Tuner
 {
-    const ZoneMain = 1;
-    const Zone2 = 2;
-    const Zone3 = 3;
-    const Zone4 = 4;
-    const SLI_FM = 0x24;
-    const SLI_AM = 0x25;
-    const FM = 'FM';
-    const AM = 'AM';
+    public const ZoneMain = 1;
+    public const Zone2 = 2;
+    public const Zone3 = 3;
+    public const Zone4 = 4;
+    public const SLI_FM = 0x24;
+    public const SLI_AM = 0x25;
+    public const FM = 'FM';
+    public const AM = 'AM';
 
-    public $thisZone = self::ZoneMain;
+    public int $thisZone = self::ZoneMain;
 
     public static $TunerProfile = [
         self::FM => [
@@ -386,12 +403,12 @@ class ONKYO_Zone_Tuner
         ],
     ];
 
-    public function __construct($Zone = self::ZoneMain)
+    public function __construct(int $Zone = self::ZoneMain)
     {
         $this->thisZone = $Zone;
     }
 
-    public function GetName()
+    public function GetName(): string
     {
         switch ($this->thisZone) {
             case 1:
@@ -405,12 +422,12 @@ class ONKYO_Zone_Tuner
         }
     }
 
-    public function GetReadAPICommands()
+    public function GetReadAPICommands(): array
     {
         return self::$ZoneCMDs[$this->thisZone];
     }
 
-    public function GetZoneCommand(string $APICommand)
+    public function GetZoneCommand(string $APICommand): string
     {
         $key = array_search($APICommand, self::$ZoneCMDs[self::ZoneMain]);
 
@@ -420,15 +437,15 @@ class ONKYO_Zone_Tuner
 
 class ONKYO_Zone
 {
-    const None = 0;
-    const ZoneMain = 1;
-    const Zone2 = 2;
-    const Zone3 = 3;
-    const Zone4 = 4;
-    const Tuner = 5;
-    const Netplayer = 6;
+    public const None = 0;
+    public const ZoneMain = 1;
+    public const Zone2 = 2;
+    public const Zone3 = 3;
+    public const Zone4 = 4;
+    public const Tuner = 5;
+    public const Netplayer = 6;
 
-    public $thisZone = self::None;
+    public int $thisZone = self::None;
 
     public static $ZoneCMDs = [
         self::None      => [
@@ -575,7 +592,7 @@ class ONKYO_Zone
         ],
     ];
 
-    public function __construct($Zone = self::None)
+    public function __construct(int $Zone = self::None)
     {
         $this->thisZone = $Zone;
     }
@@ -585,7 +602,7 @@ class ONKYO_Zone
         return ['thisZone'];
     }
 
-    public function GetName()
+    public function GetName(): string
     {
         switch ($this->thisZone) {
             case 1:
@@ -601,12 +618,12 @@ class ONKYO_Zone
         }
     }
 
-    public function CmdAvailable(string $APICommand)
+    public function CmdAvailable(string $APICommand): bool
     {
         return in_array($APICommand, self::$ZoneCMDs[$this->thisZone]);
     }
 
-    public function GetAPICommands()
+    public function GetAPICommands(): array
     {
         return self::$ZoneCMDs[$this->thisZone];
     }
@@ -614,72 +631,72 @@ class ONKYO_Zone
 
 class ISCP_API_Mode
 {
-    const LAN = 1;
-    const COM = 2;
+    public const LAN = 1;
+    public const COM = 2;
 }
 
 class ISCP_API_Commands
 {
     //Special
-    const GetBuffer = 'BBB';
-    const SelectorList = 'SelectorList';
-    const ControlList = 'ControlList';
-    const ProfileList = 'ProfileList';
-    const LMDList = 'LMDList';
-    const NetserviceList = 'NetserviceList';
-    const PresetList = 'PresetList';
-    const TunerList = 'TunerList';
-    const ZoneList = 'ZoneList';
-    const PhaseMatchingBass = 'PhaseMatchingBass';
+    public const GetBuffer = 'BBB';
+    public const SelectorList = 'SelectorList';
+    public const ControlList = 'ControlList';
+    public const ProfileList = 'ProfileList';
+    public const LMDList = 'LMDList';
+    public const NetserviceList = 'NetserviceList';
+    public const PresetList = 'PresetList';
+    public const TunerList = 'TunerList';
+    public const ZoneList = 'ZoneList';
+    public const PhaseMatchingBass = 'PhaseMatchingBass';
     //MAIN Zone
-    const PWR = 'PWR'; // Power
-    const AMT = 'AMT'; // Mute
-    const MVL = 'MVL'; //'MVL' - Master Volume Command
-    const TFR = 'TFR'; //'TFR' - Tone(Front) Command
-    const TFW = 'TFW'; //'TFW' - Tone(Front Wide) Command
-    const TFH = 'TFH'; //'TFH' - Tone(Front High) Command
-    const TCT = 'TCT'; //'TCT' - Tone(Center) Command
-    const TSR = 'TSR'; //'TSR' - Tone(Surround) Command
-    const TSB = 'TSB'; //'TSB' - Tone(Surround Back) Command
-    const TSW = 'TSW'; //'TSW' - Tone(Subwoofer) Command
-    const PMB = 'PMB'; //'PMB' - Phase Matching Bass Command
-    const SLP = 'SLP'; //'SLP' - Sleep Set Command
-    const SLC = 'SLC'; //'SLC' - Speaker Level Calibration Command
-    const SWL = 'SWL'; //'SWL' - Subwoofer (temporary) Level Command
-    const SW2 = 'SW2'; //'SW2' - Subwoofer 2 (temporary) Level Command
-    const CTL = 'CTL'; //'CTL' - Center (temporary) Level Command
-    const DIF = 'DIF'; //'DIF' - Display Mode Command
-    const DIM = 'DIM'; //'DIM' - Dimmer Level Command
-    const OSD = 'OSD'; //'OSD' - Setup Operation Command
-    const MEM = 'MEM'; //'MEM' - Memory Setup Command
-    const IFA = 'IFA'; //'IFA' - Audio Information Command
-    const IFV = 'IFV'; //'IFV' - Video Information Command
-    const SLI = 'SLI'; // 'SLI' - Input Selector Command
-    const SLA = 'SLA'; //'SLA' - Audio Selector Command
-    const TGA = 'TGA'; //'TGA' - 12V Trigger A Command
-    const TGB = 'TGB'; //'TGB' - 12V Trigger B Command
-    const TGC = 'TGC'; //'TGC' - 12V Trigger C Command
-    const HDO = 'HDO'; //'HDO' - HDMI Output Selector
-    const HAO = 'HAO'; //'HAO' -HDMI Audio Out (Main)
-    const HAS = 'HAS'; //'HAS' -HDMI Audio Out (Sub)
-    const CEC = 'CEC'; //'CEC' - HDMI CEC
-    const RES = 'RES'; //'RES' - Monitor Out Resolution
-    const ISF = 'ISF';
-    const VWM = 'VWM'; //'VWM' - Video Wide Mode
-    const VPM = 'VPM'; //'VPM' -Video Picture Mode
-    const LMD = 'LMD'; //'LMD' - Listening Mode Command
-    const LTN = 'LTN'; //'LTN' - Late Night Command
-    const RAS = 'RAS'; //'RAS' - Re-EQ Command
-    const ADY = 'ADY'; //'ADY' - Audyssey 2EQ/MultEQ/MultEQ XT
-    const ADQ = 'ADQ'; //'ADQ' - Audyssey Dynamic EQ
-    const ADV = 'ADV'; //'ADV' - Audyssey Dynamic Volume
-    const MOT = 'MOT'; //'MOT' - Music Optimizer
-    const ECO = 'ECO'; //'ECO' - for Smart Grid Command
-    const TUN = 'TUN'; //'TUN' - Tuning Command (Include Tuner Pack Model Only)
-    const PRS = 'PRS'; //'PRS' - Preset Command (Include Tuner Pack Model Only)
-    const PRM = 'PRM'; //'PRM' - Preset Memory Command (Include Tuner Pack Model Only)
-    const RDS = 'RDS'; //'RDS' - RDS Information Command (RDS Model Only)
-    const PTS = 'PTS'; //'PTS' - PTY Scan Command (RDS Model Only)
+    public const PWR = 'PWR'; // Power
+    public const AMT = 'AMT'; // Mute
+    public const MVL = 'MVL'; //'MVL' - Master Volume Command
+    public const TFR = 'TFR'; //'TFR' - Tone(Front) Command
+    public const TFW = 'TFW'; //'TFW' - Tone(Front Wide) Command
+    public const TFH = 'TFH'; //'TFH' - Tone(Front High) Command
+    public const TCT = 'TCT'; //'TCT' - Tone(Center) Command
+    public const TSR = 'TSR'; //'TSR' - Tone(Surround) Command
+    public const TSB = 'TSB'; //'TSB' - Tone(Surround Back) Command
+    public const TSW = 'TSW'; //'TSW' - Tone(Subwoofer) Command
+    public const PMB = 'PMB'; //'PMB' - Phase Matching Bass Command
+    public const SLP = 'SLP'; //'SLP' - Sleep Set Command
+    public const SLC = 'SLC'; //'SLC' - Speaker Level Calibration Command
+    public const SWL = 'SWL'; //'SWL' - Subwoofer (temporary) Level Command
+    public const SW2 = 'SW2'; //'SW2' - Subwoofer 2 (temporary) Level Command
+    public const CTL = 'CTL'; //'CTL' - Center (temporary) Level Command
+    public const DIF = 'DIF'; //'DIF' - Display Mode Command
+    public const DIM = 'DIM'; //'DIM' - Dimmer Level Command
+    public const OSD = 'OSD'; //'OSD' - Setup Operation Command
+    public const MEM = 'MEM'; //'MEM' - Memory Setup Command
+    public const IFA = 'IFA'; //'IFA' - Audio Information Command
+    public const IFV = 'IFV'; //'IFV' - Video Information Command
+    public const SLI = 'SLI'; // 'SLI' - Input Selector Command
+    public const SLA = 'SLA'; //'SLA' - Audio Selector Command
+    public const TGA = 'TGA'; //'TGA' - 12V Trigger A Command
+    public const TGB = 'TGB'; //'TGB' - 12V Trigger B Command
+    public const TGC = 'TGC'; //'TGC' - 12V Trigger C Command
+    public const HDO = 'HDO'; //'HDO' - HDMI Output Selector
+    public const HAO = 'HAO'; //'HAO' -HDMI Audio Out (Main)
+    public const HAS = 'HAS'; //'HAS' -HDMI Audio Out (Sub)
+    public const CEC = 'CEC'; //'CEC' - HDMI CEC
+    public const RES = 'RES'; //'RES' - Monitor Out Resolution
+    public const ISF = 'ISF';
+    public const VWM = 'VWM'; //'VWM' - Video Wide Mode
+    public const VPM = 'VPM'; //'VPM' -Video Picture Mode
+    public const LMD = 'LMD'; //'LMD' - Listening Mode Command
+    public const LTN = 'LTN'; //'LTN' - Late Night Command
+    public const RAS = 'RAS'; //'RAS' - Re-EQ Command
+    public const ADY = 'ADY'; //'ADY' - Audyssey 2EQ/MultEQ/MultEQ XT
+    public const ADQ = 'ADQ'; //'ADQ' - Audyssey Dynamic EQ
+    public const ADV = 'ADV'; //'ADV' - Audyssey Dynamic Volume
+    public const MOT = 'MOT'; //'MOT' - Music Optimizer
+    public const ECO = 'ECO'; //'ECO' - for Smart Grid Command
+    public const TUN = 'TUN'; //'TUN' - Tuning Command (Include Tuner Pack Model Only)
+    public const PRS = 'PRS'; //'PRS' - Preset Command (Include Tuner Pack Model Only)
+    public const PRM = 'PRM'; //'PRM' - Preset Memory Command (Include Tuner Pack Model Only)
+    public const RDS = 'RDS'; //'RDS' - RDS Information Command (RDS Model Only)
+    public const PTS = 'PTS'; //'PTS' - PTY Scan Command (RDS Model Only)
 // HD Radio
     /*
       const HAT = 'HAT';
@@ -691,26 +708,26 @@ class ISCP_API_Commands
       const HTS = 'HTS';
      */
     //Start NET/USB
-    const NTC = 'NTC'; //'NTC' - Network/USB Operation Command (Network Model Only after TX-NR905)
-    const NPR = 'NPR'; //'NPR' - Internet Radio Preset Command
-    const NAT = 'NAT'; //NET/USB Artist Name Info
-    const NAL = 'NAL'; //NET/USB Album Name Info
-    const NTI = 'NTI'; // NET/USB Title Name
-    const NTM = 'NTM'; // NET/USB Time Info
-    const NTR = 'NTR'; // NET/USB Track Info
-    const NST = 'NST'; // NET/USB Play Status
-    const NMS = 'NMS'; // NET/USB Menu Status
-    const NTS = 'NTS'; // 'NTS' - NET/USB Time Seek
-    const NDS = 'NDS'; // NET Connection/USB Device Status
-    const NLS = 'NLS'; // NET/USB List Info
-    const NLT = 'NLT'; // NET/USB List Info(All item, need processing XML data, for Network Control Only)
-    const NLA = 'NLA'; // NET/USB List Info(All item, need processing XML data, for Network Control Only)
-    const NJA = 'NJA'; // NET/USB Jacket Art (When Jacket Art is available and Output for Network Control Only)
-    const NSV = 'NSV'; // NET Service(for Network Control Only)
-    const NKY = 'NKY'; // NET Keyboard(for Network Control Only)
-    const NPU = 'NPU'; // NET Popup Message(for Network Control Only)
-    const NRI = 'NRI'; // Receiver Information (for Network Control Only)
-    const NFI = 'NFI'; // NET/USB File Information
+    public const NTC = 'NTC'; //'NTC' - Network/USB Operation Command (Network Model Only after TX-NR905)
+    public const NPR = 'NPR'; //'NPR' - Internet Radio Preset Command
+    public const NAT = 'NAT'; //NET/USB Artist Name Info
+    public const NAL = 'NAL'; //NET/USB Album Name Info
+    public const NTI = 'NTI'; // NET/USB Title Name
+    public const NTM = 'NTM'; // NET/USB Time Info
+    public const NTR = 'NTR'; // NET/USB Track Info
+    public const NST = 'NST'; // NET/USB Play Status
+    public const NMS = 'NMS'; // NET/USB Menu Status
+    public const NTS = 'NTS'; // 'NTS' - NET/USB Time Seek
+    public const NDS = 'NDS'; // NET Connection/USB Device Status
+    public const NLS = 'NLS'; // NET/USB List Info
+    public const NLT = 'NLT'; // NET/USB List Info(All item, need processing XML data, for Network Control Only)
+    public const NLA = 'NLA'; // NET/USB List Info(All item, need processing XML data, for Network Control Only)
+    public const NJA = 'NJA'; // NET/USB Jacket Art (When Jacket Art is available and Output for Network Control Only)
+    public const NSV = 'NSV'; // NET Service(for Network Control Only)
+    public const NKY = 'NKY'; // NET Keyboard(for Network Control Only)
+    public const NPU = 'NPU'; // NET Popup Message(for Network Control Only)
+    public const NRI = 'NRI'; // Receiver Information (for Network Control Only)
+    public const NFI = 'NFI'; // NET/USB File Information
 //ENDE Net/USB
 //Start Airplay
     /* const AAT = 'AAT'; //'AAT' - Airplay Artist Name Info (Airplay Model Only)
@@ -747,45 +764,45 @@ class ISCP_API_Commands
     //ENDE CMD via PORT
     //MAIN end
     //Zone2 Zone
-    const ZPW = 'ZPW';
-    const ZMT = 'ZMT';
-    const ZVL = 'ZVL';
-    const ZTN = 'ZTN';
-    const SLZ = 'SLZ';
-    const TUZ = 'TUZ';
-    const PRZ = 'PRZ';
-    const LMZ = 'LMZ';
-    const NTZ = 'NTZ'; // Network Zone
-    const NPZ = 'NPZ'; //Network Zone
+    public const ZPW = 'ZPW';
+    public const ZMT = 'ZMT';
+    public const ZVL = 'ZVL';
+    public const ZTN = 'ZTN';
+    public const SLZ = 'SLZ';
+    public const TUZ = 'TUZ';
+    public const PRZ = 'PRZ';
+    public const LMZ = 'LMZ';
+    public const NTZ = 'NTZ'; // Network Zone
+    public const NPZ = 'NPZ'; //Network Zone
     //Zone3 Zone
-    const PW3 = 'PW3';  // Power
-    const MT3 = 'MT3';  // Mute
-    const VL3 = 'VL3';  // Volume
-    const TN3 = 'TN3';  // Tone
-    const SL3 = 'SL3';  // Selector
-    const TU3 = 'TU3';  // Tune Tuner Zone
-    const PR3 = 'PR3';  // Preset Tuner Zone
-    const NT3 = 'NT3';  // Net-Tune Network Zone
-    const NP3 = 'NP3';  // Net-Preset Network Zone
+    public const PW3 = 'PW3';  // Power
+    public const MT3 = 'MT3';  // Mute
+    public const VL3 = 'VL3';  // Volume
+    public const TN3 = 'TN3';  // Tone
+    public const SL3 = 'SL3';  // Selector
+    public const TU3 = 'TU3';  // Tune Tuner Zone
+    public const PR3 = 'PR3';  // Preset Tuner Zone
+    public const NT3 = 'NT3';  // Net-Tune Network Zone
+    public const NP3 = 'NP3';  // Net-Preset Network Zone
 //Zone4 Zone
-    const PW4 = 'PW4';  // Power
-    const MT4 = 'MT4';  // Mute
-    const VL4 = 'VL4';  // Volume
-    const SL4 = 'SL4';  // Selector
-    const TU4 = 'TU4';  // Tuner Zone
-    const PR4 = 'PR4';  // Preset Tuner Zone
-    const NT4 = 'NT4';  // Net-Tune Network Zone
-    const NP4 = 'NP4';  // Net-Preset Network Zone
-    const Request = 'QSTN';
+    public const PW4 = 'PW4';  // Power
+    public const MT4 = 'MT4';  // Mute
+    public const VL4 = 'VL4';  // Volume
+    public const SL4 = 'SL4';  // Selector
+    public const TU4 = 'TU4';  // Tuner Zone
+    public const PR4 = 'PR4';  // Preset Tuner Zone
+    public const NT4 = 'NT4';  // Net-Tune Network Zone
+    public const NP4 = 'NP4';  // Net-Preset Network Zone
+    public const Request = 'QSTN';
 
-    const IsVariable = 0;
-    const VarType = 1;
-    const VarName = 2;
-    const Profile = 3;
-    const EnableAction = 4;
-    const RequestValue = 5;
-    const ValueMapping = 6;
-    const ValuePrefix = 7;
+    public const IsVariable = 0;
+    public const VarType = 1;
+    public const VarName = 2;
+    public const Profile = 3;
+    public const EnableAction = 4;
+    public const RequestValue = 5;
+    public const ValueMapping = 6;
+    public const ValuePrefix = 7;
 
     public static $BoolValueMapping = [
         false => '00',
@@ -807,7 +824,7 @@ class ISCP_API_Commands
         self::AMT => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSwitch,
+            self::Profile      => IPSProfiles::ptMute,
             self::IsVariable   => true,
             self::VarName      => 'Mute',
             self::RequestValue => true,
@@ -1172,7 +1189,7 @@ class ISCP_API_Commands
         self::ZMT => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSwitch,
+            self::Profile      => IPSProfiles::ptMute,
             self::IsVariable   => true,
             self::VarName      => 'Mute',
             self::RequestValue => true,
@@ -1231,7 +1248,7 @@ class ISCP_API_Commands
         self::MT3 => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSwitch,
+            self::Profile      => IPSProfiles::ptMute,
             self::IsVariable   => true,
             self::VarName      => 'Mute',
             self::RequestValue => true,
@@ -1281,7 +1298,7 @@ class ISCP_API_Commands
         self::MT4 => [
             self::VarType      => IPSVarType::vtBoolean,
             self::EnableAction => true,
-            self::Profile      => IPSProfiles::ptSwitch,
+            self::Profile      => IPSProfiles::ptMute,
             self::IsVariable   => true,
             self::VarName      => 'Mute',
             self::RequestValue => true,
@@ -1310,7 +1327,7 @@ class ISCP_API_Commands
 
 class ISCP_API_Data_Mapping
 {
-    public static function GetMapping($Cmd)
+    public static function GetMapping(string $Cmd): ?\stdClass
     {
         if (array_key_exists($Cmd, ISCP_API_Commands::$VarMapping)) {
             $result = new \stdClass();
@@ -1324,24 +1341,22 @@ class ISCP_API_Data_Mapping
             if (array_key_exists(ISCP_API_Commands::ValuePrefix, ISCP_API_Commands::$VarMapping[$Cmd])) {
                 $result->ValuePrefix = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::ValuePrefix];
             }
-
             return $result;
         }
-
         return null;
     }
 }
 
 /**
- * @property ISCP_API_Commands $APICommand
+ * @property string $APICommand
  * @property mixed $Data
  * @property bool $needResponse
  */
 class ISCP_API_Data
 {
-    public $APICommand;
-    public $Data;
-    public $needResponse;
+    public string $APICommand;
+    public mixed $Data;
+    public bool $needResponse;
 
     public function __construct(string $Command = null, $Data = null, bool $needResponse = true)
     {
@@ -1350,7 +1365,6 @@ class ISCP_API_Data
         if ($Data !== null) {
             $this->APICommand = $Command;
             $this->Data = $Data;
-
             return;
         }
         if ($Command === null) {
@@ -1362,23 +1376,23 @@ class ISCP_API_Data
         } else {
             $json = json_decode($Command);
             $this->APICommand = $json->APICommand;
-            $this->Data = utf8_decode($json->Data);
+            $this->Data = $json->Data;
             $this->needResponse = $json->needResponse;
         }
     }
 
-    public function ToJSONString($GUID)
+    public function ToJSONString(string $GUID): string
     {
         $SendData = new \stdClass();
         $SendData->DataID = $GUID;
         $SendData->APICommand = $this->APICommand;
-        $SendData->Data = utf8_encode($this->Data);
+        $SendData->Data = $this->Data;
         $SendData->needResponse = $this->needResponse;
 
         return json_encode($SendData);
     }
 
-    public function ToISCPString($Mode)
+    public function ToISCPString(int $Mode): string
     {
         if (is_bool($this->Data)) {
             $Value = \OnkyoAVR\ISCP_API_Commands::$BoolValueMapping[$this->Data];
@@ -1400,7 +1414,7 @@ class ISCP_API_Data
         return $Frame;
     }
 
-    public function GetMapping()
+    public function GetMapping(): ?\stdClass
     {
         return ISCP_API_Data_Mapping::GetMapping($this->APICommand);
     }
