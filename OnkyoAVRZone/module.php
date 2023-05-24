@@ -52,57 +52,57 @@ class OnkyoAVR extends IPSModuleStrict
         parent::Create();
         $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Zone', \OnkyoAVR\ONKYO_Zone::None);
-        $this->RegisterPropertyBoolean('VL4', true);
-        $this->RegisterPropertyBoolean('MT4', true);
-        $this->RegisterPropertyBoolean('SL4', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VL4, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MT4, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SL4, true);
 
-        $this->RegisterPropertyBoolean('VL3', true);
-        $this->RegisterPropertyBoolean('MT3', true);
-        $this->RegisterPropertyBoolean('SL3', true);
-        $this->RegisterPropertyBoolean('TN3', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VL3, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MT3, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SL3, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TN3, true);
 
-        $this->RegisterPropertyBoolean('ZVL', true);
-        $this->RegisterPropertyBoolean('ZMT', true);
-        $this->RegisterPropertyBoolean('SLZ', true);
-        $this->RegisterPropertyBoolean('ZTN', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ZVL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ZMT, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLZ, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ZTN, true);
 
-        $this->RegisterPropertyBoolean('TFR', true);
-        $this->RegisterPropertyBoolean('MVL', true);
-        $this->RegisterPropertyBoolean('AMT', true);
-        $this->RegisterPropertyBoolean('SLI', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFR, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MVL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::AMT, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLI, true);
 
-        $this->RegisterPropertyBoolean('CTL', true);
-        $this->RegisterPropertyBoolean('SWL', true);
-        $this->RegisterPropertyBoolean('LMD', true);
-        $this->RegisterPropertyBoolean('LMD2', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::CTL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SWL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD2, true);
 
-        $this->RegisterPropertyBoolean('TFW', false);
-        $this->RegisterPropertyBoolean('TFH', false);
-        $this->RegisterPropertyBoolean('TSR', false);
-        $this->RegisterPropertyBoolean('TSB', false);
-        $this->RegisterPropertyBoolean('TCT', false);
-        $this->RegisterPropertyBoolean('TSW', false);
-        $this->RegisterPropertyBoolean('SW2', false);
-        $this->RegisterPropertyBoolean('HDO', false);
-        $this->RegisterPropertyBoolean('CEC', false);
-        $this->RegisterPropertyBoolean('HAO', false);
-        $this->RegisterPropertyBoolean('HAS', false);
-        $this->RegisterPropertyBoolean('RES', false);
-        $this->RegisterPropertyBoolean('VWM', false);
-        $this->RegisterPropertyBoolean('VPM', false);
-        $this->RegisterPropertyBoolean('DIF', false);
-        $this->RegisterPropertyBoolean('DIM', false);
-        $this->RegisterPropertyBoolean('ADQ', false);
-        $this->RegisterPropertyBoolean('ADY', false);
-        $this->RegisterPropertyBoolean('ADV', false);
-        $this->RegisterPropertyBoolean('SLA', false);
-        $this->RegisterPropertyBoolean('IFA', false);
-        $this->RegisterPropertyBoolean('IFV', false);
-        $this->RegisterPropertyBoolean('SLP', false);
-        $this->RegisterPropertyBoolean('LTN', false);
-        $this->RegisterPropertyBoolean('MOT', false);
-        $this->RegisterPropertyBoolean('RAS', false);
-        $this->RegisterPropertyBoolean('PMB', false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFW, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFH, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TSR, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TSB, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TCT, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TSW, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SW2, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::HDO, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::CEC, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::HAO, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::HAS, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::RES, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VWM, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VPM, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::DIF, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::DIM, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ADQ, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ADY, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ADV, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLA, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::IFA, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::IFV, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLP, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LTN, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MOT, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::RAS, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::PMB, false);
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone();
         $this->PhaseMatchingBass = true;
         $this->ToneProfile = [];
@@ -664,7 +664,7 @@ class OnkyoAVR extends IPSModuleStrict
         $OldVariables = [
             \OnkyoAVR\ISCP_API_Commands::TUN,
             \OnkyoAVR\ISCP_API_Commands::PRS,
-            'LMZ',
+            \OnkyoAVR\ISCP_API_Commands::LMZ,
             'LTZ',
             'RAZ',
             \OnkyoAVR\ISCP_API_Commands::TUZ,

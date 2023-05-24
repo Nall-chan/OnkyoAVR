@@ -98,14 +98,14 @@ class OnkyoTuner extends IPSModuleStrict
             [\OnkyoAVR\ONKYO_Zone_Tuner::SLI_AM, 'AM', '', -1],
         ];
         $this->RegisterProfileIntegerEx('Onkyo.TunerBand.' . $this->InstanceID, '', '', '', $BandAssociation);
-        $this->RegisterVariableInteger('SLI', 'Tuner Band', 'Onkyo.TunerBand.' . $this->InstanceID, 0);
-        $this->EnableAction('SLI');
+        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::SLI, 'Tuner Band', 'Onkyo.TunerBand.' . $this->InstanceID, 0);
+        $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::SLI);
         $this->RegisterProfileInteger('Onkyo.TunerPreset.' . $this->InstanceID, '', '', '', 0, 0, 0);
-        $this->RegisterVariableInteger('PRS', $this->Translate('Radio Stations'), 'Onkyo.TunerPreset.' . $this->InstanceID, 0);
-        $this->EnableAction('PRS');
+        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::PRS, $this->Translate('Radio Stations'), 'Onkyo.TunerPreset.' . $this->InstanceID, 0);
+        $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::PRS);
         $this->RegisterProfileFloat('Onkyo.TunerFreq' . $this->InstanceID, '', '', ' MHz', 87, 108, 0.5, 1);
-        $this->RegisterVariableFloat('TUN', $this->Translate('Tuner Frequency'), 'Onkyo.TunerFreq' . $this->InstanceID, 0);
-        $this->EnableAction('TUN');
+        $this->RegisterVariableFloat(\OnkyoAVR\ISCP_API_Commands::TUN, $this->Translate('Tuner Frequency'), 'Onkyo.TunerFreq' . $this->InstanceID, 0);
+        $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::TUN);
 
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -184,7 +184,7 @@ class OnkyoTuner extends IPSModuleStrict
         foreach ($this->TunerProfile as $Profile) {
             if (($Value >= $Profile['Min']) && ($Value <= $Profile['Max'])) {
                 $ValueValid = true;
-                $NewBand = $Profile['SLI'];
+                $NewBand = $Profile[\OnkyoAVR\ISCP_API_Commands::SLI];
             }
         }
         if (!$ValueValid) {
@@ -195,7 +195,7 @@ class OnkyoTuner extends IPSModuleStrict
         if ($NewBand == \OnkyoAVR\ONKYO_Zone_Tuner::SLI_FM) { //FM
             $Value = $Value * 100;
         }
-        if ($this->GetValue('SLI') != $NewBand) {
+        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::SLI) != $NewBand) {
             $APIData = new \OnkyoAVR\ISCP_API_Data(
                 $this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI),
                 sprintf('%02X', $NewBand),
@@ -222,7 +222,7 @@ class OnkyoTuner extends IPSModuleStrict
     {
         $ValueValid = false;
         foreach ($this->TunerProfile as $Profile) {
-            if ($Value == $Profile['SLI']) {
+            if ($Value == $Profile[\OnkyoAVR\ISCP_API_Commands::SLI]) {
                 $ValueValid = true;
             }
         }
@@ -304,13 +304,13 @@ class OnkyoTuner extends IPSModuleStrict
                 } else {
                     $Value = (((int) $APIData->Data) / 100);
                 }
-                $this->SetValueFloat('TUN', $Value);
+                $this->SetValueFloat(\OnkyoAVR\ISCP_API_Commands::TUN, $Value);
                 break;
             case \OnkyoAVR\ISCP_API_Commands::PRS:
             case \OnkyoAVR\ISCP_API_Commands::PRZ:
             case \OnkyoAVR\ISCP_API_Commands::PR3:
             case \OnkyoAVR\ISCP_API_Commands::PR4:
-                $this->SetValueInteger('PRS', hexdec($APIData->Data));
+                $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::PRS, hexdec($APIData->Data));
                 break;
             case \OnkyoAVR\ISCP_API_Commands::SLI:
             case \OnkyoAVR\ISCP_API_Commands::SLZ:
@@ -327,7 +327,7 @@ class OnkyoTuner extends IPSModuleStrict
                 if (isset($Profile)) {
                     $this->RegisterProfileFloat('Onkyo.TunerFreq' . $this->InstanceID, '', '', $Profile['Suffix'], $Profile['Min'], $Profile['Max'], $Profile['Step'], $Profile['Digits']);
                 }
-                $this->SetValueInteger('SLI', hexdec($APIData->Data));
+                $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::SLI, hexdec($APIData->Data));
                 break;
             case \OnkyoAVR\ISCP_API_Commands::PRM:
             case \OnkyoAVR\ISCP_API_Commands::RDS:
@@ -361,7 +361,7 @@ class OnkyoTuner extends IPSModuleStrict
         }
         foreach ($ResultDataTunerList as $Band => &$Profile) {
             $Profile = array_merge(\OnkyoAVR\ONKYO_Zone_Tuner::$TunerProfile[$Band], $Profile);
-            $BandAssociation[] = [\OnkyoAVR\ONKYO_Zone_Tuner::$TunerProfile[$Band]['SLI'], $Band, '', -1];
+            $BandAssociation[] = [\OnkyoAVR\ONKYO_Zone_Tuner::$TunerProfile[$Band][\OnkyoAVR\ISCP_API_Commands::SLI], $Band, '', -1];
         }
         $this->SendDebug('PresetAssociation', $ResultDataTunerList, 0);
         $this->SendDebug('BandAssociation', $BandAssociation, 0);
