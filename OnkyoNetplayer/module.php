@@ -318,6 +318,7 @@ class OnkyoNetplayer extends IPSModule
                 }
                 // No break ist Absicht. Warum, habe ich vergessen :D
                 // FIXME: No break. Please add proper comment if intentional
+                // No break. Add additional comment above this line if intentional
             default:
                 if ($this->UiType == 3) { //menü screen
                     $Title = $this->FolderName;

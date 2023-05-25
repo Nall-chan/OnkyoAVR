@@ -869,7 +869,7 @@ class OnkyoAVR extends IPSModule
                 break;
         }
         // refreshs
-        switch ($APIData->APICommand){
+        switch ($APIData->APICommand) {
             case \OnkyoAVR\ISCP_API_Commands::SLI:
                 $this->RequestState(\OnkyoAVR\ISCP_API_Commands::IFV);
                 $this->RequestState(\OnkyoAVR\ISCP_API_Commands::IFA);
