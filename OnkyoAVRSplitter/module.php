@@ -476,7 +476,7 @@ class ISCPSplitter extends IPSModuleStrict
      * Wartet auf eine Antwort einer Anfrage an den LMS.
      *
      * @param string $APICommand
-     * @result mixed
+     * @return mixed
      */
     private function WaitForResponse(string $APICommand): mixed
     {

@@ -1,0 +1,12 @@
+✅Wiedergabe: ~Playback oder ~PlaybackPreviousNext (Erledigt, Offset +1)
+🟩Playlist: ~Playlist (Fehlt noch) -> Navigation im NetPlayer
+🟩Fortschritt: ~Progress (NTM Position, ist ~Intensity.100)
+✅Künstler: ~Artist
+✅Lied: ~Song
+🟩Lautstärke: ~Volume  (Profil ist dynamisch, umbauen das Umrechnung in Modul stattfindet?) 
+✅Stummschaltung: ~Mute
+🟥Zufall: ~Shuffle (geht nicht; ist integer > Off, All, Album, Folder; und nur durchschaltbar; nicht absolut ansteuerbar)
+🟥Wiederholung: ~Repeat (geht nicht; nur durchschaltbar; nicht absolut ansteuerbar)
+✅Cover: Beliebiges Image
+✅Neue Instanzen werden in einer passenden Kategorie angelegt.
+✅Unterstützung von Hostnamen verbessert im Discovery

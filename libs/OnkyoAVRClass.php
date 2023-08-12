@@ -685,6 +685,7 @@ class ISCP_API_Commands
     public const VWM = 'VWM'; //'VWM' - Video Wide Mode
     public const VPM = 'VPM'; //'VPM' -Video Picture Mode
     public const LMD = 'LMD'; //'LMD' - Listening Mode Command
+    public const LMD2 = 'LMD2'; //'LMD2' - Listening Mode Buttons
     public const LTN = 'LTN'; //'LTN' - Late Night Command
     public const RAS = 'RAS'; //'RAS' - Re-EQ Command
     public const ADY = 'ADY'; //'ADY' - Audyssey 2EQ/MultEQ/MultEQ XT
