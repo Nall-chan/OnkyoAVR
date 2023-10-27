@@ -74,7 +74,7 @@ class OnkyoAVR extends IPSModuleStrict
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::CTL, true);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SWL, true);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD, true);
-        //$this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD2, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD2, true);
 
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFW, false);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFH, false);

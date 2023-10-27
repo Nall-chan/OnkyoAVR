@@ -57,11 +57,13 @@ class ISCPSplitter extends IPSModuleStrict
         $this->ParentID = 0;
         $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
         $this->EmptyProfileBuffers();
+        if (IPS_GetKernelRunlevel() != KR_READY) {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
+        }
     }
 
     public function ApplyChanges(): void
     {
-        $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         $this->ReplyISCPData = [];
@@ -81,7 +83,8 @@ class ISCPSplitter extends IPSModuleStrict
 
         $this->RegisterParent();
         if ($this->ParentID > 0) {
-            IPS_ApplyChanges($this->ParentID);
+            $this->IOChangeState(IS_ACTIVE);
+            //IPS_ApplyChanges($this->ParentID);
         }
     }
 
@@ -231,9 +234,11 @@ class ISCPSplitter extends IPSModuleStrict
      */
     protected function KernelReady(): void
     {
+        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterParent();
         if ($this->ParentID > 0) {
-            IPS_ApplyChanges($this->ParentID);
+            $this->IOChangeState(IS_ACTIVE);
+            //IPS_ApplyChanges($this->ParentID);
         }
     }
 
