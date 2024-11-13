@@ -23,6 +23,18 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  * @property array $ToneProfile
  * @property array $MyConfig
  * @property array $LMDList
+ * @method bool lock(string $ident)
+ * @method void unlock(string $ident)
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ * @method void SetValueBoolean(string $Ident, bool $value)
+ * @method void SetValueFloat(string $Ident, float $value)
+ * @method void SetValueInteger(string $Ident, int $value)
+ * @method void SetValueString(string $Ident, string $value)
+ * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, float $StepSize)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void RegisterProfileFloat(string $Name, string $Icon, string $Prefix, string $Suffix, float $MinValue, float $MaxValue, float $StepSize, int $Digits)
+ * @method void UnregisterProfile(string $Name)
+ * @method int RegisterParent()
  */
 class OnkyoAVR extends IPSModule
 {
@@ -31,66 +43,71 @@ class OnkyoAVR extends IPSModule
         \OnkyoAVR\InstanceStatus,
         \OnkyoAVR\VariableHelper,
         \OnkyoAVR\VariableProfileHelper {
-        \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
-        \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
-    }
+            \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
+            \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
+        }
 
+    /**
+     * Create
+     *
+     * @return void
+     */
     public function Create()
     {
         parent::Create();
-        $this->ConnectParent('{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}');
+        $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Zone', \OnkyoAVR\ONKYO_Zone::None);
-        $this->RegisterPropertyBoolean('VL4', true);
-        $this->RegisterPropertyBoolean('MT4', true);
-        $this->RegisterPropertyBoolean('SL4', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VL4, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MT4, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SL4, true);
 
-        $this->RegisterPropertyBoolean('VL3', true);
-        $this->RegisterPropertyBoolean('MT3', true);
-        $this->RegisterPropertyBoolean('SL3', true);
-        $this->RegisterPropertyBoolean('TN3', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VL3, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MT3, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SL3, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TN3, true);
 
-        $this->RegisterPropertyBoolean('ZVL', true);
-        $this->RegisterPropertyBoolean('ZMT', true);
-        $this->RegisterPropertyBoolean('SLZ', true);
-        $this->RegisterPropertyBoolean('ZTN', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ZVL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ZMT, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLZ, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ZTN, true);
 
-        $this->RegisterPropertyBoolean('TFR', true);
-        $this->RegisterPropertyBoolean('MVL', true);
-        $this->RegisterPropertyBoolean('AMT', true);
-        $this->RegisterPropertyBoolean('SLI', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFR, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MVL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::AMT, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLI, true);
 
-        $this->RegisterPropertyBoolean('CTL', true);
-        $this->RegisterPropertyBoolean('SWL', true);
-        $this->RegisterPropertyBoolean('LMD', true);
-        $this->RegisterPropertyBoolean('LMD2', true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::CTL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SWL, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD, true);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD2, true);
 
-        $this->RegisterPropertyBoolean('TFW', false);
-        $this->RegisterPropertyBoolean('TFH', false);
-        $this->RegisterPropertyBoolean('TSR', false);
-        $this->RegisterPropertyBoolean('TSB', false);
-        $this->RegisterPropertyBoolean('TCT', false);
-        $this->RegisterPropertyBoolean('TSW', false);
-        $this->RegisterPropertyBoolean('SW2', false);
-        $this->RegisterPropertyBoolean('HDO', false);
-        $this->RegisterPropertyBoolean('CEC', false);
-        $this->RegisterPropertyBoolean('HAO', false);
-        $this->RegisterPropertyBoolean('HAS', false);
-        $this->RegisterPropertyBoolean('RES', false);
-        $this->RegisterPropertyBoolean('VWM', false);
-        $this->RegisterPropertyBoolean('VPM', false);
-        $this->RegisterPropertyBoolean('DIF', false);
-        $this->RegisterPropertyBoolean('DIM', false);
-        $this->RegisterPropertyBoolean('ADQ', false);
-        $this->RegisterPropertyBoolean('ADY', false);
-        $this->RegisterPropertyBoolean('ADV', false);
-        $this->RegisterPropertyBoolean('SLA', false);
-        $this->RegisterPropertyBoolean('IFA', false);
-        $this->RegisterPropertyBoolean('IFV', false);
-        $this->RegisterPropertyBoolean('SLP', false);
-        $this->RegisterPropertyBoolean('LTN', false);
-        $this->RegisterPropertyBoolean('MOT', false);
-        $this->RegisterPropertyBoolean('RAS', false);
-        $this->RegisterPropertyBoolean('PMB', false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFW, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFH, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TSR, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TSB, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TCT, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TSW, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SW2, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::HDO, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::CEC, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::HAO, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::HAS, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::RES, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VWM, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VPM, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::DIF, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::DIM, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ADQ, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ADY, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::ADV, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLA, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::IFA, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::IFV, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SLP, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LTN, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MOT, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::RAS, false);
+        $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::PMB, false);
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone();
         $this->PhaseMatchingBass = true;
         $this->ToneProfile = [];
@@ -99,10 +116,16 @@ class OnkyoAVR extends IPSModule
         $this->SendDebug('FILTER', 'NOTHING', 0);
     }
 
+    /**
+     * Destroy
+     *
+     * @return void
+     */
     public function Destroy()
     {
         if (IPS_GetKernelRunlevel() != KR_READY) {
-            return parent::Destroy();
+            parent::Destroy();
+            return;
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
             foreach (array_keys(\OnkyoAVR\IPSProfiles::$ProfilAssociations) as $Profile) {
@@ -127,6 +150,11 @@ class OnkyoAVR extends IPSModule
         parent::Destroy();
     }
 
+    /**
+     * ApplyChanges
+     *
+     * @return void
+     */
     public function ApplyChanges()
     {
         $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
@@ -171,13 +199,6 @@ class OnkyoAVR extends IPSModule
         $OldZone = $this->OnkyoZone->thisZone;
         $NewZone = $this->ReadPropertyInteger('Zone');
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone($NewZone);
-
-        if (@$this->GetIDForIdent('ReplyAPIData') > 0) {
-            $this->PerformModulUpdate();
-
-            return;
-        }
-
         // Power, Mute, Volume, Input überführen in neuen Ident
         if ((($OldZone != 0) && ($NewZone != 0)) && ($OldZone != $NewZone)) {
             $OldZoneIdents = \OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$OldZone];
@@ -241,7 +262,13 @@ class OnkyoAVR extends IPSModule
     }
 
     /**
-     * Interne Funktion des SDK.
+     * MessageSink
+     *
+     * @param  int $TimeStamp
+     * @param  int $SenderID
+     * @param  int $Message
+     * @param  array $Data
+     * @return void
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
@@ -254,20 +281,30 @@ class OnkyoAVR extends IPSModule
         }
     }
 
+    /**
+     * GetConfigurationForm
+     *
+     * @return string
+     */
     public function GetConfigurationForm()
     {
         return file_get_contents(__DIR__ . '/form_' . $this->OnkyoZone->thisZone . '.json');
     }
 
-    //################# ActionHandler
-
+    /**
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
     public function RequestAction($Ident, $Value)
     {
         if ($this->IORequestAction($Ident, $Value)) {
-            return true;
+            return;
         }
         if (!$this->CheckZone()) {
-            return false;
+            return;
         }
         if ($Ident == 'LMD2') {
             $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::LMD, $this->LMDList[$Value]['Code'], false);
@@ -275,24 +312,27 @@ class OnkyoAVR extends IPSModule
             return;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data($Ident, $Value);
-
         $this->SendAPIData($APIData);
     }
 
-    //################# PUBLIC
-
-    public function RequestState(string $Ident)
+    /**
+     * RequestState
+     *
+     * @param  string $Ident
+     * @return void
+     */
+    public function RequestState(string $Ident): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         if ($Ident == 'ALL') {
-            return $this->RequestZoneState();
+            $this->RequestZoneState();
+            return true;
         }
         $ApiCmd = substr($Ident, 0, 3);
         if (!$this->OnkyoZone->CmdAvailable($ApiCmd)) {
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
-
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -305,35 +345,53 @@ class OnkyoAVR extends IPSModule
                 }
                 $APIData->Data = $ResultData;
                 $this->UpdateVariable($APIData);
-
                 return true;
             }
         }
-
         return false;
     }
 
-    public function Power()
+    /**
+     * Power
+     *
+     * @return bool
+     */
+    public function Power(): bool
     {
         return $this->SendPower(!$this->GetValue(\OnkyoAVR\ISCP_API_Commands::PWR));
     }
 
-    public function PowerOn()
+    /**
+     * PowerOn
+     *
+     * @return bool
+     */
+    public function PowerOn(): bool
     {
         return $this->SendPower(true);
     }
 
-    public function PowerOff()
+    /**
+     * PowerOff
+     *
+     * @return bool
+     */
+    public function PowerOff(): bool
     {
         return $this->SendPower(false);
     }
 
-    public function SetVolume(int $Value)
+    /**
+     * SetVolume
+     *
+     * @param  int $Value
+     * @return bool
+     */
+    public function SetVolume(int $Value): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
-
         switch ($this->OnkyoZone->thisZone) {
             case \OnkyoAVR\ONKYO_Zone::ZoneMain:
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::MVL, $Value);
@@ -348,11 +406,16 @@ class OnkyoAVR extends IPSModule
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::VL4, $Value);
                 break;
         }
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SetMute(bool $Value)
+    /**
+     * SetMute
+     *
+     * @param  bool $Value
+     * @return bool
+     */
+    public function SetMute(bool $Value): bool
     {
         if (!$this->CheckZone()) {
             return false;
@@ -371,16 +434,20 @@ class OnkyoAVR extends IPSModule
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::MT4, $Value);
                 break;
         }
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SelectInput(int $Value)
+    /**
+     * SelectInput
+     *
+     * @param  int $Value
+     * @return bool
+     */
+    public function SelectInput(int $Value): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
-
         switch ($this->OnkyoZone->thisZone) {
             case \OnkyoAVR\ONKYO_Zone::ZoneMain:
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SLI, $Value);
@@ -395,26 +462,35 @@ class OnkyoAVR extends IPSModule
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SL4, $Value);
                 break;
         }
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SelectAudioInput(int $Value)
+    /**
+     * SelectAudioInput
+     *
+     * @param  int $Value
+     * @return bool
+     */
+    public function SelectAudioInput(int $Value): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SLA, $Value);
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SelectListingMode(int $Value)
+    /**
+     * SelectListingMode
+     *
+     * @param  int $Value
+     * @return bool
+     */
+    public function SelectListingMode(int $Value): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
-
         switch ($this->OnkyoZone->thisZone) {
             case \OnkyoAVR\ONKYO_Zone::ZoneMain:
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::LMD, $Value);
@@ -425,90 +501,119 @@ class OnkyoAVR extends IPSModule
             case \OnkyoAVR\ONKYO_Zone::Zone3:
             case \OnkyoAVR\ONKYO_Zone::Zone4:
                 trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
-
                 return false;
         }
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SetSleep(int $Duration)
+    /**
+     * SetSleep
+     *
+     * @param  int $Duration
+     * @return bool
+     */
+    public function SetSleep(int $Duration): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         if ($this->OnkyoZone->thisZone != \OnkyoAVR\ONKYO_Zone::ZoneMain) {
             trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
-
             return false;
         }
         if (($Duration < 0) || ($Duration > 0x5A)) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Duration'), E_USER_NOTICE);
-
             return false;
         }
-
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SLP, $Duration);
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SetCenterLevel(float $Level)
+    /**
+     * SetCenterLevel
+     *
+     * @param  float $Level
+     * @return bool
+     */
+    public function SetCenterLevel(float $Level): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::CTL, $Level);
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SetSubwooferLevel(float $Level)
+    /**
+     * SetSubwooferLevel
+     *
+     * @param  float $Level
+     * @return bool
+     */
+    public function SetSubwooferLevel(float $Level): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SWL, $Level);
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SetSubwoofer2Level(float $Level)
+    /**
+     * SetSubwoofer2Level
+     *
+     * @param  float $Level
+     * @return bool
+     */
+    public function SetSubwoofer2Level(float $Level): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::SW2, $Level);
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SetDisplayMode(int $Mode)
+    /**
+     * SetDisplayMode
+     *
+     * @param  int $Mode
+     * @return bool
+     */
+    public function SetDisplayMode(int $Mode): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::DIF, $Mode);
-
         return $this->SendAPIData($APIData);
     }
 
-    public function SetDisplayDimmer(int $Level)
+    /**
+     * SetDisplayDimmer
+     *
+     * @param  int $Level
+     * @return bool
+     */
+    public function SetDisplayDimmer(int $Level): bool
     {
         if (!$this->CheckZone()) {
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::DIM, $Level);
-
         return $this->SendAPIData($APIData);
     }
 
+    /**
+     * GetAudioInformation
+     *
+     * @return array|false
+     */
     public function GetAudioInformation()
     {
         if (!$this->CheckZone()) {
             return false;
         }
-
         switch ($this->OnkyoZone->thisZone) {
             case \OnkyoAVR\ONKYO_Zone::ZoneMain:
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::IFA, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -544,12 +649,16 @@ class OnkyoAVR extends IPSModule
         return array_combine($Keys, $Values);
     }
 
+    /**
+     * GetVideoInformation
+     *
+     * @return array|false
+     */
     public function GetVideoInformation()
     {
         if (!$this->CheckZone()) {
             return false;
         }
-
         switch ($this->OnkyoZone->thisZone) {
             case \OnkyoAVR\ONKYO_Zone::ZoneMain:
                 $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::IFV, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -583,31 +692,52 @@ class OnkyoAVR extends IPSModule
         return array_combine($Keys, $Values);
     }
 
-    //################# Datapoints
-
+    /**
+     * ReceiveData
+     *
+     * @param  string $JSONString
+     * @return string
+     */
     public function ReceiveData($JSONString)
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
         $this->SendDebug('ReceiveData', $APIData, 0);
         $this->UpdateVariable($APIData);
-    }
-
-    protected function ModulUpdateErrorHandler($errno, $errstr)
-    {
-        $this->SendDebug('ERROR', utf8_decode($errstr) . PHP_EOL, 0);
-        echo $errstr;
+        return '';
     }
 
     /**
-     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     * RequestZoneStateErrorHandler
+     *
+     * @param  int $errno
+     * @param  string $errstr
+     * @return bool
      */
-    protected function KernelReady()
+    protected function RequestZoneStateErrorHandler($errno, $errstr)
     {
+        return true;
+    }
+
+    /**
+     * KernelReady
+     *
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     *
+     * @return void
+     */
+    protected function KernelReady(): void
+    {
+        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterParent();
     }
 
     /**
+     * IOChangeState
+     *
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     *
+     * @param  int $State
+     * @return void
      */
     protected function IOChangeState($State)
     {
@@ -621,158 +751,49 @@ class OnkyoAVR extends IPSModule
         }
     }
 
-    //------------------------------------------------------------------------------
-    protected function RequestZoneStateErrorHandler($errno, $errstr)
-    {
-        //empty
-    }
-
-    private function PerformModulUpdate()
-    {
-        set_error_handler([$this, 'ModulUpdateErrorHandler']);
-        $this->UnregisterVariable('ReplyAPIData');
-        // Update machen !!!
-        $Zone = $this->OnkyoZone;
-        $OldProfileList = [
-            'NetRadioPreset.Onkyo',
-            'SpeakerLayout.Onkyo',
-            'ToneOffset.Onkyo',
-            'Sleep.Onkyo',
-            'DisplayMode.Onkyo',
-            'DisplayDimmer.Onkyo',
-            'SelectInput.Onkyo',
-            'SelectInputAudio.Onkyo',
-            'HDMIOutput.Onkyo',
-            'HDMIAudioOutput.Onkyo',
-            'VideoResolution.Onkyo',
-            'VideoWideMode.Onkyo',
-            'VideoPictureMode.Onkyo',
-            'LMD.Onkyo',
-            'LateNight.Onkyo',
-            'Audyssey.Onkyo',
-            'AudysseyDynamic.Onkyo',
-            'DolbyVolume.Onkyo',
-            'RadioPreset.Onkyo',
-        ];
-        $OldVariableNames = [
-            'Subwoofer Bass'       => 'Subwoofer Level',
-            'Sleep Set'            => 'Sleeptimer',
-            'Audio Input Selector' => 'Audio Input',
-            'Video Wide Mode'      => 'Video Mode',
-            'Input Selector'       => 'Input',
-        ];
-        $OldVariables = [
-            \OnkyoAVR\ISCP_API_Commands::TUN,
-            \OnkyoAVR\ISCP_API_Commands::PRS,
-            'LMZ',
-            'LTZ',
-            'RAZ',
-            \OnkyoAVR\ISCP_API_Commands::TUZ,
-            \OnkyoAVR\ISCP_API_Commands::PRZ,
-            \OnkyoAVR\ISCP_API_Commands::TU3,
-            \OnkyoAVR\ISCP_API_Commands::PR3,
-            \OnkyoAVR\ISCP_API_Commands::TU4,
-            \OnkyoAVR\ISCP_API_Commands::PR4,
-            \OnkyoAVR\ISCP_API_Commands::NTC,
-            \OnkyoAVR\ISCP_API_Commands::NTZ,
-            \OnkyoAVR\ISCP_API_Commands::NT3,
-            \OnkyoAVR\ISCP_API_Commands::NT4,
-            \OnkyoAVR\ISCP_API_Commands::NPR,
-            \OnkyoAVR\ISCP_API_Commands::NPZ,
-            \OnkyoAVR\ISCP_API_Commands::NP3,
-            \OnkyoAVR\ISCP_API_Commands::NP4,
-        ];
-        foreach ($OldVariables as $OldVariable) {
-            @$this->UnregisterVariable($OldVariable);
-        }
-
-        $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
-        foreach (IPS_GetChildrenIDs($this->InstanceID)as $ObjectID) {
-            $Object = IPS_GetObject($ObjectID);
-
-            if ($Object['ObjectType'] != OBJECTTYPE_VARIABLE) {
-                continue;
-            }
-            $Variable = IPS_GetVariable($ObjectID);
-
-            $ApiCmd = substr($Object['ObjectIdent'], 0, 3);
-            if (!$Zone->CmdAvailable($ApiCmd)) {
-                $this->SendDebug('Wrong Zone UnregisterVariable', $ApiCmd, 0);
-                $this->UnregisterVariable($ApiCmd);
-            }
-            $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd);
-            if ($Mapping != null) { //Variable bekannt
-                if (array_key_exists($ApiCmd, $MyPropertys)) {
-                    // WerksSettings sagt false
-                    if ($MyPropertys[$ApiCmd] === false) {
-                        //Aber alte Variable vorhanden => settings updaten
-                        $this->SendDebug('Update Property', $ApiCmd, 0);
-                        IPS_SetProperty($this->InstanceID, $ApiCmd, true);
-                    }
-                }
-                $Profile = $Mapping->Profile;
-                if (strpos($Profile, '%d')) {
-                    $Profile = sprintf($Profile, $this->InstanceID);
-                }
-                if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
-                    $Mapping->VarType = \OnkyoAVR\IPSVarType::vtInteger;
-                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$Object['ObjectIdent'][3]];
-                    $Mapping->VarName = $Mapping->VarName[$ISCP_ValuePrefix];
-                }
-                //Profile neu setzen
-                $this->SendDebug('Update Profile', $Object, 0);
-                $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
-                // Hat sich der Variabletyp verändert?
-                if ($Variable['VariableType'] != $Mapping->VarType) {
-                    $ObjectID = $this->GetIDForIdent($Object['ObjectIdent']); //neue VariableID
-                }
-                //Name ist unverändert
-                if ($Object['ObjectName'] == $Mapping->VarName) {
-                    $this->SendDebug('Update Translated Name', $Object['ObjectName'], 0);
-                    IPS_SetName($ObjectID, $this->Translate($Object['ObjectName']));
-                    continue;
-                }
-                if (array_key_exists($Object['ObjectName'], $OldVariableNames)) {
-                    $this->SendDebug('Update Old Name', $Object['ObjectName'], 0);
-                    IPS_SetName($ObjectID, $this->Translate($Mapping->VarName));
-                }
-            } else {
-                $this->SendDebug('Skip Variable', $ApiCmd, 0);
-            }
-        }
-        foreach ($OldProfileList as $OldProfile) {
-            $this->UnregisterProfile($OldProfile);
-        }
-
-        if (IPS_HasChanges($this->InstanceID)) {
-            IPS_RunScriptText('IPS_ApplyChanges(' . $this->InstanceID . ');');
-        }
-        restore_error_handler();
-    }
-
-    //################# PRIVATE
-
+    /**
+     * CheckZone
+     *
+     * @return bool
+     */
     private function CheckZone()
     {
         if ($this->OnkyoZone->thisZone == \OnkyoAVR\ONKYO_Zone::None) {
             $this->SendDebug('Error', $this->Translate('Zone not set.'), 0);
-            //$this->LogMessage($this->Translate('Zone not set.'), KL_ERROR);
             return false;
         }
         return true;
     }
 
-    private function sdechex(int $d)
+    /**
+     * sdechex
+     *
+     * @param  int $d
+     * @return string
+     */
+    private function sdechex(int $d): string
     {
         return ($d < 0) ? ('-' . strtoupper(dechex(-$d))) : ($d == 0 ? '00' : '+' . strtoupper(dechex($d)));
     }
 
-    private function shexdec(string $h)
+    /**
+     * shexdec
+     *
+     * @param  string $h
+     * @return int
+     */
+    private function shexdec(string $h): int
     {
         return ($h[0] === '-') ? -(hexdec(substr($h, 1))) : (($h[0] === '+') ? (hexdec(substr($h, 1))) : hexdec($h));
     }
 
-    private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData)
+    /**
+     * UpdateVariable
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return void
+     */
+    private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData): void
     {
         if ($APIData->Data == 'N/A') {
             return;
@@ -877,10 +898,16 @@ class OnkyoAVR extends IPSModule
             case \OnkyoAVR\ISCP_API_Commands::SLA:
                 $this->RequestState(\OnkyoAVR\ISCP_API_Commands::IFA);
                 break;
-            }
+        }
     }
 
-    private function SendPower(bool $Value)
+    /**
+     * SendPower
+     *
+     * @param  bool $Value
+     * @return bool
+     */
+    private function SendPower(bool $Value): bool
     {
         if (!$this->CheckZone()) {
             return false;
@@ -903,7 +930,12 @@ class OnkyoAVR extends IPSModule
         return $this->SendAPIData($APIData);
     }
 
-    private function RequestProfile()
+    /**
+     * RequestProfile
+     *
+     * @return void
+     */
+    private function RequestProfile(): void
     {
         $zone = $this->OnkyoZone->thisZone;
         // SLI // SLZ // SL3 // SL4
@@ -1002,11 +1034,15 @@ class OnkyoAVR extends IPSModule
         }
     }
 
-    private function RequestZoneState()
+    /**
+     * RequestZoneState
+     *
+     * @return void
+     */
+    private function RequestZoneState(): void
     {
         // Schleife von allen CMDs welche als Variable in dieser Zone sind.
         $MyPropertys = $this->MyConfig;
-        set_error_handler([$this, 'RequestZoneStateErrorHandler']);
         foreach (\OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$this->OnkyoZone->thisZone] as $ApiCmd) {
             if (array_key_exists($ApiCmd, $MyPropertys)) {
                 if ($MyPropertys[$ApiCmd] === false) {
@@ -1022,7 +1058,9 @@ class OnkyoAVR extends IPSModule
             $Mapping = $APIData->GetMapping();
             if ($Mapping !== null) {
                 if ($Mapping->RequestValue) {
+                    set_error_handler([$this, 'RequestZoneStateErrorHandler'], error_reporting());
                     $ResultData = $this->Send($APIData);
+                    restore_error_handler();
                     if ($ResultData === null) {
                         $VarName = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd)->VarName;
                         if (is_array($VarName)) {
@@ -1036,10 +1074,16 @@ class OnkyoAVR extends IPSModule
                 }
             }
         }
-        restore_error_handler();
+
     }
 
-    private function SendAPIData(\OnkyoAVR\ISCP_API_Data $APIData)
+    /**
+     * SendAPIData
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return bool
+     */
+    private function SendAPIData(\OnkyoAVR\ISCP_API_Data $APIData): bool
     {
         if (strlen($APIData->APICommand) == 4) {
             $SubIndex = substr($APIData->APICommand, -1);
@@ -1137,35 +1181,35 @@ class OnkyoAVR extends IPSModule
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
             trigger_error($this->Translate($exc->getMessage()), E_USER_NOTICE);
-
             return false;
         }
-
         return true;
     }
 
-    private function Send(\OnkyoAVR\ISCP_API_Data $APIData)
+    /**
+     * Send
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return mixed
+     */
+    private function Send(\OnkyoAVR\ISCP_API_Data $APIData): mixed
     {
         $this->SendDebug('ForwardData', $APIData, 0);
-
         try {
             if (!$this->HasActiveParent()) {
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             }
-            $ret = $this->SendDataToParent($APIData->ToJSONString('{8F47273A-0B69-489E-AF36-F391AE5FBEC0}'));
+            $ret = $this->SendDataToParent($APIData->ToJSONString(\OnkyoAVR\GUID::SendToSplitter));
             if ($ret === false) {
                 $this->SendDebug('Response' . $APIData->APICommand, 'No answer', 0);
-
                 return null;
             }
             $result = unserialize($ret);
             $this->SendDebug('Response' . $APIData->APICommand, $result, 0);
-
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
-
             return null;
         }
     }

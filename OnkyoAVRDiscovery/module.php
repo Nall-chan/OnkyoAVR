@@ -7,14 +7,20 @@ declare(strict_types=1);
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  * @version       2.0
  */
+require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoAVRDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 
-class OnkyoAVRDiscovery extends ipsmodule
+/**
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ */
+class OnkyoAVRDiscovery extends IPSModule
 {
     use \OnkyoAVRDiscovery\DebugHelper;
 
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create()
     {
@@ -22,7 +28,9 @@ class OnkyoAVRDiscovery extends ipsmodule
     }
 
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges()
     {
@@ -30,28 +38,33 @@ class OnkyoAVRDiscovery extends ipsmodule
     }
 
     /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForm
+     *
+     * @return string
      */
     public function GetConfigurationForm()
     {
-        $Devices = $this->DiscoverDevices();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
+        $Devices = $this->DiscoverDevices();
         $IPSDevices = $this->GetIPSInstances();
 
         $Values = [];
 
         foreach ($Devices as $IPAddress => $Device) {
             $AddValue = [
-                'IPAddress'  => $IPAddress,
+                'Host'       => $Device[4],
                 'type'       => $Device[0],
-                'name'       => 'Onkyo/Pioneer AVR Splitter (' . $Device[0] . ')',
+                'name'       => 'Onkyo/Pioneer (' . $Device[0] . ')',
                 'instanceID' => 0,
             ];
             $InstanceID = array_search($IPAddress, $IPSDevices);
             if ($InstanceID === false) {
                 $InstanceID = array_search(strtolower($Device[4]), $IPSDevices);
                 if ($InstanceID !== false) {
-                    $AddValue['IPAddress'] = $Device[4];
+                    $AddValue['Host'] = $Device[4];
                 }
             }
             if ($InstanceID !== false) {
@@ -61,17 +74,17 @@ class OnkyoAVRDiscovery extends ipsmodule
             }
             $AddValue['create'] = [
                 [
-                    'moduleID'      => '{251DAC2C-5B1F-4B1F-B843-B22D518F553E}',
+                    'moduleID'      => \OnkyoAVR\GUID::Configurator,
                     'configuration' => new stdClass(),
                 ],
                 [
-                    'moduleID'      => '{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}',
+                    'moduleID'      => \OnkyoAVR\GUID::Splitter,
                     'configuration' => new stdClass(),
                 ],
                 [
-                    'moduleID'      => '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}',
+                    'moduleID'      => \OnkyoAVR\GUID::ClientSocket,
                     'configuration' => [
-                        'Host' => $AddValue['IPAddress'],
+                        'Host' => $AddValue['Host'],
                         'Port' => (int) $Device[1],
                         'Open' => true,
                     ],
@@ -80,9 +93,9 @@ class OnkyoAVRDiscovery extends ipsmodule
             $Values[] = $AddValue;
         }
 
-        foreach ($IPSDevices as $InstanceID => $IPAddress) {
+        foreach ($IPSDevices as $InstanceID => $Host) {
             $Values[] = [
-                'IPAddress'  => $IPAddress,
+                'Host'       => $Host,
                 'type'       => '',
                 'name'       => IPS_GetName($InstanceID),
                 'instanceID' => $InstanceID,
@@ -96,9 +109,14 @@ class OnkyoAVRDiscovery extends ipsmodule
         return json_encode($Form);
     }
 
+    /**
+     * GetIPSInstances
+     *
+     * @return array
+     */
     private function GetIPSInstances(): array
     {
-        $InstanceIDList = IPS_GetInstanceListByModuleID('{251DAC2C-5B1F-4B1F-B843-B22D518F553E}');
+        $InstanceIDList = IPS_GetInstanceListByModuleID(\OnkyoAVR\GUID::Configurator);
         $Devices = [];
         foreach ($InstanceIDList as $InstanceID) {
             $Splitter = IPS_GetInstance($InstanceID)['ConnectionID'];
@@ -106,7 +124,7 @@ class OnkyoAVRDiscovery extends ipsmodule
                 $IO = IPS_GetInstance($Splitter)['ConnectionID'];
                 if ($IO > 0) {
                     $parentGUID = IPS_GetInstance($IO)['ModuleInfo']['ModuleID'];
-                    if ($parentGUID == '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}') {
+                    if ($parentGUID == \OnkyoAVR\GUID::ClientSocket) {
                         $Devices[$InstanceID] = strtolower(IPS_GetProperty($IO, 'Host'));
                     }
                 }
@@ -116,9 +134,13 @@ class OnkyoAVRDiscovery extends ipsmodule
         return $Devices;
     }
 
+    /**
+     * DiscoverDevices
+     *
+     * @return array
+     */
     private function DiscoverDevices(): array
     {
-        $this->LogMessage($this->Translate('Background discovery of Onkyo/Pioneer AV-Receiver'), KL_NOTIFY);
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (!$socket) {
             return [];

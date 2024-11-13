@@ -4,9 +4,9 @@
     "name": "Onkyo & Pioneer AVR (ISCP) Library",
     "url": "https://github.com/Nall-chan/OnkyoAVR",
     "compatibility": {
-        "version": "5.1"
+        "version": "7.0"
     },
-    "version": "2.0",
-    "build": 100,
+    "version": "2.1",
+    "build": 210,
     "date": 1556897642
 }

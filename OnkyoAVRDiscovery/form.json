@@ -6,13 +6,13 @@
             "add": false,
             "delete": true,
             "sort": {
-                "column": "IPAddress",
+                "column": "Host",
                 "direction": "ascending"
             },
             "columns": [
                 {
-                    "caption": "IP Address",
-                    "name": "IPAddress",
+                    "caption": "Host",
+                    "name": "Host",
                     "width": "160px"
                 },
                 {

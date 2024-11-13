@@ -1,8 +1,7 @@
 {
     "translations": {
         "de": {
-            "IP Address": "IP Adresse",
-            "Background discovery of Onkyo/Pioneer AV-Receiver": "Hintergrundsuche nach Onkyo/Pioneer AV-Receiver"
+            "IP Address": "IP Adresse"
         }
     }
 }
