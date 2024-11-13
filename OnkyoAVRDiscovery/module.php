@@ -148,7 +148,7 @@ class OnkyoAVRDiscovery extends IPSModule
         socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
         socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 1, 'usec' => 100000]);
-        socket_bind($socket, '0.0.0.0', 0);
+        socket_bind($socket, '0.0.0.0', 60128);
         $message = hex2bin('49534350000000100000000b01000000217845434e5153544e0d0a');
         if (@socket_sendto($socket, $message, strlen($message), 0, '255.255.255.255', 60128) === false) {
             return [];
@@ -173,7 +173,7 @@ class OnkyoAVRDiscovery extends IPSModule
             if ($start === false) {
                 continue;
             }
-            $this->SendDebug('Receive', $buf, 0);
+            $this->SendDebug('Receive Port:'.$Port, $buf, 0);
             $end = strpos($buf, "\x19", $start);
             $DeviceData[$IPAddress] = explode('/', substr($buf, $start + 5, $end - $start - 5));
             $DeviceData[$IPAddress][] = gethostbyaddr($IPAddress);
