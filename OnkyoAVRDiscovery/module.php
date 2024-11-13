@@ -173,7 +173,7 @@ class OnkyoAVRDiscovery extends IPSModule
             if ($start === false) {
                 continue;
             }
-            $this->SendDebug('Receive Port:'.$Port, $buf, 0);
+            $this->SendDebug('Receive Port:' . $Port, $buf, 0);
             $end = strpos($buf, "\x19", $start);
             $DeviceData[$IPAddress] = explode('/', substr($buf, $start + 5, $end - $start - 5));
             $DeviceData[$IPAddress][] = gethostbyaddr($IPAddress);
