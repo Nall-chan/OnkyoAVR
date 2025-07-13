@@ -698,7 +698,7 @@ class ISCP_API_Commands
     public const PRM = 'PRM'; //'PRM' - Preset Memory Command (Include Tuner Pack Model Only)
     public const RDS = 'RDS'; //'RDS' - RDS Information Command (RDS Model Only)
     public const PTS = 'PTS'; //'PTS' - PTY Scan Command (RDS Model Only)
-// HD Radio
+    // HD Radio
     /*
       const HAT = 'HAT';
       const HCN = 'HCN';
@@ -729,8 +729,8 @@ class ISCP_API_Commands
     public const NPU = 'NPU'; // NET Popup Message(for Network Control Only)
     public const NRI = 'NRI'; // Receiver Information (for Network Control Only)
     public const NFI = 'NFI'; // NET/USB File Information
-//ENDE Net/USB
-//Start Airplay
+    //ENDE Net/USB
+    //Start Airplay
     /* const AAT = 'AAT'; //'AAT' - Airplay Artist Name Info (Airplay Model Only)
       const AAL = 'AAL'; //'AAL' - Airplay Album Name Info (Airplay Model Only)
       const ATI = 'ATI'; //'ATI' - Airplay Title Name (Airplay Model Only)
@@ -739,7 +739,7 @@ class ISCP_API_Commands
      */
     //Ende Airplay
     //START CMD via PORT
-//    const CPT = 'CPT'; //'CPT' - Universal PORT Operation Command
+    //    const CPT = 'CPT'; //'CPT' - Universal PORT Operation Command
     //'IAT' - iPod Artist Name Info (Universal Port Dock Only)
     //'IAL' - iPod Album Name Info (Universal Port Dock Only)
     //'ITI' - iPod Title Name (Universal Port Dock Only)
@@ -785,7 +785,7 @@ class ISCP_API_Commands
     public const PR3 = 'PR3';  // Preset Tuner Zone
     public const NT3 = 'NT3';  // Net-Tune Network Zone
     public const NP3 = 'NP3';  // Net-Preset Network Zone
-//Zone4 Zone
+    //Zone4 Zone
     public const PW4 = 'PW4';  // Power
     public const MT4 = 'MT4';  // Mute
     public const VL4 = 'VL4';  // Volume

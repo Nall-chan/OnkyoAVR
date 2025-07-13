@@ -13,7 +13,6 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
-eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
@@ -45,8 +44,7 @@ class OnkyoNetplayer extends IPSModuleStrict
         \OnkyoNetplayer\BufferHelper,
         \OnkyoNetplayer\InstanceStatus,
         \OnkyoNetplayer\VariableHelper,
-        \OnkyoNetplayer\VariableProfileHelper,
-        \OnkyoNetplayer\WebhookHelper {
+        \OnkyoNetplayer\VariableProfileHelper{
             \OnkyoNetplayer\InstanceStatus::MessageSink as IOMessageSink;
             \OnkyoNetplayer\InstanceStatus::RequestAction as IORequestAction;
         }

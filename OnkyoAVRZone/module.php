@@ -687,7 +687,7 @@ class OnkyoAVR extends IPSModuleStrict
         }
 
         $MyPropertys = json_decode(IPS_GetConfiguration($this->InstanceID), true);
-        foreach (IPS_GetChildrenIDs($this->InstanceID)as $ObjectID) {
+        foreach (IPS_GetChildrenIDs($this->InstanceID) as $ObjectID) {
             $Object = IPS_GetObject($ObjectID);
 
             if ($Object['ObjectType'] != OBJECTTYPE_VARIABLE) {

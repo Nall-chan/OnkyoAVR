@@ -11,7 +11,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
@@ -28,7 +27,6 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
 class OnkyoRemote extends IPSModuleStrict
 {
     use \OnkyoRemote\DebugHelper;
-    use \OnkyoRemote\WebhookHelper;
     use \OnkyoRemote\BufferHelper;
     use \OnkyoRemote\VariableHelper;
     use \OnkyoRemote\VariableProfileHelper;
