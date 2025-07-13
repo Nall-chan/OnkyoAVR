@@ -20,8 +20,7 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
  * @method void SetValueString(string $Ident, string $value)
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void UnregisterProfile(string $Name)
- * @method void RegisterHook(string $WebHook)
- * @method void UnregisterHook(string $WebHook)
+ * @method bool RegisterHook(string $WebHook)
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
 class OnkyoRemote extends IPSModuleStrict
@@ -249,7 +248,6 @@ class OnkyoRemote extends IPSModuleStrict
             return;
         }
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
             $this->UnregisterProfile('Onkyo.Navigation');
             $this->UnregisterProfile('Onkyo.Control');
         }
@@ -274,9 +272,6 @@ class OnkyoRemote extends IPSModuleStrict
             include 'generateRemote' . ($this->ReadPropertyInteger('RemoteId')) . '.php';
             $this->SetValueString('Remote', $remote);
         } else {
-            if (IPS_GetKernelRunlevel() == KR_READY) {
-                $this->UnregisterHook('/hook/OnkyoRemote' . $this->InstanceID);
-            }
             $this->UnregisterVariable('Remote');
         }
 

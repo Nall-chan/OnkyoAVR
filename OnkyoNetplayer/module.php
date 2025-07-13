@@ -34,8 +34,7 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, float $StepSize)
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void UnregisterProfile(string $Name)
- * @method void RegisterHook(string $WebHook)
- * @method void UnregisterHook(string $WebHook)
+ * @method bool RegisterHook(string $WebHook)
  * @method int RegisterParent()
  */
 class OnkyoNetplayer extends IPSModuleStrict
@@ -205,8 +204,6 @@ class OnkyoNetplayer extends IPSModuleStrict
         }
         if ($this->ReadPropertyBoolean('showNavigation')) {
             $this->RegisterHook('/hook/OnkyoNetPlayer' . $this->InstanceID);
-        } else {
-            $this->UnregisterHook('/hook/OnkyoNetPlayer' . $this->InstanceID);
         }
         $this->RegisterParent();
         if ($this->HasActiveParent()) {
