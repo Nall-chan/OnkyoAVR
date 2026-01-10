@@ -3,7 +3,7 @@
         "de": {
             "When send commands the following zone is used for": "Bei dem senden von Befehlen wird die folgende Zone verwendet",
             "Show navigation as HTML-Box": "Navigation als HTML-Box anlegen",
-            "Desgin of the HTML-Box": "Darstellung der HTML-Box",
+            "Design of the HTML-Box": "Darstellung der HTML-Box",
             "Navigation design": "Navigation Darstellung",
             "HTML-Tag": "HTML-Tag",
             "CSS": "CSS",
@@ -30,7 +30,7 @@
             "even": "gerade",
             "active": "aktiv",
             "Row": "Zeile",
-            "Backgroundcolor": "Hintergrundfarbe",
+            "Background color": "Hintergrundfarbe",
             "Color of background:": "Farbe vom Hintergrund",
             "back": "Zurück",
             "unknown": "unbekannt",
@@ -47,7 +47,7 @@
             "no connection": "Keine Verbindung",
             "Ethernet": "Kabel",
             "Wireless": "WLAN",
-            "disable": "desaktiv",
+            "disable": "inaktiv",
             "no device": "Kein Gerät",
             "Memory": "Speicher",
             "Wireless Adaptor": "WLAN Adapter",
@@ -78,7 +78,8 @@
             "%s out of range.": "%s außerhalb des zulässigen Bereiches.",
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
             "Bad Request": "Ungültige Anfrage",
-            "Access denied": "Zugriff verweigert"
+            "Access denied": "Zugriff verweigert",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

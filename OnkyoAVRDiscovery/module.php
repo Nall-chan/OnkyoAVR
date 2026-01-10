@@ -18,23 +18,9 @@ class OnkyoAVRDiscovery extends IPSModuleStrict
     use \OnkyoAVRDiscovery\DebugHelper;
 
     /**
-     * Interne Funktion des SDK.
-     */
-    public function Create(): void
-    {
-        parent::Create();
-    }
-
-    /**
-     * Interne Funktion des SDK.
-     */
-    public function ApplyChanges(): void
-    {
-        parent::ApplyChanges();
-    }
-
-    /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForm
+     *
+     * @return string
      */
     public function GetConfigurationForm(): string
     {
@@ -103,6 +89,11 @@ class OnkyoAVRDiscovery extends IPSModuleStrict
         return json_encode($Form);
     }
 
+    /**
+     * GetIPSInstances
+     *
+     * @return array
+     */
     private function GetIPSInstances(): array
     {
         $InstanceIDList = IPS_GetInstanceListByModuleID(\OnkyoAVR\GUID::Configurator);
@@ -119,10 +110,14 @@ class OnkyoAVRDiscovery extends IPSModuleStrict
                 }
             }
         }
-
         return $Devices;
     }
 
+    /**
+     * DiscoverDevices
+     *
+     * @return array
+     */
     private function DiscoverDevices(): array
     {
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
@@ -157,7 +152,7 @@ class OnkyoAVRDiscovery extends IPSModuleStrict
             if ($start === false) {
                 continue;
             }
-            $this->SendDebug('Receive', $buf, 0);
+            $this->SendDebug('Receive Port:' . $Port, $buf, 0);
             $end = strpos($buf, "\x19", $start);
             $DeviceData[$IPAddress] = explode('/', substr($buf, $start + 5, $end - $start - 5));
             $DeviceData[$IPAddress][] = gethostbyaddr($IPAddress);

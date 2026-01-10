@@ -53,6 +53,7 @@ class Remotes
             case self::TUN:
                 return 'Tuner';
         }
+        return 'unknown';
     }
 
     public static function ToRemoteID(string $Name): int
@@ -203,7 +204,7 @@ class IPSProfiles
             [0x05, '1080p', '', -1],
             [0x06, 'Source', '', -1],
             [0x07, '1080p/24fs', '', -1],
-            [0x08, '4K Upscaling', '', -1],
+            [0x08, '4K UpScaling', '', -1],
         ],
         self::ptVideoWideMode    => [
             [0x00, 'Auto', '', -1],
@@ -339,6 +340,7 @@ class ONKYO_Zone_NetPlayer
             case 4:
                 return 'NetPlayer Zone 4';
         }
+        return 'unknown';
     }
 
     public function GetZoneCommand(string $APICommand): false|string
@@ -420,6 +422,7 @@ class ONKYO_Zone_Tuner
             case 4:
                 return 'Tuner Zone 4';
         }
+        return 'unknown';
     }
 
     public function GetReadAPICommands(): array
@@ -643,7 +646,7 @@ class ISCP_API_Commands
     public const ControlList = 'ControlList';
     public const ProfileList = 'ProfileList';
     public const LMDList = 'LMDList';
-    public const NetserviceList = 'NetserviceList';
+    public const NetServiceList = 'NetServiceList';
     public const PresetList = 'PresetList';
     public const TunerList = 'TunerList';
     public const ZoneList = 'ZoneList';
@@ -938,7 +941,7 @@ class ISCP_API_Commands
             self::EnableAction => true,
             self::Profile      => IPSProfiles::ptSleep,
             self::IsVariable   => true,
-            self::VarName      => 'Sleeptimer',
+            self::VarName      => 'Sleep timer',
             self::RequestValue => true,
             self::ValueMapping => ['OFF' => 0],
         ],
@@ -1349,17 +1352,17 @@ class ISCP_API_Data_Mapping
 }
 
 /**
- * @property string $APICommand
- * @property mixed $Data
+ * @property null|string $APICommand
+ * @property null|mixed $Data
  * @property bool $needResponse
  */
 class ISCP_API_Data
 {
-    public string $APICommand;
+    public ?string $APICommand;
     public mixed $Data;
     public bool $needResponse;
 
-    public function __construct(string $Command = null, $Data = null, bool $needResponse = true)
+    public function __construct(?string $Command = null, mixed $Data = null, bool $needResponse = true)
     {
         $this->needResponse = $needResponse;
 

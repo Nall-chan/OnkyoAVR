@@ -17,7 +17,7 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
 /**
- * @property int $ParentID Die InstanzeID des IO-Parent
+ * @property int $ParentID Die InstanzID des IO-Parent
  * @property \OnkyoAVR\ONKYO_Zone_NetPlayer $OnkyoZone
  * @property string $Multi_Cover
  * @property int $Layer
@@ -35,7 +35,11 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void UnregisterProfile(string $Name)
  * @method bool RegisterHook(string $WebHook)
+ * @method bool UnregisterHook(string $WebHook)
+ * @method int FindIDForIdent(string $Ident)
  * @method int RegisterParent()
+ * @method bool IORequestAction(string $Ident, mixed $Value)
+ * @method void IOMessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data)
  */
 class OnkyoNetplayer extends IPSModuleStrict
 {
@@ -48,6 +52,11 @@ class OnkyoNetplayer extends IPSModuleStrict
             \OnkyoNetplayer\InstanceStatus::RequestAction as IORequestAction;
         }
 
+    /**
+     * Create
+     *
+     * @return void
+     */
     public function Create(): void
     {
         parent::Create();
@@ -72,7 +81,9 @@ class OnkyoNetplayer extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * Destroy
+     *
+     * @return void
      */
     public function Destroy(): void
     {
@@ -98,6 +109,11 @@ class OnkyoNetplayer extends IPSModuleStrict
         parent::Destroy();
     }
 
+    /**
+     * ApplyChanges
+     *
+     * @return void
+     */
     public function ApplyChanges(): void
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
@@ -203,7 +219,9 @@ class OnkyoNetplayer extends IPSModuleStrict
             return;
         }
         if ($this->ReadPropertyBoolean('showNavigation')) {
-            $this->RegisterHook('/hook/OnkyoNetPlayer' . $this->InstanceID);
+            $this->RegisterHook('OnkyoNetPlayer' . $this->InstanceID);
+        } else {
+            $this->UnregisterHook('OnkyoNetPlayer');
         }
         $this->RegisterParent();
         if ($this->HasActiveParent()) {
@@ -212,7 +230,13 @@ class OnkyoNetplayer extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * MessageSink
+     *
+     * @param  int $TimeStamp
+     * @param  int $SenderID
+     * @param  int $Message
+     * @param  array $Data
+     * @return void
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
@@ -225,11 +249,22 @@ class OnkyoNetplayer extends IPSModuleStrict
         }
     }
 
+    /**
+     * Menu
+     *
+     * @return bool
+     */
     public function Menu(): bool
     {
         return $this->SendKey('TOP');
     }
 
+    /**
+     * SelectNetworkService
+     *
+     * @param  int $ServiceIndex
+     * @return bool
+     */
     public function SelectNetworkService(int $ServiceIndex): bool
     {
         if ($ServiceIndex >= 0xf0) {
@@ -266,6 +301,12 @@ class OnkyoNetplayer extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * SelectInfoListItem
+     *
+     * @param  int $Index
+     * @return bool
+     */
     public function SelectInfoListItem(int $Index): bool
     {
         if ($this->ServiceType == 0xf3) {
@@ -290,6 +331,11 @@ class OnkyoNetplayer extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * RequestInfoListData
+     *
+     * @return array
+     */
     public function RequestInfoListData(): array
     {
         $Title = $this->Translate('empty');
@@ -304,7 +350,7 @@ class OnkyoNetplayer extends IPSModuleStrict
             case 0xf3:
                 if ($this->UiType == 0) {
                     $List = [];
-                    $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetserviceList);
+                    $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetServiceList);
                     $ret = $this->Send($APIData);
                     $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $ret, 0);
                     foreach ($ret as $Key => $Item) {
@@ -320,17 +366,17 @@ class OnkyoNetplayer extends IPSModuleStrict
                 // No break ist Absicht. Warum, habe ich vergessen :D
                 // No break. Add additional comment above this line if intentional
             default:
-                if ($this->UiType == 3) { //menü screen
+                if ($this->UiType == 3) { // Menü screen
                     $Title = $this->FolderName;
                     $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
                     break;
                 }
-                if ($this->UiType == 2) { //playing screen
+                if ($this->UiType == 2) { // playing screen
                     $Title = '';
                     $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
                     break;
                 }
-                if ($this->UiType == 1) { //menü screen
+                if ($this->UiType == 1) { // Menü screen
                     $Title = $this->FolderName;
                     $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
                     break;
@@ -396,6 +442,12 @@ class OnkyoNetplayer extends IPSModuleStrict
         return ['Title' => $Title, 'List' => $List];
     }
 
+    /**
+     * SendKey
+     *
+     * @param  string $Key
+     * @return bool
+     */
     public function SendKey(string $Key): bool
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::NTC), $Key, false);
@@ -406,8 +458,13 @@ class OnkyoNetplayer extends IPSModuleStrict
         return true;
     }
 
-    //################# ActionHandler
-
+    /**
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
     public function RequestAction(string $Ident, mixed $Value): void
     {
         if ($this->IORequestAction($Ident, $Value)) {
@@ -486,8 +543,12 @@ class OnkyoNetplayer extends IPSModuleStrict
         }
     }
 
-    //################# PUBLIC
-
+    /**
+     * RequestState
+     *
+     * @param  string $Ident
+     * @return bool
+     */
     public function RequestState(string $Ident): bool
     {
         if ($Ident == 'ALL') {
@@ -509,6 +570,11 @@ class OnkyoNetplayer extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * PreviousTrack
+     *
+     * @return bool
+     */
     public function PreviousTrack(): bool
     {
         if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') != 2) {
@@ -519,36 +585,72 @@ class OnkyoNetplayer extends IPSModuleStrict
         return $this->SendKey('TRDN');
     }
 
+    /**
+     * NextTrack
+     *
+     * @return bool
+     */
     public function NextTrack(): bool
     {
         return $this->SendKey('TRUP');
     }
 
+    /**
+     * Play
+     *
+     * @return bool
+     */
     public function Play(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
+    /**
+     * Pause
+     *
+     * @return bool
+     */
     public function Pause(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
+    /**
+     * Stop
+     *
+     * @return bool
+     */
     public function Stop(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
+    /**
+     * Shuffle
+     *
+     * @return bool
+     */
     public function Shuffle(): bool
     {
         return $this->SendKey('RANDOM');
     }
 
+    /**
+     * Repeat
+     *
+     * @return bool
+     */
     public function Repeat(): bool
     {
         return $this->SendKey(strtoupper(__FUNCTION__));
     }
 
+    /**
+     * SetPosition
+     *
+     * @param  int $Value
+     * @return bool
+     */
     public function SetPosition(int $Value): bool
     {
         if ($Value > $this->StringToSeconds($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTM . '1'))) {
@@ -563,6 +665,12 @@ class OnkyoNetplayer extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * CallPreset
+     *
+     * @param  int $Value
+     * @return bool
+     */
     public function CallPreset(int $Value): bool
     {
         if (($Value < 1) || ($Value > 40)) {
@@ -577,6 +685,11 @@ class OnkyoNetplayer extends IPSModuleStrict
         return $this->Send($APIData);
     }
 
+    /**
+     * SavePreset
+     *
+     * @return bool
+     */
     public function SavePreset(): bool
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data(
@@ -587,6 +700,12 @@ class OnkyoNetplayer extends IPSModuleStrict
         return $this->Send($APIData);
     }
 
+    /**
+     * ReceiveData
+     *
+     * @param  string $JSONString
+     * @return string
+     */
     public function ReceiveData(string $JSONString): string
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
@@ -595,6 +714,11 @@ class OnkyoNetplayer extends IPSModuleStrict
         return '';
     }
 
+    /**
+     * GetConfigurationForm
+     *
+     * @return string
+     */
     public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -625,7 +749,11 @@ class OnkyoNetplayer extends IPSModuleStrict
     }
 
     /**
+     * KernelReady
+     *
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     *
+     * @return void
      */
     protected function KernelReady(): void
     {
@@ -633,7 +761,12 @@ class OnkyoNetplayer extends IPSModuleStrict
     }
 
     /**
+     * IOChangeState
+     *
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     *
+     * @param  int $State
+     * @return void
      */
     protected function IOChangeState(int $State): void
     {
@@ -646,9 +779,12 @@ class OnkyoNetplayer extends IPSModuleStrict
     }
 
     /**
+     * ProcessHookdata
+     *
      * Verarbeitet Daten aus dem Webhook.
      *
      * @global array $_GET
+     * @return void
      */
     protected function ProcessHookdata(): void
     {
@@ -656,7 +792,6 @@ class OnkyoNetplayer extends IPSModuleStrict
             echo $this->Translate('Bad Request');
             return;
         }
-
         $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
         if ($CalcSecret != rawurldecode($_GET['Secret'])) {
             echo $this->Translate('Access denied');
@@ -666,17 +801,18 @@ class OnkyoNetplayer extends IPSModuleStrict
             echo $this->Translate('Bad Request');
             return;
         }
-
         if ($this->SelectInfoListItem((int) $_GET['ID'])) {
             echo 'OK';
         }
     }
 
     /**
+     * GetTableHeader
+     *
      * Liefert den Header der HTML-Tabelle.
      *
-     * @param array $Config Die Konfiguration der Tabelle
-     *
+     * @param  array $Config_Table Die Konfiguration der Tabelle
+     * @param  array $Config_Columns
      * @return string HTML-String
      */
     protected function GetTableHeader(array $Config_Table, array $Config_Columns): string
@@ -758,13 +894,14 @@ sleep(10).then(() => {
     }
 
     /**
+     * GetTable
+     *
      * Liefert den Inhalt der HTML-Box für ein Tabelle.
      *
-     * @param array  $Data        Die Nutzdaten der Tabelle.
+     * @param array  $Array_Data        Die Nutzdaten der Tabelle.
      * @param string $HookPrefix  Der Prefix des Webhook.
      * @param string $HookType    Ein String welcher als Parameter Type im Webhook übergeben wird.
      * @param string $HookId      Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
-     * @param int    $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
      *
      * @return string Der HTML-String.
      */
@@ -832,6 +969,8 @@ sleep(10).then(() => {
     }
 
     /**
+     * GetTableFooter
+     *
      * Liefert den Footer der HTML-Tabelle.
      *
      * @return string HTML-String
@@ -844,7 +983,11 @@ sleep(10).then(() => {
         return $table;
     }
 
-    //################# PRIVATE
+    /**
+     * SetCover
+     *
+     * @return void
+     */
     private function SetCover(): void
     {
         $this->SendDebug('Refresh Cover', '', 0);
@@ -871,12 +1014,24 @@ sleep(10).then(() => {
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
     }
 
+    /**
+     * RefreshNavigationTable
+     *
+     * @param  array $List
+     * @return void
+     */
     private function RefreshNavigationTable(array $List): void
     {
         $HTML = $this->GetTable($List, 'OnkyoNetPlayer', 'Index', 'ID');
         $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NLA, $HTML);
     }
 
+    /**
+     * ProcessPopUpInfo
+     *
+     * @param  string $NPUData
+     * @return void
+     */
     private function ProcessPopUpInfo(string $NPUData): void
     {
         if ($NPUData[0] == 'L') { //list not supported
@@ -905,6 +1060,12 @@ sleep(10).then(() => {
         $this->RefreshNavigationTable(['Title' => $Title, 'List' => $List]);
     }
 
+    /**
+     * ProcessListTitelInfo
+     *
+     * @param  string $NLTData
+     * @return void
+     */
     private function ProcessListTitelInfo(string $NLTData): void
     {
         $FolderName = substr($NLTData, 22);
@@ -937,6 +1098,12 @@ sleep(10).then(() => {
         IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'NLA\',0);');
     }
 
+    /**
+     * UpdateVariable
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return void
+     */
     private function UpdateVariable(\OnkyoAVR\ISCP_API_Data $APIData): void
     {
         switch ($APIData->APICommand) {
@@ -1137,7 +1304,11 @@ sleep(10).then(() => {
         }
     }
 
-    //################# Datapoints
+    /**
+     * RequestProfile
+     *
+     * @return void
+     */
     private function RequestProfile(): void
     {
         $AssociationNSV = [];
@@ -1184,12 +1355,12 @@ sleep(10).then(() => {
           }
           $this->RegisterProfileIntegerEx('Onkyo.SelectNetworkInput.' . $this->InstanceID, '', '', '', $AssociationSLI);
          */
-        // bestimmte Werte als $ResultDataNetserviceList hinzufügen für USB / USB rear / NET / Bluetooth
-        $APIDataNetserviceList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetserviceList);
-        $ResultDataNetserviceList = $this->Send($APIDataNetserviceList);
-        if (count($ResultDataNetserviceList) > 0) {
-            foreach ($ResultDataNetserviceList as $Value => $NetserviceProfileData) {
-                $AssociationNSV[] = [$Value, $NetserviceProfileData, '', -1];
+        // bestimmte Werte als $ResultDataNetServiceList hinzufügen für USB / USB rear / NET / Bluetooth
+        $APIDataNetServiceList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetServiceList);
+        $ResultDataNetServiceList = $this->Send($APIDataNetServiceList);
+        if (count($ResultDataNetServiceList) > 0) {
+            foreach ($ResultDataNetServiceList as $Value => $NetServiceProfileData) {
+                $AssociationNSV[] = [$Value, $NetServiceProfileData, '', -1];
             }
             /* $Association[] = [0xF1, 'USB', '', -1];
               $Association[] = [0xF3, 'Network', '', -1]; */
@@ -1228,7 +1399,11 @@ sleep(10).then(() => {
         $this->RegisterProfileIntegerEx('Onkyo.SelectNetworkService.' . $this->InstanceID, '', '', '', $AssociationNSV);
     }
 
-    //------------------------------------------------------------------------------
+    /**
+     * RequestZoneState
+     *
+     * @return void
+     */
     private function RequestZoneState(): void
     {
         $ApiCmds = \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands;
@@ -1252,6 +1427,12 @@ sleep(10).then(() => {
         }
     }
 
+    /**
+     * Send
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return mixed
+     */
     private function Send(\OnkyoAVR\ISCP_API_Data $APIData): mixed
     {
         $this->SendDebug('ForwardData', $APIData, 0);
@@ -1276,6 +1457,11 @@ sleep(10).then(() => {
         }
     }
 
+    /**
+     * GenerateHTMLStyleProperty
+     *
+     * @return array
+     */
     private function GenerateHTMLStyleProperty(): array
     {
         $NewTableConfig = [
@@ -1398,6 +1584,12 @@ sleep(10).then(() => {
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIconsConfig];
     }
 
+    /**
+     * SecondsToString
+     *
+     * @param  int $Time
+     * @return string
+     */
     private function SecondsToString(int $Time): string
     {
         if ($Time > 3600) {
@@ -1407,6 +1599,12 @@ sleep(10).then(() => {
         }
     }
 
+    /**
+     * StringToSeconds
+     *
+     * @param  string $Value
+     * @return int
+     */
     private function StringToSeconds(string $Value): int
     {
         $Parts = explode(':', $Value);

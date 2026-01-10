@@ -25,7 +25,8 @@
             "Invalid Ident.": "Ungültiger Ident.",
             "Error on execute action.": "Fehler beim ausführen der Aktion.",
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
-            "Command not available.": "Kommando nicht verfügbar."
+            "Command not available.": "Kommando nicht verfügbar.",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

@@ -18,9 +18,9 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
 /**
  * @property mixed[] $ReplyISCPData Enthält die versendeten Befehle und die empfangenen Antworten.
  * @property string $Multi_Buffer EmpfangsBuffer
- * @property int $ParentID Die InstanzeID des IO-Parent
+ * @property int $ParentID Die InstanzID des IO-Parent
  * @property int $Mode
- * @property array $NetserviceList
+ * @property array $NetServiceList
  * @property array $ZoneList
  * @property array $SelectorList
  * @property array $PresetList
@@ -33,6 +33,9 @@ eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper
  * @method bool lock(string $ident)
  * @method void unlock(string $ident)
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ * @method bool IORequestAction(string $Ident, mixed $Value)
+ * @method void IOMessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data)
+ * @method int IORegisterParent()
  */
 class ISCPSplitter extends IPSModuleStrict
 {
@@ -47,6 +50,11 @@ class ISCPSplitter extends IPSModuleStrict
         }
     private $eISCPVersion = "\x01";
 
+    /**
+     * Create
+     *
+     * @return void
+     */
     public function Create(): void
     {
         parent::Create();
@@ -62,6 +70,11 @@ class ISCPSplitter extends IPSModuleStrict
         }
     }
 
+    /**
+     * ApplyChanges
+     *
+     * @return void
+     */
     public function ApplyChanges(): void
     {
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
@@ -89,7 +102,13 @@ class ISCPSplitter extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * MessageSink
+     *
+     * @param  int $TimeStamp
+     * @param  int $SenderID
+     * @param  int $Message
+     * @param  array $Data
+     * @return void
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
@@ -102,6 +121,11 @@ class ISCPSplitter extends IPSModuleStrict
         }
     }
 
+    /**
+     * GetConfigurationForParent
+     *
+     * @return string
+     */
     public function GetConfigurationForParent(): string
     {
         $parentGUID = IPS_GetInstance($this->ParentID)['ModuleInfo']['ModuleID'];
@@ -115,10 +139,16 @@ class ISCPSplitter extends IPSModuleStrict
 
             return json_encode($Config);
         }
-
-        return [];
+        return '[]';
     }
 
+    /**
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
     public function RequestAction(string $Ident, mixed $Value): void
     {
         if ($this->IORequestAction($Ident, $Value)) {
@@ -126,6 +156,11 @@ class ISCPSplitter extends IPSModuleStrict
         }
     }
 
+    /**
+     * KeepAlive
+     *
+     * @return void
+     */
     public function KeepAlive(): void
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::PWR, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -135,8 +170,12 @@ class ISCPSplitter extends IPSModuleStrict
         }
     }
 
-    //################# DATAPOINT RECEIVE FROM CHILD
-
+    /**
+     * ForwardData
+     *
+     * @param  string $JSONString
+     * @return string
+     */
     public function ForwardData(string $JSONString): string
     {
         $APIData = new \OnkyoAVR\ISCP_API_Data($JSONString);
@@ -155,8 +194,12 @@ class ISCPSplitter extends IPSModuleStrict
         return '';
     }
 
-    //################# DATAPOINTS PARENT
-
+    /**
+     * ReceiveData
+     *
+     * @param  string $JSONString
+     * @return string
+     */
     public function ReceiveData(string $JSONString): string
     {
         $stream = $this->Multi_Buffer;
@@ -190,7 +233,7 @@ class ISCPSplitter extends IPSModuleStrict
             $frame = substr($stream, $eISCPHeaderLen, $PayloadLen);
             $tail = substr($stream, $eISCPHeaderLen + $PayloadLen);
             if ($this->eISCPVersion != $header[12]) {
-                $frame = false;
+                $frame = '';
                 $this->SendDebug('Error', 'eISCP Version not supported: ' . ord($header[12]), 0);
                 $this->LogMessage('eISCP Version not supported:' . ord($header[12]), KL_ERROR);
             }
@@ -230,7 +273,11 @@ class ISCPSplitter extends IPSModuleStrict
     }
 
     /**
+     * KernelReady
+     *
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     *
+     * @return void
      */
     protected function KernelReady(): void
     {
@@ -242,6 +289,11 @@ class ISCPSplitter extends IPSModuleStrict
         }
     }
 
+    /**
+     * RegisterParent
+     *
+     * @return void
+     */
     protected function RegisterParent(): void
     {
         $IOId = $this->IORegisterParent();
@@ -262,7 +314,12 @@ class ISCPSplitter extends IPSModuleStrict
     }
 
     /**
+     * IOChangeState
+     *
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     *
+     * @param  int $State
+     * @return void
      */
     protected function IOChangeState(int $State): void
     {
@@ -278,6 +335,12 @@ class ISCPSplitter extends IPSModuleStrict
         $this->SetStatus(IS_INACTIVE);
     }
 
+    /**
+     * Send
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return mixed
+     */
     protected function Send(\OnkyoAVR\ISCP_API_Data $APIData): mixed
     {
         try {
@@ -305,6 +368,11 @@ class ISCPSplitter extends IPSModuleStrict
         return null;
     }
 
+    /**
+     * EmptyProfileBuffers
+     *
+     * @return void
+     */
     private function EmptyProfileBuffers(): void
     {
         $this->SelectorList = [];
@@ -312,12 +380,17 @@ class ISCPSplitter extends IPSModuleStrict
         $this->ProfileList = [];
         $this->LMDList = [];
         $this->PhaseMatchingBass = true;
-        $this->NetserviceList = [];
+        $this->NetServiceList = [];
         $this->PresetList = [];
         $this->TunerList = [];
         $this->ZoneList = [];
     }
 
+    /**
+     * RefreshCapabilities
+     *
+     * @return void
+     */
     private function RefreshCapabilities(): void
     {
         $ret = $this->Send(new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NRI, \OnkyoAVR\ISCP_API_Commands::Request));
@@ -343,15 +416,15 @@ class ISCPSplitter extends IPSModuleStrict
             $this->SetValueString('Firmware', (string) $firmwareversion);
             $this->LogMessage('Firmware: ' . (string) $firmwareversion, KL_NOTIFY);
         }
-        $NetserviceList = [];
-        foreach ($Xml->xpath('//netservice') as $Netservice) {
-            if ((string) $Netservice['value'] == '0') {
+        $NetServiceList = [];
+        foreach ($Xml->xpath('//netservice') as $NetService) {
+            if ((string) $NetService['value'] == '0') {
                 continue;
             }
-            $NetserviceList[hexdec((string) $Netservice['id'])] = trim((string) $Netservice['name']);
+            $NetServiceList[hexdec((string) $NetService['id'])] = trim((string) $NetService['name']);
         }
-        $this->LogMessage('Netservices: ' . count($NetserviceList), KL_NOTIFY);
-        $this->NetserviceList = $NetserviceList;
+        $this->LogMessage('NetServices: ' . count($NetServiceList), KL_NOTIFY);
+        $this->NetServiceList = $NetServiceList;
 
         $SelectorList = [];
         foreach ($Xml->xpath('//selector') as $Selector) {
@@ -373,15 +446,15 @@ class ISCPSplitter extends IPSModuleStrict
             }
             $ZoneList[hexdec((string) $Zone['id'])] = [
                 'Name'     => trim((string) $Zone['name']),
-                'Volmax'   => (int) $Zone['volmax'],
-                'Volstep'  => (int) $Zone['volstep'],
+                'VolMax'   => (int) $Zone['VolMax'],
+                'VolStep'  => (int) $Zone['VolStep'],
             ];
         }
         $this->LogMessage('Zones: ' . count($ZoneList), KL_NOTIFY);
         $this->ZoneList = $ZoneList;
         $PresetList = [];
-        foreach ($Xml->xpath('//presetlist') as $Presetlist) {
-            $PresetList['MaxPreset'] = (int) $Presetlist['count'];
+        foreach ($Xml->xpath('//presetlist') as $List) {
+            $PresetList['MaxPreset'] = (int) $List['count'];
         }
         foreach ($Xml->xpath('//preset') as $Preset) {
             $Name = trim((string) $Preset['name']);
@@ -445,13 +518,19 @@ class ISCPSplitter extends IPSModuleStrict
         $this->SendDebug('ControlList', $this->ControlList, 0);
         $this->SendDebug('ProfileList', $this->ProfileList, 0);
         $this->SendDebug('LMDList', $this->LMDList, 0);
-        $this->SendDebug('NetserviceList', $this->NetserviceList, 0);
+        $this->SendDebug('NetServiceList', $this->NetServiceList, 0);
         $this->SendDebug('PresetList', $this->PresetList, 0);
         $this->SendDebug('TunerList', $this->TunerList, 0);
         $this->SendDebug('ZoneList', $this->ZoneList, 0);
     }
 
-    private function DecodeData($Frame): ?\OnkyoAVR\ISCP_API_Data
+    /**
+     * DecodeData
+     *
+     * @param  string $Frame
+     * @return ?OnkyoAVR\ISCP_API_Data
+     */
+    private function DecodeData(string $Frame): ?\OnkyoAVR\ISCP_API_Data
     {
         if ($Frame[0] != '!') {
             $this->SendDebug('Error', 'ISCP Frame without !', 0);
@@ -468,8 +547,12 @@ class ISCPSplitter extends IPSModuleStrict
         return new \OnkyoAVR\ISCP_API_Data($Frame);
     }
 
-    //################# DATAPOINTS DEVICE
-
+    /**
+     * SendDataToZone
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return void
+     */
     private function SendDataToZone(\OnkyoAVR\ISCP_API_Data $APIData): void
     {
         $this->SendDebug('SendDataToZone', $APIData, 0);
@@ -478,6 +561,8 @@ class ISCPSplitter extends IPSModuleStrict
     }
 
     /**
+     * WaitForResponse
+     *
      * Wartet auf eine Antwort einer Anfrage an den LMS.
      *
      * @param string $APICommand
@@ -500,10 +585,13 @@ class ISCPSplitter extends IPSModuleStrict
         return null;
     }
 
-    //################# SENDQUEUE
-
     /**
+     * SendQueuePush
+     *
      * Fügt eine Anfrage in die SendQueue ein.
+     *
+     * @param  string $APICommand
+     * @return void
      */
     private function SendQueuePush(string $APICommand): void
     {
@@ -517,11 +605,12 @@ class ISCPSplitter extends IPSModuleStrict
     }
 
     /**
+     * SendQueueUpdate
+     *
      * Fügt eine Antwort in die SendQueue ein.
      *
      * @param string $APICommand
      * @param mixed  $Data
-     *
      * @return bool True wenn Anfrage zur Antwort gefunden wurde, sonst false.
      */
     private function SendQueueUpdate(string $APICommand, mixed $Data): bool
@@ -541,9 +630,12 @@ class ISCPSplitter extends IPSModuleStrict
     }
 
     /**
+     * SendQueueRemove
+     *
      * Löscht einen Eintrag aus der SendQueue.
      *
      * @param string $APICommand Der Index des zu löschenden Eintrags.
+     * @return void
      */
     private function SendQueueRemove(string $APICommand): void
     {

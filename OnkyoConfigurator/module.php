@@ -20,7 +20,9 @@ class OnkyoConfigurator extends IPSModuleStrict
     use \OnkyoConfigurator\DebugHelper;
 
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create(): void
     {
@@ -30,13 +32,10 @@ class OnkyoConfigurator extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForm
+     *
+     * @return string
      */
-    public function ApplyChanges(): void
-    {
-        parent::ApplyChanges();
-    }
-
     public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -100,6 +99,14 @@ class OnkyoConfigurator extends IPSModuleStrict
         return json_encode($Form);
     }
 
+    /**
+     * GetInstanceList
+     *
+     * @param  string $GUID
+     * @param  int $Parent
+     * @param  string $ConfigParam
+     * @return array
+     */
     private function GetInstanceList(string $GUID, int $Parent, string $ConfigParam): array
     {
         $InstanceIDList = [];
@@ -117,13 +124,24 @@ class OnkyoConfigurator extends IPSModuleStrict
         return $InstanceIDList;
     }
 
+    /**
+     * GetConfigParam
+     *
+     * @param  mixed $item1
+     * @param  int $InstanceID
+     * @param  string $ConfigParam
+     * @return void
+     */
     private function GetConfigParam(&$item1, int $InstanceID, string $ConfigParam): void
     {
         $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
     }
 
     /**
-     * Interne Funktion des SDK.
+     * GetZoneConfigFormValues
+     *
+     * @param  int $Splitter
+     * @return array
      */
     private function GetZoneConfigFormValues(int $Splitter): array
     {
@@ -178,6 +196,12 @@ class OnkyoConfigurator extends IPSModuleStrict
         return $ZoneValues;
     }
 
+    /**
+     * GetRemoteConfigFormValues
+     *
+     * @param  int $Splitter
+     * @return array
+     */
     private function GetRemoteConfigFormValues(int $Splitter): array
     {
         $RemoteValues = [];
@@ -238,6 +262,13 @@ class OnkyoConfigurator extends IPSModuleStrict
         return array_merge($RemoteValues, $TunerValues);
     }
 
+    /**
+     * GetTunerConfigFormValues
+     *
+     * @param  int $Splitter
+     * @param  bool $HasTuner
+     * @return array
+     */
     private function GetTunerConfigFormValues(int $Splitter, bool $HasTuner): array
     {
         $InstanceIDListTuner = $this->GetInstanceList(\OnkyoAVR\GUID::Tuner, $Splitter, 'Zone');
@@ -281,9 +312,15 @@ class OnkyoConfigurator extends IPSModuleStrict
         return $TunerValues;
     }
 
+    /**
+     * GetNetworkConfigFormValues
+     *
+     * @param  int $Splitter
+     * @return array
+     */
     private function GetNetworkConfigFormValues(int $Splitter): array
     {
-        $APIDataNetServiceList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetserviceList);
+        $APIDataNetServiceList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetServiceList);
         $FoundNetServiceList = $this->Send($APIDataNetServiceList);
         $HasNetPlayer = false;
         if (count($FoundNetServiceList) > 0) {
@@ -330,6 +367,12 @@ class OnkyoConfigurator extends IPSModuleStrict
         return $NetPlayerValues;
     }
 
+    /**
+     * Send
+     *
+     * @param  \OnkyoAVR\ISCP_API_Data $APIData
+     * @return mixed
+     */
     private function Send(\OnkyoAVR\ISCP_API_Data $APIData): mixed
     {
         $this->SendDebug('ForwardData', $APIData, 0);
@@ -338,17 +381,16 @@ class OnkyoConfigurator extends IPSModuleStrict
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             }
             $ret = $this->SendDataToParent($APIData->ToJSONString(\OnkyoAVR\GUID::SendToSplitter));
-            if ($ret === false) {
+            if ($ret == false) {
                 $this->SendDebug('Response', 'No answer', 0);
-                return null;
+                return [];
             }
             $result = unserialize($ret);
             $this->SendDebug('Response', $result, 0);
-
-            return $result;
+            return $result ? $result : [];
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
-            return null;
+            return [];
         }
     }
 }
