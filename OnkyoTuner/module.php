@@ -51,11 +51,27 @@ class OnkyoTuner extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Zone', \OnkyoAVR\ONKYO_Zone_Tuner::ZoneMain);
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone_Tuner();
         $this->MaxPreset = 10;
         $this->TunerProfile = \OnkyoAVR\ONKYO_Zone_Tuner::$TunerProfile;
+    }
+
+    /**
+     * GetCompatibleParents
+     *
+     * @return string
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(
+            [
+                'type'     => 'connect',
+                'moduleIDs'=> [
+                    \OnkyoAVR\GUID::Splitter
+                ]
+            ]
+        );
     }
 
     /**
@@ -145,6 +161,7 @@ class OnkyoTuner extends IPSModuleStrict
 
         switch ($Message) {
             case IPS_KERNELSTARTED:
+                $this->UnregisterMessage(0, IPS_KERNELSTARTED);
                 $this->KernelReady();
                 break;
         }

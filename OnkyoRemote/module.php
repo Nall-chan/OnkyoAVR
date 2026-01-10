@@ -239,7 +239,6 @@ class OnkyoRemote extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Type', 0);
         $this->RegisterPropertyBoolean('showSVGRemote', true);
         $this->RegisterPropertyInteger('RemoteId', 1);
@@ -247,6 +246,23 @@ class OnkyoRemote extends IPSModuleStrict
         $this->RegisterPropertyBoolean('showControlButtons', true);
         $this->Type = 0;
         $this->WebHookSecret = '';
+    }
+
+    /**
+     * GetCompatibleParents
+     *
+     * @return string
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(
+            [
+                'type'     => 'connect',
+                'moduleIDs'=> [
+                    \OnkyoAVR\GUID::Splitter
+                ]
+            ]
+        );
     }
 
     /**

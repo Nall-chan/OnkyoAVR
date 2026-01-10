@@ -27,8 +27,24 @@ class OnkyoConfigurator extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->RequireParent(\OnkyoAVR\GUID::Splitter);
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
+    }
+
+    /**
+     * GetCompatibleParents
+     *
+     * @return string
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(
+            [
+                'type'     => 'connect',
+                'moduleIDs'=> [
+                    \OnkyoAVR\GUID::Splitter
+                ]
+            ]
+        );
     }
 
     /**

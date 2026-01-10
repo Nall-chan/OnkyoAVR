@@ -58,7 +58,6 @@ class OnkyoAVR extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Zone', \OnkyoAVR\ONKYO_Zone::None);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::VL4, true);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::MT4, true);
@@ -117,6 +116,23 @@ class OnkyoAVR extends IPSModuleStrict
         $this->LMDList = [];
         $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
         $this->SendDebug('FILTER', 'NOTHING', 0);
+    }
+
+    /**
+     * GetCompatibleParents
+     *
+     * @return string
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(
+            [
+                'type'     => 'connect',
+                'moduleIDs'=> [
+                    \OnkyoAVR\GUID::Splitter
+                ]
+            ]
+        );
     }
 
     /**
@@ -285,6 +301,7 @@ class OnkyoAVR extends IPSModuleStrict
 
         switch ($Message) {
             case IPS_KERNELSTARTED:
+                $this->UnregisterMessage(0, IPS_KERNELSTARTED);
                 $this->KernelReady();
                 break;
         }

@@ -58,7 +58,6 @@ class ISCPSplitter extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->RequireParent(\OnkyoAVR\GUID::ClientSocket);
         $this->RegisterTimer('KeepAlive', 0, 'OAVR_KeepAlive($_IPS[\'TARGET\']);');
         $this->ReplyISCPData = [];
         $this->Multi_Buffer = '';
@@ -68,6 +67,24 @@ class ISCPSplitter extends IPSModuleStrict
         if (IPS_GetKernelRunlevel() != KR_READY) {
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
         }
+    }
+
+    /**
+     * GetCompatibleParents
+     *
+     * @return string
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(
+            [
+                'type'     => 'require',
+                'moduleIDs'=> [
+                    \OnkyoAVR\GUID::ClientSocket,
+                    \OnkyoAVR\GUID::SerialPort
+                ]
+            ]
+        );
     }
 
     /**
@@ -116,6 +133,7 @@ class ISCPSplitter extends IPSModuleStrict
 
         switch ($Message) {
             case IPS_KERNELSTARTED:
+                $this->UnregisterMessage(0, IPS_KERNELSTARTED);
                 $this->KernelReady();
                 break;
         }
@@ -281,11 +299,9 @@ class ISCPSplitter extends IPSModuleStrict
      */
     protected function KernelReady(): void
     {
-        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterParent();
         if ($this->ParentID > 0) {
             $this->IOChangeState(IS_ACTIVE);
-            //IPS_ApplyChanges($this->ParentID);
         }
     }
 

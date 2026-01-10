@@ -60,7 +60,6 @@ class OnkyoNetplayer extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent(\OnkyoAVR\GUID::Splitter);
         $this->RegisterPropertyInteger('Zone', \OnkyoAVR\ONKYO_Zone_NetPlayer::ZoneMain);
         $this->RegisterPropertyBoolean('showCover', true);
         $this->RegisterPropertyBoolean('showNavigation', true);
@@ -78,6 +77,23 @@ class OnkyoNetplayer extends IPSModuleStrict
         $this->UiType = 0;
         $this->ListItems = 0;
         $this->WebHookSecret = '';
+    }
+
+    /**
+     * GetCompatibleParents
+     *
+     * @return string
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(
+            [
+                'type'     => 'connect',
+                'moduleIDs'=> [
+                    \OnkyoAVR\GUID::Splitter
+                ]
+            ]
+        );
     }
 
     /**
@@ -244,6 +260,7 @@ class OnkyoNetplayer extends IPSModuleStrict
 
         switch ($Message) {
             case IPS_KERNELSTARTED:
+                $this->UnregisterMessage(0, IPS_KERNELSTARTED);
                 $this->KernelReady();
                 break;
         }
