@@ -13,13 +13,13 @@ ermöglicht die Einbindung von Onkyo und Pioneer AV-Receiver in Symcon.
 ## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
-  - [OnkyoAVRDiscovery:](#onkyoavrdiscovery)
-  - [OnkyoConfigurator:](#onkyoconfigurator)
-  - [OnkyoAVRSplitter:](#onkyoavrsplitter)
-  - [OnkyoAVRZone:](#onkyoavrzone)
-  - [OnkyoNetplayer:](#onkyonetplayer)
-  - [OnkyoRemote:](#onkyoremote)
-  - [OnkyoTuner:](#onkyotuner)
+  - [OnkyoAVRDiscovery](#onkyoavrdiscovery)
+  - [OnkyoConfigurator](#onkyoconfigurator)
+  - [OnkyoAVRSplitter](#onkyoavrsplitter)
+  - [OnkyoAVRZone](#onkyoavrzone)
+  - [OnkyoNetplayer](#onkyonetplayer)
+  - [OnkyoRemote](#onkyoremote)
+  - [OnkyoTuner](#onkyotuner)
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
@@ -31,31 +31,31 @@ ermöglicht die Einbindung von Onkyo und Pioneer AV-Receiver in Symcon.
 
 ## 1. Funktionsumfang
 
-### [OnkyoAVRDiscovery:](OnkyoAVRDiscovery/)  
+### [OnkyoAVRDiscovery](OnkyoAVRDiscovery/)  
 
 Ermöglicht das einfache Erkennen von Geräten im Netzwerk und anschließende anlegen eines Konfigurator in Symcon.  
 
-### [OnkyoConfigurator:](OnkyoConfigurator/)
+### [OnkyoConfigurator](OnkyoConfigurator/)
 
 Bei unterstützen Geräten listet der Konfigurator alle möglichen Instanzen auf, welche in Symcon angelegt werden können.  
 
-### [OnkyoAVRSplitter:](OnkyoAVRSplitter/)
+### [OnkyoAVRSplitter](OnkyoAVRSplitter/)
 
 Der Splitter dient zur Kommunikation mit dem Gerät und unterstützt Netzwerk, als auch Geräte welche per RS232 angebunden sind.  
 
-### [OnkyoAVRZone:](OnkyoAVRZone/)
+### [OnkyoAVRZone](OnkyoAVRZone/)
 
 Dieses Modul bildet jeweils eine Zone des Gerätes ab.  
 
-### [OnkyoNetplayer:](OnkyoNetplayer/)
+### [OnkyoNetplayer](OnkyoNetplayer/)
 
 Über dieses Modul werden die Player Funktionen der Netzwerk-Geräte abgebildet.  
 
-### [OnkyoRemote:](OnkyoRemote/)
+### [OnkyoRemote](OnkyoRemote/)
 
 Je nach Fähigkeiten des Receivers können per HDMI-CEC angeschlossene Geräte ferngesteuert werden, zusätzlich zum Receiver selber.  
 
-### [OnkyoTuner:](OnkyoTuner/)
+### [OnkyoTuner](OnkyoTuner/)
 
 Dient der Integration der Tuner in Symcon.  
 
