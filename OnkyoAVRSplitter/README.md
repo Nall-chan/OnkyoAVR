@@ -1,9 +1,9 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v81-v90-q1-2026/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#10-lizenz)
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
-[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden) [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
 # Onkyo & Pioneer AVR Splitter (ISCP Splitter) <!-- omit in toc -->
 
@@ -31,7 +31,7 @@ Ermöglicht die Kommunikation von Symcon mit einem AV Receiver über das ISCP Pr
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2  
+- Symcon ab Version 9.0  
 - kompatibler AV-Receiver mit LAN-Anschluss oder RS232 (RS232 Geräte haben einen eingeschränkten Leistungsumfang)  
 
 ## 3. Software-Installation
@@ -40,7 +40,7 @@ Dieses Modul ist ein Bestandteil des Symcon-Modul: [Onkyo & Pioneer AVR](../)
 
 ## 4. Einrichten der Instanzen in Symcon
 
-Eine einfache Einrichtung ist über die im Objektbaum unter `Discovery Instanzen` zu findende Instanz [Onkyo bzw Pioneer AVR Discovery](../OnkyoAVRDiscovery/README.md#4-verwendung) möglich.  
+Eine einfache Einrichtung ist über die im Objektbaum unter `Discovery Instanzen` zu findende Instanz [Onkyo bzw Pioneer AVR Discovery](../OnkyoAVRDiscovery/README.md#4-einrichten-der-instanzen-in-ip-symcon) möglich.  
 
 Bei der manuellen Einrichtung ist das Modul im Dialog `Instanz hinzufügen` unter den Hersteller `Onkyo` zu finden.  
 ![Instanz hinzufügen](../imgs/instanzen.png)  
@@ -50,11 +50,14 @@ Alternativ ist es auch in der Liste aller Splitter aufgeführt.
 
 In dem sich öffnenden Konfigurationsformular sind keine Einstellungen vorzunehmen.  
 
+Der Splitter benötigt einen übergeordneten Client Socket (Netzwerk) oder Serial Port (RS232). Bei einem Netzwerk Gerät wird der Client Socket mit dem Port `60128` vorbelegt, dessen Eigenschaft `Host` (IP-Adresse oder Hostname des Gerätes) wird in der Client Socket Instanz eingetragen.  
+
 ## 5. Statusvariablen
 
 Der Splitter besitzt keine Statusvariablen, wenn es sich um ein RS232 Gerät handelt.  
 Bei einem Netzwerk Gerät wird versucht das Model und die Firmware auszulesen und bei Erfolg als Statusvariablen abgebildet.  
-![Objektbaum Splitter](../imgs/logbaum_splitter.png)  
+
+Beide Statusvariablen werden als Wertanzeige dargestellt und besitzen keine Aktion.  
 
 **Statusvariablen bei Netzwerk-Geräten:**  
 
@@ -66,6 +69,9 @@ Bei einem Netzwerk Gerät wird versucht das Model und die Firmware auszulesen un
 ## 6. Visualisierung
 
 Sollen eventuell vorhandene Statusvariablen in der Visualisierung angezeigt werden, so muss mit Link-Objekten gearbeitet werden.  
+
+**Beispiel Kachel-Visualisierung:**  
+![Kachel Splitter](../imgs/tile_splitter.png)  
 
 ## 7. PHP-Befehlsreferenz
 
@@ -94,4 +100,4 @@ Wunschliste:
 ## 10. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](../LICENSE)  

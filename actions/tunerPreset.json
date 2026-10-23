@@ -1,0 +1,63 @@
+{
+    "id": "{085DB425-A394-E73D-33E1-12586307B5AE}",
+    "caption": "Call or save radio station",
+    "form": [
+        {
+            "type": "Select",
+            "name": "COMMAND",
+            "caption": "Command",
+            "value": "Call",
+            "options": [
+                {
+                    "caption": "Call",
+                    "value": "Call"
+                },
+                {
+                    "caption": "Save",
+                    "value": "Save"
+                }
+            ]
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "VALUE",
+            "caption": "Preset",
+            "minimum": 1,
+            "maximum": 40,
+            "value": 1
+        }
+    ],
+    "action": [
+        "if ($_IPS['COMMAND'] == 'Save') {",
+        "    OAVR_SetPreset($_IPS['TARGET'], $_IPS['VALUE']);",
+        "} else {",
+        "    OAVR_CallPreset($_IPS['TARGET'], $_IPS['VALUE']);",
+        "}"
+    ],
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "{COMMAND, select, Save {Save frequency of} other {Call preset of}} {TARGET, object}: preset {VALUE}",
+    "description": "Calls a radio station of the tuner, or saves the current frequency to the given preset.",
+    "locale": {
+        "de": {
+            "Call or save radio station": "Sender aufrufen oder speichern",
+            "Command": "Befehl",
+            "Preset": "Speicherplatz",
+            "Calls a radio station of the tuner, or saves the current frequency to the given preset.": "Ruft einen Sender des Tuners auf, oder speichert die aktuelle Frequenz auf dem angegebenen Speicherplatz.",
+            "{COMMAND, select, Save {Save frequency of} other {Call preset of}} {TARGET, object}: preset {VALUE}": "{COMMAND, select, Save {Frequenz speichern von} other {Sender aufrufen von}} {TARGET, object}: Speicherplatz {VALUE}",
+            "Call": "Aufrufen",
+            "Save": "Speichern"
+        }
+    }
+}

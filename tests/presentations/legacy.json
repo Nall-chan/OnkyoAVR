@@ -1,0 +1,44 @@
+{
+    "id": "{4153A8D4-5C33-C65F-C1F3-7B61AAF99B1C}",
+    "caption": "Legacy Profile",
+    "form": [
+        "return [",
+        "  [",
+        "    'type' => 'SelectProfile',",
+        "    'name' => 'PROFILE',",
+        "    'caption' => 'Profile',",
+        "    'profileType' => $_IPS['VARIABLE_TYPE']",
+        "  ]",
+        "];"
+    ],
+    "restrictions": {
+        "objectType": [
+            2
+        ]
+    },
+    "locale": {
+        "de": {
+            "Legacy Profile": "Legacy Profil",
+            "Profile":  "Profil"
+        }
+    },
+    "presentationParameters": {
+        "PROFILE": {
+            "type": 3,
+            "default": ""
+        }
+    },
+    "presentationValue": [
+        "switch ($_IPS['VARIABLE_TYPE']) {",
+        "  case VARIABLETYPE_BOOLEAN:",
+        "    return true;",
+        "  case VARIABLETYPE_INTEGER:",
+        "    return 123;",
+        "  case VARIABLETYPE_FLOAT:",
+        "    return 123.456;",
+        "  case VARIABLETYPE_STRING:",
+        "    return 'Symcon';",
+        "}"
+    ],
+    "format": "{VALUE, profile}"
+}

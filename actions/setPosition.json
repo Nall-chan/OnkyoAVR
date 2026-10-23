@@ -1,0 +1,39 @@
+{
+    "id": "{60F1823F-9C81-84A7-7F6C-201D5DDA124F}",
+    "caption": "Set position",
+    "form": [
+        {
+            "type": "NumberSpinner",
+            "name": "VALUE",
+            "caption": "Position",
+            "suffix": " s",
+            "minimum": 0,
+            "value": 0
+        }
+    ],
+    "action": "OAVR_SetPosition($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Set position of {TARGET, object} to {VALUE} s",
+    "description": "Sets the playback position in the current track in seconds.",
+    "locale": {
+        "de": {
+            "Set position": "Position setzen",
+            "Position": "Position",
+            " s": " s",
+            "Sets the playback position in the current track in seconds.": "Setzt die Wiedergabeposition im aktuellen Titel in Sekunden.",
+            "Set position of {TARGET, object} to {VALUE} s": "Position von {TARGET, object} auf {VALUE} s setzen"
+        }
+    }
+}

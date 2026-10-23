@@ -1,0 +1,462 @@
+{
+    "id": "{3319437D-7CDE-699D-750A-3C6A3841FA75}",
+    "caption": "Value Presentation",
+    "form": "return include(IPS_GetKernelDirEx().'/presentations/valuePresentationForm.php');",
+    "format": "{PREFIX}{VALUE}{SUFFIX}",
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "requestAction": false
+    },
+    "conversions": [
+        {
+            "variableType": 1,
+            "converts": [
+                {
+                    "parameter": "DIGITS",
+                    "type": "constant",
+                    "value": 0
+                },
+                {
+                    "parameter": "INTERVALS",
+                    "field": "IntervalMinValue",
+                    "type": "ceil"
+                },
+                {
+                    "parameter": "INTERVALS",
+                    "field": "IntervalMaxValue",
+                    "type": "floor"
+                },
+                {
+                    "parameter": "INTERVALS",
+                    "type": "listRemoveWhere",
+                    "condition": {
+                        "type": "dynamic",
+                        "parameter1": "IntervalMinValue",
+                        "parameter2": "IntervalMaxValue",
+                        "comparison": 2
+                    }
+                }
+            ]
+        }
+    ],
+    "locale": {
+        "de": {
+            "Value Presentation": "Wertanzeige",
+            "Numeric": "Numerisch",
+            "Display Type": "Anzeigetyp",
+            "Absolute": "Absolut",
+            "Percentage": "Prozentual",
+            "Digits": "Nachkommastellen",
+            "Interval": "Intervall",
+            "Loading...": "Lade...",
+            "Constant": "Konstante",
+            "Conversion Factor": "Umrechnungsfaktor",
+            "Icon": "Icon",
+            "Prefix": "Präfix",
+            "Suffix": "Suffix",
+            "Minimum Value (for percentage and chart)": "Minimaler Wert (für Prozentual und Diagramm)",
+            "Maximum Value (for percentage and chart)": "Maximaler Wert (für Prozentual und Diagramm)",
+            "Value": "Wert",
+            "Caption": "Beschriftung",
+            "Color": "Farbe",
+            "Default Color": "Standardfarbe",
+            "Default Icon": "Standardicon",
+            "Variable Usage": "Verwendung der Variable",
+            "Use updated parameters for specific intervals": "Verwende aktualisierte Parameter für spezifische Intervalle",
+            "Use updated parameters for specific intervals (Intervals cannot be used for the display type percentage)": "Verwende aktualisierte Parameter für spezifische Intervalle (Intervalle können für den Darstellungstyp Prozentual nicht verwendet werden)",
+            "Interval Start": "Anfang des Intervalls",
+            "Interval End": "Ende des Intervalls",
+            "Display": "Anzeige",
+            "Formatted Value": "Formatierter Wert",
+            "Overwrite Icon": "Überschreibe Icon",
+            "Overwrite Prefix": "Überschreibe Präfix",
+            "Overwrite Suffix": "Überschreibe Suffix",
+            "Overwrite Digits": "Überschreibe Nachkommastellen",
+            "Overwrite Background Color": "Überschreibe Hintergrundfarbe",
+            "Overwrite Text Color": "Überschreibe Textfarbe",
+            "Thousands Separator": "Tausendertrennzeichen",
+            "None": "Keines",
+            "Default from Client": "Standard vom Nutzer",
+            "Dot (.)": "Punkt (.)",
+            "Comma (,)": "Komma (,)",
+            "Space ( )": "Leerzeichen ( )",
+            "Thin space ( )": "Schmales Leerzeichen ( )",
+            "Apostrophe (')": "Hochkomma (')",
+            "Decimal Separator": "Dezimaltrennzeichen",
+            "Maximum Value must be higher than Minimum Value": "Maximaler Wert muss größer als Minimaler Wert sein",
+            "Stepsize must be positive": "Schrittgröße muss positiv sein",
+            "Interval End must be higher or equal to Interval Start": "Ende des Intervalls muss größer oder gleich Anfang des Intervalls sein",
+            "[{\"Value\": false, \"Caption\": \"Off\", \"IconValue\": \"\", \"IconActive\": false, \"ColorActive\": true, \"ColorValue\": 16077123, \"ContentColorActive\": false}, {\"Value\": true, \"Caption\": \"On\", \"IconValue\": \"\", \"IconActive\": false, \"ColorActive\": true, \"ColorValue\": 1692672, \"ContentColorActive\": false}]": "[{\"Value\": false, \"Caption\": \"Aus\", \"IconValue\": \"\", \"IconActive\": false, \"ColorActive\": true, \"ColorValue\": 16077123, \"ContentColorActive\": false}, {\"Value\": true, \"Caption\": \"An\", \"IconValue\": \"\", \"IconActive\": false, \"ColorActive\": true, \"ColorValue\": 1692672, \"ContentColorActive\": false}]",
+            "Temperature": "Temperatur",
+            "None of these": "Keine hiervon",
+            "Multiline": "Mehrere Zeilen",
+            "Preview Chart Settings": "Vorschau-Diagramm Einstellungen",
+            "Show Preview": "Vorschau anzeigen",
+            "Display Style": "Darstellungsstil",
+            "Behind the value": "Hinter dem Wert",
+            "Below the value": "Unter dem Wert",
+            "Above the value": "Über dem Wert",
+            "Text Only": "Nur Text",
+            "Icons Only": "Nur Icons",
+            "Use color for": "Farbe verwenden für",
+            "Display type": "Anzeigetyp",
+            "Default": "Standard",
+            "Background Color": "Hintergrundfarbe",
+            "Text Color": "Textfarbe"
+        }
+    },
+    "groups": [
+        {
+            "id": "{C347198B-D123-B7AA-E108-1410D68564F7}",
+            "name": "Boolean",
+            "restrictions": {
+                "variableType": [
+                    0
+                ]
+            },
+            "format": "{VALUE, list, list OPTIONS equals Value found{{Caption}} other{{VALUE}}}",
+            "presentationParameters": {
+                "OPTIONS": {
+                    "type": 3,
+                    "default": "[{\"Value\": false, \"Caption\": \"Off\", \"IconValue\": \"\", \"IconActive\": false, \"ColorActive\": true, \"ColorValue\": 16077123, \"ContentColorActive\": false}, {\"Value\": true, \"Caption\": \"On\", \"IconValue\": \"\", \"IconActive\": false, \"ColorActive\": true, \"ColorValue\": 1692672, \"ContentColorActive\": false}]",
+                    "parameters": {
+                        "Value": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "Caption": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "IconActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "IconValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "ColorActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "ColorValue": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        },
+                        "ContentColorActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "ContentColorValue": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "{883E24FA-9174-4E4A-C12E-0A739F0A2FF4}",
+            "name": "Numeric",
+            "restrictions": {
+                "variableType": [
+                    1,
+                    2
+                ]
+            },
+            "format": [
+                "{INTERVALS_ACTIVE, select, true{",
+                "{VALUE, list, list INTERVALS minimum IntervalMinValue maximum IntervalMaxValue found {",
+                "{ConstantActive, select, true{{ConstantValue}} other{",
+                "{PrefixActive, select, true{{PrefixValue}} other{{PREFIX}}}",
+                "{VALUE, ipsnumber, digits {DigitsActive, select, true{{DigitsValue}} other {{DIGITS}}} factor {ConversionFactor} thousandsSeparator {{THOUSANDS_SEPARATOR}} decimalSeparator {{DECIMAL_SEPARATOR}}}",
+                "{SuffixActive, select, true{{SuffixValue}} other{{SUFFIX}}}",
+                "}}",
+                "} other {",
+                "{PREFIX}",
+                "{VALUE, ipsnumber, percentage {PERCENTAGE} min {MIN} max {MAX} digits {DIGITS} thousandsSeparator {{THOUSANDS_SEPARATOR}} decimalSeparator {{DECIMAL_SEPARATOR}}}",
+                "{SUFFIX}",
+                "}}",
+                "} other{",
+                "{PREFIX}",
+                "{VALUE, ipsnumber, percentage {PERCENTAGE} min {MIN} max {MAX} digits {DIGITS} thousandsSeparator {{THOUSANDS_SEPARATOR}} decimalSeparator {{DECIMAL_SEPARATOR}}}",
+                "{SUFFIX}",
+                "}}"
+            ],
+            "condition": {
+                "type": "multi",
+                "operation": 0,
+                "conditions": [
+                    {
+                        "type": "multi",
+                        "operation": 1,
+                        "caption": "Maximum Value must be higher than Minimum Value",
+                        "conditions": [
+                            {
+                                "type": "dynamic",
+                                "parameter1": "MIN",
+                                "parameter2": "MAX",
+                                "comparison": 4
+                            },
+                            {
+                                "type": "constant",
+                                "parameter": "PERCENTAGE",
+                                "comparison": 0,
+                                "value": false
+                            }
+                        ]
+                    },
+                    {
+                        "type": "list",
+                        "parameter": "INTERVALS",
+                        "operation": 0,
+                        "condition": {
+                            "type": "dynamic",
+                            "parameter1": "IntervalMinValue",
+                            "parameter2": "IntervalMaxValue",
+                            "comparison": 5
+                        },
+                        "caption": "Interval End must be higher or equal to Interval Start"
+                    }
+                ]
+            },
+            "presentationParameters": {
+                "INTERVALS": {
+                    "type": 3,
+                    "default": "[]",
+                    "parameters": {
+                        "IntervalMinValue": {
+                            "type": "variableType",
+                            "default": 0
+                        },
+                        "IntervalMaxValue": {
+                            "type": "variableType",
+                            "default": 0
+                        },
+                        "ConstantActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "ConstantValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "ConversionFactor": {
+                            "type": 2,
+                            "default": 1
+                        },
+                        "PrefixActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "PrefixValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "IconActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "IconValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "ColorActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "ColorValue": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        },
+                        "ContentColorActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "ContentColorValue": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        },
+                        "SuffixActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "SuffixValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "DigitsActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "DigitsValue": {
+                            "type": 1,
+                            "default": 0,
+                            "min": 0
+                        }
+                    }
+                },
+                "INTERVALS_ACTIVE": {
+                    "type": 0,
+                    "default": false
+                },
+                "MIN": {
+                    "type": "variableType",
+                    "default": 0
+                },
+                "MAX": {
+                    "type": "variableType",
+                    "default": 100
+                },
+                "DECIMAL_SEPARATOR": {
+                    "type": 3,
+                    "default": "Client"
+                },
+                "DIGITS": {
+                    "type": 1,
+                    "default": 2,
+                    "min": 0
+                },
+                "THOUSANDS_SEPARATOR": {
+                    "type": 3,
+                    "default": ""
+                }
+            },
+            "chart": {
+                "min": "MIN",
+                "max": "MAX"
+            }
+        },
+        {
+            "id": "{B7DB2EF9-BF81-B5EA-BCE5-35999C792C69}",
+            "name": "String",
+            "restrictions": {
+                "variableType": [
+                    3
+                ]
+            },
+            "format": "{VALUE, list, list OPTIONS equals Value found{{Caption}} other{{PREFIX}{VALUE}{SUFFIX}}}",
+            "presentationParameters": {
+                "OPTIONS": {
+                    "type": 3,
+                    "default": "[]",
+                    "parameters": {
+                        "Value": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "Caption": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "IconActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "IconValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "ColorActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "ColorValue": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        },
+                        "ContentColorActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "ContentColorValue": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        }
+                    }
+                },
+                "MULTILINE": {
+                    "type": 0,
+                    "default": false
+                }
+            }
+        }
+    ],
+    "presentationParameters": {
+        "ICON": {
+            "type": 3,
+            "default": ""
+        },
+        "COLOR": {
+            "type": 1,
+            "default": -1,
+            "min": -1,
+            "max": 16777215
+        },
+        "CONTENT_COLOR": {
+            "type": 1,
+            "default": -1,
+            "min": -1,
+            "max": 16777215
+        },
+        "PREFIX": {
+            "type": 3,
+            "default": ""
+        },
+        "SUFFIX": {
+            "type": 3,
+            "default": ""
+        },
+        "USAGE_TYPE": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1]
+        },
+        "PERCENTAGE": {
+            "type": 0,
+            "default": false
+        },
+        "SHOW_PREVIEW": {
+            "type": 0,
+            "default": true
+        },
+        "PREVIEW_STYLE": {
+            "type": 1,
+            "default": 1,
+            "values": [0, 1, 2]
+        },
+        "DISPLAY_TYPE": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1]
+        }
+    },
+    "presentationValue": [
+        "switch ($_IPS['VARIABLE_TYPE']) {",
+        "  case VARIABLETYPE_BOOLEAN:",
+        "    return true;",
+        "  case VARIABLETYPE_INTEGER:",
+        "    return 123;",
+        "  case VARIABLETYPE_FLOAT:",
+        "    return 123.456;",
+        "  case VARIABLETYPE_STRING:",
+        "    return 'Symcon';",
+        "}"
+    ],
+    "customIcon": true
+}

@@ -1,0 +1,35 @@
+{
+    "id": "{BDCACC29-D38B-DED9-0264-D440BC894C13}",
+    "caption": "Switch mute",
+    "form": [
+        {
+            "type": "CheckBox",
+            "name": "VALUE",
+            "caption": "Mute"
+        }
+    ],
+    "action": "OAVR_SetMute($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Switch mute of {TARGET, object} {VALUE, select, 0 {off} false {off} other {on}}",
+    "description": "Mutes or unmutes the zone.",
+    "locale": {
+        "de": {
+            "Switch mute": "Stummschaltung schalten",
+            "Mute": "Stumm",
+            "Mutes or unmutes the zone.": "Schaltet die Zone stumm oder hebt die Stummschaltung auf.",
+            "Switch mute of {TARGET, object} {VALUE, select, 0 {off} false {off} other {on}}": "Stummschaltung von {TARGET, object} {VALUE, select, 0 {ausschalten} false {ausschalten} other {einschalten}}"
+        }
+    }
+}

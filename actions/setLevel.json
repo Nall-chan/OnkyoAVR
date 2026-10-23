@@ -1,0 +1,75 @@
+{
+    "id": "{EE9F4621-5672-22A5-3BFD-69E1BC9F2AE8}",
+    "caption": "Set level",
+    "form": [
+        {
+            "type": "Select",
+            "name": "SPEAKER",
+            "caption": "Speaker",
+            "value": "Center",
+            "options": [
+                {
+                    "caption": "Center",
+                    "value": "Center"
+                },
+                {
+                    "caption": "Subwoofer",
+                    "value": "Subwoofer"
+                },
+                {
+                    "caption": "Subwoofer 2",
+                    "value": "Subwoofer2"
+                }
+            ]
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "VALUE",
+            "caption": "Level",
+            "digits": 1,
+            "minimum": -15,
+            "maximum": 12,
+            "value": 0
+        }
+    ],
+    "action": [
+        "switch ($_IPS['SPEAKER']) {",
+        "    case 'Center':",
+        "        OAVR_SetCenterLevel($_IPS['TARGET'], $_IPS['VALUE']);",
+        "        break;",
+        "    case 'Subwoofer':",
+        "        OAVR_SetSubwooferLevel($_IPS['TARGET'], $_IPS['VALUE']);",
+        "        break;",
+        "    case 'Subwoofer2':",
+        "        OAVR_SetSubwoofer2Level($_IPS['TARGET'], $_IPS['VALUE']);",
+        "        break;",
+        "}"
+    ],
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Set level of {SPEAKER, select, Center {center} Subwoofer {subwoofer} other {subwoofer 2}} on {TARGET, object} to {VALUE}",
+    "description": "Sets the level of the center speaker or of a subwoofer. The valid range depends on the device.",
+    "locale": {
+        "de": {
+            "Set level": "Pegel setzen",
+            "Speaker": "Lautsprecher",
+            "Level": "Pegel",
+            "Sets the level of the center speaker or of a subwoofer. The valid range depends on the device.": "Setzt den Pegel des Center-Lautsprechers oder eines Subwoofers. Der gültige Bereich hängt vom Gerät ab.",
+            "Set level of {SPEAKER, select, Center {center} Subwoofer {subwoofer} other {subwoofer 2}} on {TARGET, object} to {VALUE}": "Pegel von {SPEAKER, select, Center {Center} Subwoofer {Subwoofer} other {Subwoofer 2}} an {TARGET, object} auf {VALUE} setzen",
+            "Center": "Center",
+            "Subwoofer": "Subwoofer",
+            "Subwoofer 2": "Subwoofer 2"
+        }
+    }
+}

@@ -1,0 +1,83 @@
+{
+    "id": "{7D886D25-3CEF-7F20-B9DD-881A5E2DCAB0}",
+    "caption": "Select audio input",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Audio input",
+            "value": 0,
+            "options": [
+                {
+                    "caption": "AUTO",
+                    "value": 0
+                },
+                {
+                    "caption": "MULTI-CHANNEL",
+                    "value": 1
+                },
+                {
+                    "caption": "ANALOG",
+                    "value": 2
+                },
+                {
+                    "caption": "iLINK",
+                    "value": 3
+                },
+                {
+                    "caption": "HDMI",
+                    "value": 4
+                },
+                {
+                    "caption": "COAX/OPT",
+                    "value": 5
+                },
+                {
+                    "caption": "BALANCE",
+                    "value": 6
+                },
+                {
+                    "caption": "ARC",
+                    "value": 7
+                },
+                {
+                    "caption": "None",
+                    "value": 15
+                }
+            ]
+        }
+    ],
+    "action": "OAVR_SelectAudioInput($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Select audio input {VALUE} on {TARGET, object}",
+    "description": "Selects the audio input of the zone.",
+    "locale": {
+        "de": {
+            "Select audio input": "Audio-Eingang wählen",
+            "Audio input": "Audio-Eingang",
+            "Selects the audio input of the zone.": "Wählt den Audio-Eingang der Zone.",
+            "Select audio input {VALUE} on {TARGET, object}": "Audio-Eingang {VALUE} an {TARGET, object} wählen",
+            "AUTO": "AUTO",
+            "MULTI-CHANNEL": "MULTI-CHANNEL",
+            "ANALOG": "ANALOG",
+            "iLINK": "iLINK",
+            "HDMI": "HDMI",
+            "COAX/OPT": "COAX/OPT",
+            "BALANCE": "BALANCE",
+            "ARC": "ARC",
+            "None": "Keine"
+        }
+    }
+}

@@ -1,0 +1,42 @@
+{
+    "id": "{32D0D502-D60A-24CE-7D63-C90BB2808F57}",
+    "caption": "Set volume",
+    "form": [
+        "$Min = 0;",
+        "$Max = 100;",
+        "foreach (['MVL', 'ZVL', 'VL3', 'VL4'] as $Ident) {",
+        "    $VariableID = @IPS_GetObjectIDByIdent($Ident, $_IPS['TARGET']);",
+        "    if ($VariableID) {",
+        "        $Presentation = IPS_GetVariablePresentation($VariableID);",
+        "        $Min = $Presentation['MIN'] ?? $Min;",
+        "        $Max = $Presentation['MAX'] ?? $Max;",
+        "        break;",
+        "    }",
+        "}",
+        "return [['type' => 'NumberSpinner', 'name' => 'VALUE', 'caption' => 'Volume', 'minimum' => $Min, 'maximum' => $Max, 'value' => min(max(20, $Min), $Max)]];"
+    ],
+    "action": "OAVR_SetVolume($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Set volume of {TARGET, object} to {VALUE}",
+    "description": "Sets the volume of the zone. The valid range is read from the status variable of the zone.",
+    "locale": {
+        "de": {
+            "Set volume": "Lautstärke setzen",
+            "Volume": "Lautstärke",
+            "Sets the volume of the zone. The valid range is read from the status variable of the zone.": "Setzt die Lautstärke der Zone. Der gültige Bereich wird aus der Statusvariable der Zone gelesen.",
+            "Set volume of {TARGET, object} to {VALUE}": "Lautstärke von {TARGET, object} auf {VALUE} setzen"
+        }
+    }
+}

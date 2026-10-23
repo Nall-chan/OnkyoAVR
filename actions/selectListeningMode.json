@@ -1,0 +1,218 @@
+{
+    "id": "{F8AFF025-96F7-696D-DB5A-F01A59A52108}",
+    "caption": "Select listening mode",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Listening mode",
+            "value": 0,
+            "options": [
+                {
+                    "caption": "STEREO",
+                    "value": 0
+                },
+                {
+                    "caption": "DIRECT",
+                    "value": 1
+                },
+                {
+                    "caption": "SURROUND",
+                    "value": 2
+                },
+                {
+                    "caption": "FILM",
+                    "value": 3
+                },
+                {
+                    "caption": "THX",
+                    "value": 4
+                },
+                {
+                    "caption": "ACTION",
+                    "value": 5
+                },
+                {
+                    "caption": "MUSICAL",
+                    "value": 6
+                },
+                {
+                    "caption": "ORCHESTRA",
+                    "value": 8
+                },
+                {
+                    "caption": "UNPLUGGED",
+                    "value": 9
+                },
+                {
+                    "caption": "STUDIO-MIX",
+                    "value": 10
+                },
+                {
+                    "caption": "TV LOGIC",
+                    "value": 11
+                },
+                {
+                    "caption": "ALL CH STEREO",
+                    "value": 12
+                },
+                {
+                    "caption": "THEATER-DIMENSIONAL",
+                    "value": 13
+                },
+                {
+                    "caption": "ENHANCED",
+                    "value": 14
+                },
+                {
+                    "caption": "MONO",
+                    "value": 15
+                },
+                {
+                    "caption": "PURE AUDIO",
+                    "value": 17
+                },
+                {
+                    "caption": "FULL MONO",
+                    "value": 19
+                },
+                {
+                    "caption": "Straight Decode",
+                    "value": 64
+                },
+                {
+                    "caption": "THX Cinema",
+                    "value": 66
+                },
+                {
+                    "caption": "THX Surround EX",
+                    "value": 67
+                },
+                {
+                    "caption": "THX Music",
+                    "value": 68
+                },
+                {
+                    "caption": "THX Games",
+                    "value": 69
+                },
+                {
+                    "caption": "THX Cinema Mode, THX U2/S2/I/S Cinema",
+                    "value": 80
+                },
+                {
+                    "caption": "THX Music Mode, THX U2/S2/I/S Music",
+                    "value": 81
+                },
+                {
+                    "caption": "THX Games Mode, THX U2/S2/I/S Games",
+                    "value": 82
+                },
+                {
+                    "caption": "PLII/PLIIx Movie",
+                    "value": 128
+                },
+                {
+                    "caption": "PLII/PLIIx Music",
+                    "value": 129
+                },
+                {
+                    "caption": "Neo:6 Cinema/Neo:X Cinema",
+                    "value": 130
+                },
+                {
+                    "caption": "Neo:6 Music/Neo:X Music",
+                    "value": 131
+                },
+                {
+                    "caption": "PLII/PLIIx THX Cinema",
+                    "value": 132
+                },
+                {
+                    "caption": "Neo:6/Neo:X THX Cinema",
+                    "value": 133
+                },
+                {
+                    "caption": "PLII/PLIIx Game",
+                    "value": 134
+                },
+                {
+                    "caption": "PLII/PLIIx THX Games",
+                    "value": 137
+                },
+                {
+                    "caption": "Neo:6/Neo:X THX Games",
+                    "value": 138
+                },
+                {
+                    "caption": "PLII/PLIIx THX Music",
+                    "value": 139
+                },
+                {
+                    "caption": "Neo:6/Neo:X THX Music",
+                    "value": 140
+                }
+            ]
+        }
+    ],
+    "action": "OAVR_SelectListingMode($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Select listening mode {VALUE} on {TARGET, object}",
+    "description": "Selects the listening mode of the zone. Not every mode is available for every device and input signal.",
+    "locale": {
+        "de": {
+            "Select listening mode": "Hörmodus wählen",
+            "Listening mode": "Hörmodus",
+            "Selects the listening mode of the zone. Not every mode is available for every device and input signal.": "Wählt den Hörmodus der Zone. Nicht jeder Modus ist für jedes Gerät und jedes Eingangssignal verfügbar.",
+            "Select listening mode {VALUE} on {TARGET, object}": "Hörmodus {VALUE} an {TARGET, object} wählen",
+            "STEREO": "STEREO",
+            "DIRECT": "DIRECT",
+            "SURROUND": "SURROUND",
+            "FILM": "FILM",
+            "THX": "THX",
+            "ACTION": "ACTION",
+            "MUSICAL": "MUSICAL",
+            "ORCHESTRA": "ORCHESTRA",
+            "UNPLUGGED": "UNPLUGGED",
+            "STUDIO-MIX": "STUDIO-MIX",
+            "TV LOGIC": "TV LOGIC",
+            "ALL CH STEREO": "ALL CH STEREO",
+            "THEATER-DIMENSIONAL": "THEATER-DIMENSIONAL",
+            "ENHANCED": "ENHANCED",
+            "MONO": "MONO",
+            "PURE AUDIO": "PURE AUDIO",
+            "FULL MONO": "FULL MONO",
+            "Straight Decode": "Straight Decode",
+            "THX Cinema": "THX Cinema",
+            "THX Surround EX": "THX Surround EX",
+            "THX Music": "THX Music",
+            "THX Games": "THX Games",
+            "THX Cinema Mode, THX U2/S2/I/S Cinema": "THX Cinema Mode, THX U2/S2/I/S Cinema",
+            "THX Music Mode, THX U2/S2/I/S Music": "THX Music Mode, THX U2/S2/I/S Music",
+            "THX Games Mode, THX U2/S2/I/S Games": "THX Games Mode, THX U2/S2/I/S Games",
+            "PLII/PLIIx Movie": "PLII/PLIIx Movie",
+            "PLII/PLIIx Music": "PLII/PLIIx Music",
+            "Neo:6 Cinema/Neo:X Cinema": "Neo:6 Cinema/Neo:X Cinema",
+            "Neo:6 Music/Neo:X Music": "Neo:6 Music/Neo:X Music",
+            "PLII/PLIIx THX Cinema": "PLII/PLIIx THX Cinema",
+            "Neo:6/Neo:X THX Cinema": "Neo:6/Neo:X THX Cinema",
+            "PLII/PLIIx Game": "PLII/PLIIx Game",
+            "PLII/PLIIx THX Games": "PLII/PLIIx THX Games",
+            "Neo:6/Neo:X THX Games": "Neo:6/Neo:X THX Games",
+            "PLII/PLIIx THX Music": "PLII/PLIIx THX Music",
+            "Neo:6/Neo:X THX Music": "Neo:6/Neo:X THX Music"
+        }
+    }
+}

@@ -1,0 +1,211 @@
+{
+    "id": "{52D9E126-D7D2-2CBB-5E62-4CF7BA7C5D82}",
+    "caption": "Enumeration",
+    "form": "return include(IPS_GetKernelDirEx().'/presentations/enumerationForm.php');",
+    "conversions": [
+        {
+            "variableType": 1,
+            "converts": [
+                {
+                    "parameter": "OPTIONS",
+                    "type": "listRemoveWhere",
+                    "condition": {
+                        "type": "fractional",
+                        "parameter": "Value"
+                    }
+                }
+            ]
+        }
+    ],
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "requestAction": true
+    },
+    "groups": [
+        {
+            "id": "{5BB3F357-10BE-913B-A1EB-081156718267}",
+            "name": "Boolean",
+            "restrictions": {
+                "variableType": [
+                    0
+                ]
+            },
+            "presentationParameters": {
+                "OPTIONS": {
+                    "type": 3,
+                    "default": "[{\"Value\": false, \"Caption\": \"Off\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16711680}, {\"Value\": true, \"Caption\": \"On\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 65280}]",
+                    "parameters": {
+                        "Value": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "Caption": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "IconActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "IconValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "Color": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "{879D614D-45B1-2EA1-45FD-66AA0E1BED10}",
+            "name": "Numeric",
+            "restrictions": {
+                "variableType": [
+                    1,
+                    2
+                ]
+            },
+            "presentationParameters": {
+                "OPTIONS": {
+                    "type": 3,
+                    "default": "[{\"Value\": 0, \"Caption\": \"Cool\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 3442154}, {\"Value\": 1, \"Caption\": \"Heat\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16026947}, {\"Value\": 2, \"Caption\": \"Auto\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 52651}]",
+                    "parameters": {
+                        "Value": {
+                            "type": "variableType",
+                            "default": 0
+                        },
+                        "Caption": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "IconActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "IconValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "Color": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "{546CB97F-BAC7-7701-A528-A38B14E345F8}",
+            "name": "String",
+            "restrictions": {
+                "variableType": [
+                    3
+                ]
+            },
+            "presentationParameters": {
+                "OPTIONS": {
+                    "type": 3,
+                    "default": "[{\"Value\": \"cool\", \"Caption\": \"Cool\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 3442154}, {\"Value\": \"heat\", \"Caption\": \"Heat\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16026947}, {\"Value\": \"auto\", \"Caption\": \"Auto\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 52651}]",
+                    "parameters": {
+                        "Value": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "Caption": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "IconActive": {
+                            "type": 0,
+                            "default": false
+                        },
+                        "IconValue": {
+                            "type": 3,
+                            "default": ""
+                        },
+                        "Color": {
+                            "type": 1,
+                            "default": -1,
+                            "min": -1,
+                            "max": 16777215
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "condition": {
+        "type": "listUnique",
+        "parameter": "OPTIONS",
+        "field": "Value",
+        "caption": "Some options have identical values"
+    },
+    "locale": {
+        "de": {
+            "Enumeration": "Aufzählung",
+            "Value": "Wert",
+            "Caption": "Beschriftung",
+            "Display...": "Zeige...",
+            "Icon": "Icon",
+            "Caption and Icon": "Beschriftung und Icon",
+            "Color": "Farbe",
+            "Numeric": "Numerisch",
+            "Default Icon": "Standard Icon",
+            "Default": "Standard",
+            "Overwrite Icon": "Icon überschreiben",
+            "Layout": "Anordnung",
+            "Column": "Spalte",
+            "Row": "Reihe",
+            "Grid": "Gitter",
+            "Some options have identical values": "Einige Optionen haben identische Werte",
+            "[{\"Value\": false, \"Caption\": \"Off\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16711680}, {\"Value\": true, \"Caption\": \"On\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 65280}]": "[{\"Value\": false, \"Caption\": \"Aus\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16711680}, {\"Value\": true, \"Caption\": \"An\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 65280}]",
+            "[{\"Value\": 0, \"Caption\": \"Cool\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 3442154}, {\"Value\": 1, \"Caption\": \"Heat\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16026947}, {\"Value\": 2, \"Caption\": \"Auto\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 52651}]": "[{\"Value\": 0, \"Caption\": \"Kühlen\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 3442154}, {\"Value\": 1, \"Caption\": \"Heizen\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16026947}, {\"Value\": 2, \"Caption\": \"Auto\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 52651}]",
+            "[{\"Value\": \"cool\", \"Caption\": \"Cool\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 3442154}, {\"Value\": \"heat\", \"Caption\": \"Heat\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16026947}, {\"Value\": \"auto\", \"Caption\": \"Auto\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 52651}]": "[{\"Value\": \"cool\", \"Caption\": \"Kühlen\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 3442154}, {\"Value\": \"heat\", \"Caption\": \"Heizen\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 16026947}, {\"Value\": \"auto\", \"Caption\": \"Auto\", \"IconValue\": \"\", \"IconActive\": false, \"Color\": 52651}]"
+        }
+    },
+    "presentationValue": [
+        "if (isset($_IPS['OPTIONS'])) {",
+        "   $options = json_decode($_IPS['OPTIONS'], true);",
+        "   $length = count($options);",
+        "   $value = $options[floor($length/2)]['Value'];",
+        "   return $value;",
+        "}",
+        "switch ($_IPS['VARIABLE_TYPE']) {",
+        "  case VARIABLETYPE_BOOLEAN:",
+        "    return false;",
+        "  case VARIABLETYPE_INTEGER:",
+        "    return 1;",
+        "  case VARIABLETYPE_FLOAT:",
+        "    return 1;",
+        "  case VARIABLETYPE_STRING:",
+        "    return '';",
+        "}"
+    ],
+    "format": "{VALUE, list, list OPTIONS equals Value found{{Caption}} other{-}}",
+    "presentationParameters": {
+        "ICON": {
+            "type": 3,
+            "default": ""
+        },
+        "LAYOUT": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1, 2]
+        },
+        "DISPLAY": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1, 2]
+        }
+    },
+    "customIcon": true
+}

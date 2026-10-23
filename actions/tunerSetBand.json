@@ -1,0 +1,48 @@
+{
+    "id": "{372E7DC1-9C80-D28F-E25F-D9B0BD27B125}",
+    "caption": "Select tuner band",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Band",
+            "value": 36,
+            "options": [
+                {
+                    "caption": "FM",
+                    "value": 36
+                },
+                {
+                    "caption": "AM",
+                    "value": 37
+                }
+            ]
+        }
+    ],
+    "action": "OAVR_SetBand($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Select band {VALUE, select, 36 {FM} other {AM}} on {TARGET, object}",
+    "description": "Switches the tuner to the FM or AM band.",
+    "locale": {
+        "de": {
+            "Select tuner band": "Tuner-Band wählen",
+            "Band": "Band",
+            "Switches the tuner to the FM or AM band.": "Schaltet den Tuner auf das FM- oder AM-Band um.",
+            "Select band {VALUE, select, 36 {FM} other {AM}} on {TARGET, object}": "Band {VALUE, select, 36 {FM} other {AM}} an {TARGET, object} wählen",
+            "FM": "FM",
+            "AM": "AM"
+        }
+    }
+}

@@ -67,6 +67,56 @@
     ],
     "actions": [
         {
+            "type": "ExpansionPanel",
+            "caption": "Listening modes",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Only the checked listening modes are offered. Modes reported by the device are added automatically. A change takes effect immediately."
+                },
+                {
+                    "type": "List",
+                    "name": "ListeningModes",
+                    "caption": "Listening modes",
+                    "rowCount": 10,
+                    "add": false,
+                    "delete": false,
+                    "loadValuesFromConfiguration": false,
+                    "sort": {
+                        "column": "Code",
+                        "direction": "ascending"
+                    },
+                    "columns": [
+                        {
+                            "caption": "Listening mode",
+                            "name": "Name",
+                            "width": "auto"
+                        },
+                        {
+                            "caption": "Code",
+                            "name": "Code",
+                            "width": "70px"
+                        },
+                        {
+                            "caption": "Offered",
+                            "name": "Active",
+                            "width": "110px",
+                            "edit": {
+                                "type": "CheckBox"
+                            }
+                        },
+                        {
+                            "caption": "Reported by the device",
+                            "name": "Seen",
+                            "width": "200px"
+                        }
+                    ],
+                    "values": [],
+                    "onEdit": "IPS_RequestAction($id, 'ListeningModes', json_encode(['Code' => $ListeningModes['Code'], 'Active' => $ListeningModes['Active']]));"
+                }
+            ]
+        },
+        {
             "type": "PopupAlert",
             "popup": {
                 "closeCaption": "I understand",

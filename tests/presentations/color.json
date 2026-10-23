@@ -1,0 +1,141 @@
+{
+    "id": "{05CC3CC2-A0B2-5837-A4A7-A07EA0B9DDFB}",
+    "caption": "Color",
+    "form": "return include(IPS_GetKernelDirEx().'/presentations/colorForm.php');",
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            1, 3
+        ]
+    },
+    "locale": {
+        "de": {
+            "Color": "Farbe",
+            "Default Value": "Standardwert",
+            "Encoding": "Kodierung",
+            "Encoding (can only be changed for String Variables)": "Kodierung (kann nur für String-Variablen geändert werden)",
+            "RGB": "RGB",
+            "CMYK": "CMYK",
+            "HSV": "HSV",
+            "HSL": "HSL",
+            "xy": "xy",
+            "Color Space": "Farbraum",
+            "Color Curve": "Farbkurve",
+            "Daylight": "Tageslicht",
+            "Color Wheel": "Farbrad",
+            "Circle": "Kreis",
+            "CIE Diagram": "CIE Diagramm",
+            "Daylight (Spring)": "Tageslicht (Frühling)",
+            "Daylight (Summer)": "Tageslicht (Sommer)",
+            "Daylight (Winter)": "Tageslicht (Winter)",
+            "(None)": "(Keine)",
+            "Custom": "Benutzerdefiniert",
+            "Custom Color Space": "Benutzerdefinierter Farbraum",
+            "Custom Color Curve": "Benutzerdefinierte Farbkurve",
+            "Selection Type": "Auswahltyp"
+        }
+    },
+    "presentationValue": [
+        "if ($_IPS['VARIABLE_TYPE'] === VARIABLETYPE_INTEGER) {",
+        "  return 0x00cdab;",
+        "}",
+        "if (!isset($_IPS['ENCODING'])) {",
+        "  $_IPS['ENCODING'] = 0;",
+        "}",
+        "switch ($_IPS['ENCODING']) {",
+        "  case 0:",
+        "    return json_encode(['r' => 0, 'g' => 205, 'b' => 171]);",
+        "  case 1:",
+        "    return json_encode(['c' => 100, 'm' => 0, 'y' => 17, 'k' => 20]);",
+        "  case 2:",
+        "    return json_encode(['h' => 170, 's' => 1.0, 'v' => 0.804]);",
+        "  case 3:",
+        "    return json_encode(['h' => 170, 's' => 1.0, 'l' => 0.402]);",
+        "  case 4:",
+        "    return json_encode(['x' => 0.64, 'y' => 0.33]);",
+        "}"
+    ],
+    "format": "",
+    "presentationParameters": {
+        "ENCODING": {
+            "type": 1,
+            "default": 0,
+            "values": [
+                0, 1, 2, 3, 4
+            ]
+        },
+        "SELECTION": {
+            "type": 1,
+            "default": 0,
+            "values": [
+                0, 1
+            ]
+        },
+        "COLOR_SPACE": {
+            "type": 1,
+            "default": 1,
+            "values": [
+                0, 1, 2, 3, 4, 5
+            ]
+        },
+        "COLOR_CURVE": {
+            "type": 1,
+            "default": 0,
+            "values": [
+                0, 1, 2, 3, 4, 5
+            ]
+        },
+        "CUSTOM_COLOR_SPACE": {
+            "type": 3,
+            "default": "[{\"x\":0.640,\"y\":0.33},{\"x\":0.300,\"y\":0.600},{\"x\":0.150,\"y\":0.060},{\"x\":0.3127,\"y\":0.3290}]",
+            "listLengthMin": 4,
+            "listLengthMax": 4,
+            "parameters": {
+                "x": {
+                    "type": 2,
+                    "default": 0,
+                    "min": 0,
+                    "max": 1
+                },
+                "y": {
+                    "type": 2,
+                    "default": 0,
+                    "min": 0,
+                    "max": 1
+                }
+            }
+        },
+        "CUSTOM_COLOR_CURVE": {
+            "type": 3,
+            "default": "[]",
+            "parameters": {
+                "x": {
+                    "type": 2,
+                    "default": 0,
+                    "min": 0,
+                    "max": 1
+                },
+                "y": {
+                    "type": 2,
+                    "default": 0,
+                    "min": 0,
+                    "max": 1
+                }
+            }
+        },
+        "PRESET_VALUES": {
+            "default": "[{\"Color\":16007990},{\"Color\":16761095},{\"Color\":10233776},{\"Color\":48340},{\"Color\":2201331},{\"Color\":15277667}]",
+            "type": 3,
+            "parameters": {
+                "Color": {
+                    "type": 1,
+                    "default": 0,
+                    "max": 16777215,
+                    "min": 0
+                }
+            }
+        }
+    }
+}

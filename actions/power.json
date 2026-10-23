@@ -1,0 +1,66 @@
+{
+    "id": "{ADCECAD5-ADDD-08BF-D1D2-5BA9171F5DBA}",
+    "caption": "Power",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Command",
+            "value": "PowerOn",
+            "options": [
+                {
+                    "caption": "Switch on",
+                    "value": "PowerOn"
+                },
+                {
+                    "caption": "Switch off",
+                    "value": "PowerOff"
+                },
+                {
+                    "caption": "Toggle",
+                    "value": "Power"
+                }
+            ]
+        }
+    ],
+    "action": [
+        "switch ($_IPS['VALUE']) {",
+        "    case 'PowerOn':",
+        "        OAVR_PowerOn($_IPS['TARGET']);",
+        "        break;",
+        "    case 'PowerOff':",
+        "        OAVR_PowerOff($_IPS['TARGET']);",
+        "        break;",
+        "    case 'Power':",
+        "        OAVR_Power($_IPS['TARGET']);",
+        "        break;",
+        "}"
+    ],
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}",
+            "{C7EA583D-2BAC-41B7-A85A-AD0DF648E514}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "{TARGET, object}: {VALUE, select, PowerOn {switch on} PowerOff {switch off} other {toggle power}}",
+    "description": "Switches the device or zone on or off, or toggles the current state.",
+    "locale": {
+        "de": {
+            "Power": "Ein-/Ausschalten",
+            "Command": "Befehl",
+            "Switches the device or zone on or off, or toggles the current state.": "Schaltet das Gerät oder die Zone ein oder aus, oder wechselt den aktuellen Zustand.",
+            "{TARGET, object}: {VALUE, select, PowerOn {switch on} PowerOff {switch off} other {toggle power}}": "{TARGET, object}: {VALUE, select, PowerOn {einschalten} PowerOff {ausschalten} other {Ein-/Aus umschalten}}",
+            "Switch on": "Einschalten",
+            "Switch off": "Ausschalten",
+            "Toggle": "Umschalten"
+        }
+    }
+}

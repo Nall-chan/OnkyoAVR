@@ -1,0 +1,70 @@
+{
+    "id": "{6075FC22-69AF-B110-3749-C24138883082}",
+    "caption": "Shutter",
+    "form": "return include(IPS_GetKernelDirEx().'/presentations/shutterForm.php');",
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            1,
+            2
+        ],
+        "requestAction": true
+    },
+    "locale": {
+        "de": {
+            "Shutter": "Rollladen",
+            "Variable Usage": "Verwendung der Variable",
+            "Open At": "Offen bei",
+            "Closed At": "Geschlossen bei",
+            "Outside At": "Außen bei",
+            "Inside At": "Innen bei",
+            "Maximum Rotation Inside": "Maximale Rotation nach innnen",
+            "Maximum Rotation Outside": "Maximale Rotation nach außen",
+            "Open": "Öffnung",
+            "Rotation": "Rotation",
+            "Completely Closed At": "Komplett geschlossen bei",
+            "Right At": "Rechts bei",
+            "Maximum Value must be higher than Minimum Value": "Maximaler Wert muss größer als Minimaler Wert sein",
+            "{USAGE_TYPE, select,0{{VALUE, selectParameter, OPEN_OUTSIDE_VALUE{Open} CLOSE_INSIDE_VALUE{Closed} other{{VALUE, ipsnumber, percentage true min {OPEN_OUTSIDE_VALUE} max {CLOSE_INSIDE_VALUE}} % closed}}} other{{VALUE, selectParameter, OPEN_OUTSIDE_VALUE{Left} CLOSE_INSIDE_VALUE{Right} other{{VALUE, ipsnumber, percentage true min {OPEN_OUTSIDE_VALUE} max {CLOSE_INSIDE_VALUE}} % right}}}}": "{USAGE_TYPE, select,0{{VALUE, selectParameter, OPEN_OUTSIDE_VALUE{Geöffnet} CLOSE_INSIDE_VALUE{Geschlossen} other{{VALUE, ipsnumber, percentage true min {OPEN_OUTSIDE_VALUE} max {CLOSE_INSIDE_VALUE}} % geschlossen}}} other{{VALUE, selectParameter, OPEN_OUTSIDE_VALUE{Links} CLOSE_INSIDE_VALUE{Rechts} other{{VALUE, ipsnumber, percentage true min {OPEN_OUTSIDE_VALUE} max {CLOSE_INSIDE_VALUE}} % rechts}}}}",
+            "Sun Position": "Sonnenposition",
+            "Left": "Links",
+            "Right": "Rechts",
+            "(None)": "(Keine)"
+        }
+    },
+    "format": "{USAGE_TYPE, select,0{{VALUE, selectParameter, OPEN_OUTSIDE_VALUE{Open} CLOSE_INSIDE_VALUE{Closed} other{{VALUE, ipsnumber, percentage true min {OPEN_OUTSIDE_VALUE} max {CLOSE_INSIDE_VALUE}} % closed}}} other{{VALUE, selectParameter, OPEN_OUTSIDE_VALUE{Left} CLOSE_INSIDE_VALUE{Right} other{{VALUE, ipsnumber, percentage true min {OPEN_OUTSIDE_VALUE} max {CLOSE_INSIDE_VALUE}} % right}}}}",
+    "presentationValue": [
+        "$value = (42 * ($_IPS['CLOSE_INSIDE_VALUE'] - $_IPS['OPEN_OUTSIDE_VALUE']) / 100) + $_IPS['OPEN_OUTSIDE_VALUE'];",
+        "return $value - ($value - $_IPS['OPEN_OUTSIDE_VALUE']);"
+    ],
+    "presentationParameters": {
+        "OPEN_OUTSIDE_VALUE": {
+            "type": "variableType",
+            "default": 0
+        },
+        "CLOSE_INSIDE_VALUE": {
+            "type": "variableType",
+            "default": 100
+        },
+        "MAX_ROTATION_INSIDE": {
+            "type": "variableType",
+            "default": -55
+        },
+        "MAX_ROTATION_OUTSIDE": {
+            "type": "variableType",
+            "default": 55
+        },
+        "USAGE_TYPE": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1]
+        },
+        "SUN_POSITION": {
+            "type": 1,
+            "default": 1,
+            "values": [0, 1, 2]
+        }
+    }
+}

@@ -1,9 +1,9 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v81-v90-q1-2026/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#10-lizenz)
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
-[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden) [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
 # Onkyo & Pioneer Tuner (Onkyo Tuner) <!-- omit in toc -->
 
@@ -15,7 +15,7 @@ Bildet einen Tuner eines Gerätes in IP-Symcon ab.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
@@ -32,7 +32,7 @@ Bildet einen Tuner eines Gerätes in IP-Symcon ab.
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2  
+- Symcon ab Version 9.0  
 - kompatibler AV-Receiver mit LAN-Anschluss oder RS232 (RS232 Geräte haben einen eingeschränkten Leistungsumfang)  
 
 ## 3. Software-Installation
@@ -41,7 +41,7 @@ Dieses Modul ist ein Bestandteil des Symcon-Modul: [Onkyo & Pioneer AVR](../)
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Eine einfache Einrichtung ist über die im Objektbaum unter `Konfigurator` zu findende Instanz [Onkyo bzw Pioneer Configurator](../OnkyoConfigurator/readme.md) möglich.  
+Eine einfache Einrichtung ist über die im Objektbaum unter `Konfigurator` zu findende Instanz [Onkyo bzw Pioneer Configurator](../OnkyoConfigurator/README.md) möglich.  
 
 Bei der manuellen Einrichtung ist das Modul im Dialog `Instanz hinzufügen` unter den Hersteller `Onkyo` zu finden.  
 ![Instanz hinzufügen](../imgs/instanzen.png)  
@@ -49,9 +49,9 @@ Bei der manuellen Einrichtung ist das Modul im Dialog `Instanz hinzufügen` unte
 In dem sich öffnenden Konfigurationsformular ist die gewünschte Zone auszuwählen, welche beim senden vom Kommandos an das Gerät benutzt wird.  
 ![Konfiguration keine Zone](../imgs/conf_tuner.png)  
 
-## 5. Statusvariablen und Profile
+## 5. Statusvariablen
 
-Jede Instanz erstellt einige Profile dynamisch, je nach Fähigkeiten der Geräte.  
+Jede Instanz erstellt die Statusvariablen mit passenden Darstellungen, je nach Fähigkeiten der Geräte.  
 
 **Statusvariablen MainZone:**  
 
@@ -61,16 +61,17 @@ Jede Instanz erstellt einige Profile dynamisch, je nach Fähigkeiten der Geräte
 | Radiosender    | integer |  PRS  | Aktueller Speicherplatz eines Senders |
 | Tuner-Frequenz |  float  |  TUN  | Aktuelle Frequenz                     |
 
-**Profile**:
+**Darstellungen**:
 
-Alle Profile mit .* am Ende, enthalten immer die InstanzID und sind dynamische Profile.  
-Diese können sich während des Betriebes, oder beim ändern von Geräteeinstellungen dynamisch verändern.  
+Die Auswahllisten (Bänder, Radiosender) und der Bereich der Frequenz (je nach Band) werden vom Gerät gelesen und direkt in der Darstellung der Statusvariable gesetzt.
 
-| Name                |   Typ   | verwendet von Statusvariablen  (Ident) |
-| :------------------ | :-----: | :------------------------------------- |
-| Onkyo.TunerBand.*   | integer | SLI                                    |
-| Onkyo.TunerPreset.* | integer | PRS                                    |
-| Onkyo.TunerFreq.*   |  float  | TUN                                    |
+| Ident | Darstellung                         |
+| :---- | :---------------------------------- |
+| SLI   | Aufzählung (Bänder)                 |
+| PRS   | Aufzählung (Radiosender)            |
+| TUN   | Schieberegler (Frequenz des Bandes) |
+
+Die Variablenprofile `Onkyo.*` früherer Versionen werden beim Update automatisch entfernt.
 
 ## 6. Visualisierung
 
@@ -135,7 +136,14 @@ Speichert die aktuelle Frequenz in den in `$Value` übergebenen Speicherplatz.
 
 ## 8. Aktionen
 
-Die Discovery-Instanz unterstützt keine Aktionen.  
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**  
+
+Zusätzlich stellt die Library für diese Instanz folgende Aktionen der Kategorie `Zielspezifisch` bereit (z.B. im Ablaufplan, in Ereignissen und im Dialog `Befehle testen`):  
+
+- Tuner-Frequenz setzen  
+- Tuner-Band wählen (FM, AM)  
+- Sender aufrufen oder speichern  
+- Status abfragen  
 
 ## 9. Anhang
 
@@ -156,4 +164,4 @@ Wunschliste:
 ## 10. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](../LICENSE)  

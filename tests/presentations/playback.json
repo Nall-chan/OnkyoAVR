@@ -1,0 +1,20 @@
+{
+    "id": "{2F0FF5B0-FC86-117B-DDAA-2D2D33C3F8AC}",
+    "caption": "Playback",
+    "form": [],
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            1,
+            2
+        ]
+    },
+    "locale": {
+        "de": {
+            "Playback": "Wiedergabe"
+        }
+    },
+    "presentationValue": 1
+}

@@ -1,0 +1,147 @@
+{
+    "id": "{497C4845-27FA-6E4F-AE37-5D951D3BDBF9}",
+    "caption": "Date/Time",
+    "form": [
+        "return [",
+        "   [",
+        "       'type' => 'Select',",
+        "       'name' => 'DATE',",
+        "       'caption' => 'Date Display',",
+        "       'onChange' => 'IPS_UpdateFormField(\\'MONTH_TEXT\\', \\'visible\\', $DATE != 0, $id);',",
+        "       'options' => [",
+        "           [",
+        "               'caption' => 'None',",
+        "               'value' => 0",
+        "           ],",
+        "           [",
+        "               'caption' => 'Year, Month, and Day',",
+        "               'value' => 1",
+        "           ],",
+        "           [",
+        "               'caption' => 'Month and Day',",
+        "               'value' => 2",
+        "           ],",
+        "           [",
+        "               'caption' => 'Year and Month',",
+        "               'value' => 3",
+        "           ]",
+        "       ]",
+        "   ],",
+        "   [",
+        "       'type' => 'Select',",
+        "       'name' => 'MONTH_TEXT',",
+        "       'visible' => (isset($_IPS['DATE']) && ($_IPS['DATE'] != 0)),",
+        "       'caption' => 'Format Month as',",
+        "       'options' => [",
+        "           [",
+        "               'caption' => 'Number',",
+        "               'value' => false",
+        "           ],",
+        "           [",
+        "               'caption' => 'Text',",
+        "               'value' => true",
+        "           ]",
+        "       ]",
+        "   ],",
+        "   [",
+        "       'type' => 'CheckBox',",
+        "       'name' => 'DAY_OF_THE_WEEK',",
+        "       'caption' => 'Show Day of the Week'",
+        "   ],",
+        "   [",
+        "       'type' => 'Select',",
+        "       'name' => 'TIME',",
+        "       'caption' => 'Time Display',",
+        "       'options' => [",
+        "           [",
+        "               'caption' => 'None',",
+        "               'value' => 0",
+        "           ],",
+        "           [",
+        "               'caption' => 'Hours and Minutes',",
+        "               'value' => 1",
+        "           ],",
+        "           [",
+        "               'caption' => 'Hours, Minutes, and Seconds',",
+        "               'value' => 2",
+        "           ]",
+        "       ]",
+        "   ]",
+        "];"
+    ],
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            1,
+            2
+        ]
+    },
+    "locale": {
+        "de": {
+            "Date/Time": "Datum/Uhrzeit",
+            "Date Display": "Datumsanzeige",
+            "None": "Keine",
+            "Year, Month, and Day": "Jahr, Monat und Tag",
+            "Month and Day": "Monat und Tag",
+            "Year and Month": "Jahr und Monat",
+            "Format Month as": "Formatiere Monat als",
+            "Number": "Zahl",
+            "Text": "Text",
+            "Show Day of the Week": "Zeige Wochentag",
+            "Time Display": "Zeitanzeige",
+            "Hours and Minutes": "Stunden und Minuten",
+            "Hours, Minutes, and Seconds": "Stunden, Minuten und Sekunden"
+        }
+    },
+    "presentationValue": [
+        "return time();"
+    ],
+    "format": [
+        "{VALUE, dateTime, dateFormat {",
+            "DATE, select, 0{",
+                "{DAY_OF_THE_WEEK, select, false{-} other{EEEE}}",
+            "} 1{",
+                "{DAY_OF_THE_WEEK, select, false{",
+                    "{MONTH_TEXT, select, false{yMd} other{yMMMd}}",
+                "} other{",
+                    "{MONTH_TEXT, select, false{yMEd} other{yMMMEd}}",
+                "}}",
+            "} 2{",
+                "{DAY_OF_THE_WEEK, select, false{",
+                    "{MONTH_TEXT, select, false{Md} other{MMMd}}",
+                "} other{",
+                    "{MONTH_TEXT, select, false{MEd} other{MMMEd}}",
+                "}}",
+            "} other{",
+                "{DAY_OF_THE_WEEK, select, false{",
+                    "{MONTH_TEXT, select, false{yM} other{yMMM}}",
+                "} other{",
+                    "{MONTH_TEXT, select, false{yME} other{yMMME}}",
+                "}}",
+            "}",
+        "} timeFormat {",
+            "TIME, select, 0{-} 1{Hm} 2{Hms}",
+        "}}"],
+    "presentationParameters": {
+        "DATE": {
+            "type": 1,
+            "default": 2,
+            "values": [0, 1, 2, 3]
+        },
+        "MONTH_TEXT": {
+            "type": 0,
+            "default": true
+        },
+        "DAY_OF_THE_WEEK": {
+            "type": 0,
+            "default": false
+        },
+        "TIME": {
+            "type": 1,
+            "default": 1,
+            "values": [0, 1, 2]
+        }
+    }
+}

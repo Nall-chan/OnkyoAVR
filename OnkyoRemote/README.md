@@ -1,9 +1,9 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v81-v90-q1-2026/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#10-lizenz)
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
-[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden) [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
 # Onkyo & Pioneer AVR Remote (Onkyo Remote) <!-- omit in toc -->
 
@@ -15,7 +15,7 @@ Fernbedienung des AVR oder eines angeschlossenen Gerätes.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
@@ -31,7 +31,7 @@ Fernbedienung des AVR oder eines angeschlossenen Gerätes.
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2  
+- Symcon ab Version 9.0  
 - kompatibler AV-Receiver mit LAN-Anschluss oder RS232 (RS232 Geräte haben einen eingeschränkten Leistungsumfang)  
 
 ## 3. Software-Installation
@@ -48,7 +48,7 @@ Bei der manuellen Einrichtung ist das Modul im Dialog `Instanz hinzufügen` unte
 In dem sich öffnenden Konfigurationsformular ist die gewünschte Fernbedienung auszuwählen.  
 ![Konfiguration keine Zone](../imgs/conf_remote.png)  
 
-## 5. Statusvariablen und Profile
+## 5. Statusvariablen
 
 **Statusvariablen:**  
 
@@ -58,12 +58,15 @@ In dem sich öffnenden Konfigurationsformular ist die gewünschte Fernbedienung 
 | Navigation | integer | navremote  | Navigationstasten            |
 | Steuerung  | integer | ctrlremote | Steuerungstasten             |
 
-**Profile**:
+**Darstellungen**:
 
-| Name             |   Typ   | verwendet von Statusvariablen  (Ident) |
-| :--------------- | :-----: | :------------------------------------- |
-| Onkyo.Navigation | integer | Navigation                             |
-| Onkyo.Control    | integer | Steuerung                              |
+| Ident      | Darstellung |
+| :--------- | :---------- |
+| Remote     | Webinhalt   |
+| navremote  | Aufzählung  |
+| ctrlremote | Aufzählung  |
+
+Die Variablenprofile `Onkyo.*` früherer Versionen werden beim Update automatisch entfernt.
 
 ## 6. Visualisierung
 
@@ -473,7 +476,12 @@ Folgende Werte sind je nach eingestellten Typ der Instanz möglich:
 
 ## 8. Aktionen
 
-Die Instanz unterstützt aktuell keine Aktionen.  
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**  
+
+Zusätzlich stellt die Library für diese Instanz folgende Aktionen der Kategorie `Zielspezifisch` bereit (z.B. im Ablaufplan, in Ereignissen und im Dialog `Befehle testen`):  
+
+- Ein-/Ausschalten (einschalten, ausschalten, umschalten)  
+- Fernbedienungstaste drücken (Navigation, Wiedergabe, Kanal, Lautstärke, Stumm, Menü-Tasten)  
 
 ## 9. Anhang
 
@@ -494,4 +502,4 @@ Wunschliste:
 ## 10. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](../LICENSE)  

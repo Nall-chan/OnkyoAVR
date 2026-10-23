@@ -79,6 +79,12 @@
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
             "Bad Request": "Ungültige Anfrage",
             "Access denied": "Zugriff verweigert",
+            "Invalid Value.": "Ungültiger Wert.",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Show navigation as playlist (media player)": "Navigation als Playlist anlegen (Mediaplayer)",
+            "Please wait...": "Bitte warten...",
+            "Please wait... (%d of %d)": "Bitte warten... (%d von %d)",
+            "Show cover as media object": "Cover als Medienobjekt anlegen",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 /**
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2020-2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       2.0
+ * @version       3.00
  */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace ISCPSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
@@ -279,7 +279,10 @@ class ISCPSplitter extends IPSModuleStrict
         if ($frame != '') {
             $APIData = $this->DecodeData(rtrim($frame));
             if ($APIData != null) {
-                if (!$this->SendQueueUpdate((string) $APIData->APICommand, $APIData->Data)) {
+                if ($this->SendQueueUpdate((string) $APIData->APICommand, $APIData->Data)) {
+                    $this->SendDebug('Answer', $APIData, 0);
+                }else {
+                    $this->SendDebug('Event', $APIData, 0);
                     $this->SendDataToZone($APIData);
                 }
             }
@@ -316,6 +319,7 @@ class ISCPSplitter extends IPSModuleStrict
         if ($IOId > 0) {
             $parentGUID = IPS_GetInstance($IOId)['ModuleInfo']['ModuleID'];
             if ($parentGUID == \OnkyoAVR\GUID::ClientSocket) {
+                // Lesender Zugriff auf die Properties des Parent (Client Socket / Serial Port) für die Zusammenfassung.
                 $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
                 $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
             } elseif ($parentGUID == \OnkyoAVR\GUID::SerialPort) {
@@ -422,13 +426,13 @@ class ISCPSplitter extends IPSModuleStrict
             return;
         }
         foreach ($Xml->xpath('//model') as $model) {
-            $this->RegisterVariableString('Model', $this->Translate('Model'), '', 0);
+            $this->RegisterVariableString('Model', $this->Translate('Model'), ['PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION], 0);
             $this->SetValueString(('Model'), (string) $model);
             $this->LogMessage('Connected to ' . (string) $model, KL_NOTIFY);
         }
 
         foreach ($Xml->xpath('//firmwareversion') as $firmwareversion) {
-            $this->RegisterVariableString('Firmware', $this->Translate('Firmware'), '', 0);
+            $this->RegisterVariableString('Firmware', $this->Translate('Firmware'), ['PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION], 0);
             $this->SetValueString('Firmware', (string) $firmwareversion);
             $this->LogMessage('Firmware: ' . (string) $firmwareversion, KL_NOTIFY);
         }
@@ -462,8 +466,9 @@ class ISCPSplitter extends IPSModuleStrict
             }
             $ZoneList[hexdec((string) $Zone['id'])] = [
                 'Name'     => trim((string) $Zone['name']),
-                'VolMax'   => (int) $Zone['VolMax'],
-                'VolStep'  => (int) $Zone['VolStep'],
+                // Die Geräte liefern die Attribute je nach Modell in unterschiedlicher Schreibweise
+                'VolMax'   => (int) ($Zone['volmax'] ?? $Zone['VolMax']),
+                'VolStep'  => (int) ($Zone['volstep'] ?? $Zone['VolStep']),
             ];
         }
         $this->LogMessage('Zones: ' . count($ZoneList), KL_NOTIFY);
@@ -484,11 +489,11 @@ class ISCPSplitter extends IPSModuleStrict
         $TunerList = [];
         foreach ($Xml->xpath('//tuners') as $Tuner) {
             $TunerList[(string) $Tuner['band']] = [
-                'Min'    => (int) $Tuner['min'],
-                'Max'    => (int) $Tuner['max'],
-                'Step'   => (int) $Tuner['step'],
-                'Suffix' => '',
-                'Digits' => 0,
+                'MIN'       => (int) $Tuner['min'],
+                'MAX'       => (int) $Tuner['max'],
+                'STEP_SIZE' => (int) $Tuner['step'],
+                'SUFFIX'    => '',
+                'DIGITS'    => 0,
             ];
         }
         $this->LogMessage('Tuners: ' . count($TunerList), KL_NOTIFY);
@@ -571,7 +576,6 @@ class ISCPSplitter extends IPSModuleStrict
      */
     private function SendDataToZone(\OnkyoAVR\ISCP_API_Data $APIData): void
     {
-        $this->SendDebug('SendDataToZone', $APIData, 0);
         $Data = $APIData->ToJSONString(\OnkyoAVR\GUID::SendToDevices);
         $this->SendDataToChildren($Data);
     }

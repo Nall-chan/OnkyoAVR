@@ -1,0 +1,63 @@
+{
+    "id": "{84D424BD-FD3D-9470-287E-58E8258AA5EB}",
+    "caption": "Set display brightness",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Brightness",
+            "value": 0,
+            "options": [
+                {
+                    "caption": "Bright",
+                    "value": 0
+                },
+                {
+                    "caption": "Dim",
+                    "value": 1
+                },
+                {
+                    "caption": "Dark",
+                    "value": 2
+                },
+                {
+                    "caption": "Off",
+                    "value": 3
+                },
+                {
+                    "caption": "Bright & LED Off",
+                    "value": 8
+                }
+            ]
+        }
+    ],
+    "action": "OAVR_SetDisplayDimmer($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Set display brightness {VALUE} on {TARGET, object}",
+    "description": "Sets the brightness of the display of the device.",
+    "locale": {
+        "de": {
+            "Set display brightness": "Anzeigehelligkeit setzen",
+            "Brightness": "Helligkeit",
+            "Sets the brightness of the display of the device.": "Setzt die Helligkeit des Displays des Gerätes.",
+            "Set display brightness {VALUE} on {TARGET, object}": "Anzeigehelligkeit {VALUE} an {TARGET, object} setzen",
+            "Bright": "Hell",
+            "Dim": "Mittel",
+            "Dark": "Dunkel",
+            "Off": "Aus",
+            "Bright & LED Off": "Hell & LED aus"
+        }
+    }
+}

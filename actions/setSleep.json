@@ -1,0 +1,40 @@
+{
+    "id": "{D01909ED-9F72-BDC4-1268-5EE4CA5E78FA}",
+    "caption": "Set sleep timer",
+    "form": [
+        {
+            "type": "NumberSpinner",
+            "name": "VALUE",
+            "caption": "Duration",
+            "suffix": " min",
+            "minimum": 0,
+            "maximum": 90,
+            "value": 30
+        }
+    ],
+    "action": "OAVR_SetSleep($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Set sleep timer of {TARGET, object} to {VALUE} min",
+    "description": "Sets the sleep timer of the zone in minutes. 0 switches the timer off.",
+    "locale": {
+        "de": {
+            "Set sleep timer": "Einschlaf-Timer setzen",
+            "Duration": "Dauer",
+            " min": " min",
+            "Sets the sleep timer of the zone in minutes. 0 switches the timer off.": "Setzt den Einschlaf-Timer der Zone in Minuten. 0 schaltet den Timer aus.",
+            "Set sleep timer of {TARGET, object} to {VALUE} min": "Einschlaf-Timer von {TARGET, object} auf {VALUE} min setzen"
+        }
+    }
+}

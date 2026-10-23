@@ -1,0 +1,118 @@
+{
+    "id": "{60AE6B26-B3E2-BDB1-A3A1-BE232940664B}",
+    "caption": "Switch",
+    "form": [
+        "return [",
+        "  [",
+        "    'type' => 'CheckBox',",
+        "    'name' => 'USE_ICON_FALSE',",
+        "    'caption' => 'Individual icons based on value',",
+        "    'onChange' => [",
+        "      'IPS_UpdateFormField(\"ICON_TRUE\", \"caption\", $USE_ICON_FALSE ? \"Icon for true\" : \"Icon\", $id);',",
+        "      'IPS_UpdateFormField(\"ICON_FALSE\", \"visible\", $USE_ICON_FALSE, $id);'",
+        "    ]",
+        "  ],",
+        "  [",
+        "    'type' => 'SelectIcon',",
+        "    'name' => 'ICON_TRUE',",
+        "    'caption' => (isset($_IPS['USE_ICON_FALSE']) && $_IPS['USE_ICON_FALSE']) ? 'Icon for true' : 'Icon'",
+        "  ],",
+        "  [",
+        "    'type' => 'SelectIcon',",
+        "    'name' => 'ICON_FALSE',",
+        "    'caption' => 'Icon for false',",
+        "    'visible' => (isset($_IPS['USE_ICON_FALSE']) && $_IPS['USE_ICON_FALSE'])",
+        "  ],",
+        "  [",
+        "    'type' => 'SelectColor',",
+        "    'name' => 'GLOW_COLOR',",
+        "    'caption' => 'Color of glow while active',",
+        "    'allowTransparent' => false,",
+        "  ],",
+        "  [",
+        "    'type' => 'NumberSpinner',",
+        "    'name' => 'GLOW_INTENSITY',",
+        "    'suffix' => '%',",
+        "    'minimum' => 0,",
+        "    'caption' => 'Intensity of glow while active',",
+        "  ],",
+        "  [",
+        "    'type' => 'Select',",
+        "    'name' => 'USAGE_TYPE',",
+        "    'caption' => 'Variable Usage',",
+        "    'options' => [",
+        "      [",
+        "        'caption' => 'On/Off',",
+        "        'value' => 0",
+        "      ],",
+        "      [",
+        "        'caption' => 'Mute Switch',",
+        "        'value' => 1",
+        "      ],",
+        "      [",
+        "        'caption' => 'None of these',",
+        "        'value' => 2",
+        "      ],",
+        "    ]",
+        "  ]",
+        "];"
+    ],
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            0
+        ],
+        "requestAction": true
+    },
+    "locale": {
+        "de": {
+            "Switch": "Schalter",
+            "Individual icons based on value": "Individuelle Icons passend zum Wert",
+            "Icon": "Icon",
+            "Icon for true": "Icon für true",
+            "Icon for false": "Icon für false",
+            "Color of glow while active": "Farbe des Leuchtens wenn aktiv",
+            "Intensity of glow while active": "Intensität des Leuchtens wenn aktiv",
+            "Variable Usage": "Verwendung der Variable",
+            "On/Off": "An/Aus",
+            "Mute Switch": "Stumm schalten",
+            "None of these": "Keine hiervon",
+            "{VALUE, select, true{On} false{Off}}": "{VALUE, select, true{An} false{Aus}}"
+        }
+    },
+    "presentationValue": true,
+    "presentationParameters": {
+        "USE_ICON_FALSE": {
+            "type": 0,
+            "default": false
+        },
+        "ICON_TRUE": {
+            "type": 3,
+            "default": "power-off"
+        },
+        "ICON_FALSE": {
+            "type": 3,
+            "default": "power-off"
+        },
+        "GLOW_COLOR": {
+            "type": 1,
+            "default": 16771899,
+            "min": 0,
+            "max": 16777215
+        },
+        "GLOW_INTENSITY": {
+            "type": 1,
+            "default": 50,
+            "min": 0
+        },
+        "USAGE_TYPE": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1, 2]
+        }
+    },
+    "customIcon": true,
+    "format": "{VALUE, select, true{On} false{Off}}"
+}

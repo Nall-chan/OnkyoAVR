@@ -1,0 +1,122 @@
+{
+    "id": "{08A6AF76-394E-D354-48D5-BFC690488E4E}",
+    "caption": "Duration",
+    "form": [
+        {
+            "type": "Select",
+            "name": "COUNTDOWN_TYPE",
+            "caption": "Display Type",
+            "width": "350px",
+            "options": [
+                {
+                    "caption": "Value in Variable",
+                    "value": 0
+                },
+                {
+                    "caption": "Duration until Value in Variable",
+                    "value": 1
+                },
+                {
+                    "caption": "Duration since Value in Variable",
+                    "value": 2
+                }
+            ]
+        },
+        {
+            "type": "Select",
+            "name": "FORMAT",
+            "caption": "Format",
+            "width": "350px",
+            "options": [
+                {
+                    "caption": "Seconds only",
+                    "value": 0
+                },
+                {
+                    "caption": "Minutes and Seconds",
+                    "value": 1
+                },
+                {
+                    "caption": "Hours and Minutes",
+                    "value": 3
+                },
+                {
+                    "caption": "Hours, Minutes, and Seconds",
+                    "value": 2
+                }
+            ]
+        },
+        {
+            "type": "CheckBox",
+            "caption": "Show Milliseconds",
+            "name": "MILLISECONDS"
+        }
+    ],
+    "conversions": [
+        {
+            "variableType": 1,
+            "converts": [
+                {
+                    "parameter": "MILLISECONDS",
+                    "type": "constant",
+                    "value": false
+                }
+            ]
+        }
+    ],
+    "format": "{VALUE, duration, format {FORMAT} milliseconds {MILLISECONDS} type {COUNTDOWN_TYPE}}",
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            1,
+            2
+        ],
+        "requestAction": false
+    },
+    "locale": {
+        "de": {
+            "Duration": "Dauer",
+            "Show Milliseconds": "Zeige Millisekunden",
+            "Format": "Format",
+            "Seconds only": "Nur Sekunden",
+            "Minutes and Seconds": "Minuten und Sekunden",
+            "Hours, Minutes, and Seconds": "Stunden, Minuten und Sekunden",
+            "Hours and Minutes": "Stunden und Minuten",
+            "Display Type": "Darstellungstyp",
+            "Value in Variable": "Wert in Variable",
+            "Duration until Value in Variable": "Dauer bis zum Wert in der Variable",
+            "Duration since Value in Variable": "Dauer seit Wert in der Variable"
+        }
+    },
+    "presentationValue": [
+        "if (!isset($_IPS['COUNTDOWN_TYPE'])) {",
+        "  $_IPS['COUNTDOWN_TYPE'] = 0;",
+        "}",
+        "switch ($_IPS['COUNTDOWN_TYPE']) {",
+        "  case 0:",
+        "    return 7322;",
+        "  case 1:",
+        "    return time() + 7322;",
+        "  case 2:",
+        "    return time() - 7322;",
+        "}"
+    ],
+    "presentationParameters": {
+        "FORMAT": {
+            "type": 1,
+            "default": 1,
+            "values": [0, 1, 2, 3]
+        },
+        "COUNTDOWN_TYPE": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1, 2]
+        },
+        "MILLISECONDS": {
+            "type": 0,
+            "default": false
+        }
+    }
+}

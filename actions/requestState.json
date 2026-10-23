@@ -1,0 +1,30 @@
+{
+    "id": "{EC2FC996-6C37-271E-5A4A-5374AB72AB0F}",
+    "caption": "Request state",
+    "form": [],
+    "action": "OAVR_RequestState($_IPS['TARGET'], 'ALL');",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}",
+            "{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}",
+            "{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Request state of {TARGET, object}",
+    "description": "Reads all values of the instance from the device and updates the status variables.",
+    "locale": {
+        "de": {
+            "Request state": "Status abfragen",
+            "Reads all values of the instance from the device and updates the status variables.": "Liest alle Werte der Instanz vom Gerät und aktualisiert die Statusvariablen.",
+            "Request state of {TARGET, object}": "Status von {TARGET, object} abfragen"
+        }
+    }
+}

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 /**
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2020-2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       2.0
+ * @version       3.00
  */
 
 namespace OnkyoAVR;
@@ -93,6 +93,7 @@ class IPSProfiles
 {
     public const ptSwitch = '~Switch';
     public const ptMute = '~Mute';
+    public const ptTextBox = '~TextBox';
     public const ptVolume = 'Onkyo.Volume.%d';
     public const ptToneOffset = 'Onkyo.ToneOffset.%d';
     public const ptCenterLevel = 'Onkyo.CenterLevel.%d'; //CTL
@@ -279,6 +280,76 @@ class IPSProfiles
             [0x03, 'Heavy', '', -1],
         ],
     ];
+
+    /**
+     * Liefert die Parameter der Darstellung für ein (ehemaliges) Profil.
+     *
+     * Aus den Profil-Tabellen dieser Klasse werden die Parameter für RegisterVariable*() bzw. MaintainVariable() erzeugt:
+     * Zahlenbereiche als Schieberegler, Auswahllisten als Aufzählung, Schalter und Textfeld.
+     * Gerätespezifische Werte (Lautstärke, Tonwerte, Eingänge, Hörmodi) werden über die Überschreibungen übergeben.
+     *
+     * @param  string $Profile Profil-Schlüssel aus den pt*-Konstanten dieser Klasse (mit '%d', wie im Mapping).
+     * @param  array $NumericOverrides Profil-Schlüssel => [Minimum, Maximum, Schrittweite(, Suffix)], ersetzt die Standardwerte.
+     * @param  array $AssociationOverrides Profil-Schlüssel => Liste von [Wert, Beschriftung, '', -1], ersetzt die Standardwerte.
+     * @param  null|callable $Translate Funktion zum Übersetzen der Beschriftungen.
+     * @return array Parameter der Darstellung (leer, wenn das Profil keine Darstellung hat).
+     */
+    public static function GetPresentation(string $Profile, array $NumericOverrides = [], array $AssociationOverrides = [], ?callable $Translate = null): array
+    {
+        $Translate ??= static fn (string $Text): string => $Text;
+        switch ($Profile) {
+            case self::ptSwitch:
+                return ['PRESENTATION' => VARIABLE_PRESENTATION_SWITCH, 'USAGE_TYPE' => 0];
+            case self::ptMute:
+                return ['PRESENTATION' => VARIABLE_PRESENTATION_SWITCH, 'USAGE_TYPE' => 1];
+            case self::ptTextBox:
+                return ['PRESENTATION' => VARIABLE_PRESENTATION_VALUE_INPUT, 'MULTILINE' => true];
+        }
+        if (array_key_exists($Profile, self::$ProfilInteger) || array_key_exists($Profile, self::$ProfilFloat)) {
+            $Static = self::$ProfilInteger[$Profile] ?? self::$ProfilFloat[$Profile];
+            $Values = $NumericOverrides[$Profile] ?? $Static;
+            // Ein ungültiger Bereich vom Gerät (Maximum <= Minimum oder Schrittweite <= 0) würde der Schieberegler ablehnen
+            if (($Values[1] <= $Values[0]) || ($Values[2] <= 0)) {
+                $Values = $Static;
+            }
+            $Float = array_key_exists($Profile, self::$ProfilFloat);
+            $Volume = ($Profile === self::ptVolume);
+            return [
+                'PRESENTATION'     => VARIABLE_PRESENTATION_SLIDER,
+                'MIN'              => $Float ? (float) $Values[0] : (int) $Values[0],
+                'MAX'              => $Float ? (float) $Values[1] : (int) $Values[1],
+                'STEP_SIZE'        => $Float ? (float) $Values[2] : max(1, (int) round((float) $Values[2])), // Integer-Variablen: Schrittweite mindestens 1
+                'DIGITS'           => ($Float && ($Values[2] < 1)) ? 1 : 0,
+                'CUSTOM_GRADIENT'  => '[]',
+                'GRADIENT_TYPE'    => 0,
+                'ICON'             => $Volume ? 'Speaker' : '',
+                'INTERVALS'        => '[]',
+                'INTERVALS_ACTIVE' => false,
+                'PERCENTAGE'       => false,
+                'PREFIX'           => '',
+                'SUFFIX'           => (string) ($Values[3] ?? $Static[3] ?? ''),
+                'USAGE_TYPE'       => $Volume ? 3 : 5 // 3 = Lautstärke, 5 = keine Verwendung
+            ];
+        }
+        if (array_key_exists($Profile, self::$ProfilAssociations)) {
+            $Options = [];
+            foreach ($AssociationOverrides[$Profile] ?? self::$ProfilAssociations[$Profile] as $Association) {
+                $Options[] = [
+                    'Value'      => (int) $Association[0],
+                    'Caption'    => $Translate((string) $Association[1]),
+                    'IconActive' => false,
+                    'IconValue'  => '',
+                    'Color'      => -1
+                ];
+            }
+            return [
+                'PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION,
+                'ICON'         => '',
+                'OPTIONS'      => json_encode($Options)
+            ];
+        }
+        return [];
+    }
 }
 
 class ONKYO_Zone_NetPlayer
@@ -367,22 +438,22 @@ class ONKYO_Zone_Tuner
 
     public int $thisZone = self::ZoneMain;
 
-    public static $TunerProfile = [
+    public static $TunerPresentation = [
         self::FM => [
-            'SLI'    => self::SLI_FM,
-            'Min'    => 87,
-            'Max'    => 108,
-            'Step'   => 0.5,
-            'Suffix' => ' MHz',
-            'Digits' => 1,
+            'SLI'         => self::SLI_FM,
+            'MIN'         => 87,
+            'MAX'         => 108,
+            'STEP_SIZE'   => 0.5,
+            'SUFFIX'      => ' MHz',
+            'DIGITS'      => 1,
         ],
         self::AM => [
-            'SLI'    => self::SLI_AM,
-            'Min'    => 522,
-            'Max'    => 1629,
-            'Step'   => 9,
-            'Suffix' => ' kHz',
-            'Digits' => 0,
+            'SLI'         => self::SLI_AM,
+            'MIN'         => 522,
+            'MAX'         => 1629,
+            'STEP_SIZE'   => 9,
+            'SUFFIX'      => ' kHz',
+            'DIGITS'      => 0,
         ],
     ];
     public static $ZoneCMDs = [
@@ -993,7 +1064,7 @@ class ISCP_API_Commands
         self::IFA => [
             self::VarType      => IPSVarType::vtString,
             self::EnableAction => false,
-            self::Profile      => '~TextBox',
+            self::Profile      => IPSProfiles::ptTextBox,
             self::IsVariable   => true,
             self::VarName      => 'Audio Information',
             self::RequestValue => true,
@@ -1002,7 +1073,7 @@ class ISCP_API_Commands
         self::IFV => [
             self::VarType      => IPSVarType::vtString,
             self::EnableAction => false,
-            self::Profile      => '~TextBox',
+            self::Profile      => IPSProfiles::ptTextBox,
             self::IsVariable   => true,
             self::VarName      => 'Video Information',
             self::RequestValue => true,
@@ -1421,5 +1492,228 @@ class ISCP_API_Data
     public function GetMapping(): ?\stdClass
     {
         return ISCP_API_Data_Mapping::GetMapping($this->APICommand);
+    }
+}
+
+/**
+ * Auswahl der angebotenen Hörmodi.
+ *
+ * Die ISCP-Tabelle kennt alle Hörmodi aller Modelle. Welche davon ein Gerät kann, meldet es nicht (die Geräte-XML enthält nur
+ * wenige Schnellwahl-Einträge). Angeboten werden deshalb die in der Konfiguration gewählten Modi, die das Gerät schon gemeldet hat
+ * (gelernt) und der aktuell aktive Modus.
+ */
+class ListeningModes
+{
+    /**
+     * Modi, die in der Standardeinstellung angeboten werden: Modi, die viele Modelle können (ohne THX).
+     */
+    public const DefaultActive = [
+        0x00, 0x01, 0x02, 0x03, 0x05, 0x06, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x13,
+        0x40, 0x80, 0x81, 0x82, 0x83, 0x86,
+    ];
+
+    /**
+     * Alle Hörmodi der ISCP-Tabelle.
+     *
+     * @return array<int, string> Code => Name
+     */
+    public static function GetNames(): array
+    {
+        $Names = [];
+        foreach (IPSProfiles::$ProfilAssociations[IPSProfiles::ptListeningMode] as $Association) {
+            $Names[(int) $Association[0]] = (string) $Association[1];
+        }
+        return $Names;
+    }
+
+    /**
+     * Zeilen für die Liste im Aktionsbereich.
+     *
+     * @param  string $Saved JSON der gespeicherten Auswahl.
+     * @param  array $Seen Codes der Modi, die das Gerät schon gemeldet hat.
+     * @param  null|callable $Translate Funktion zum Übersetzen der Namen.
+     * @return array Zeilen mit 'Name', 'Code' (hexadezimal), 'Active' und 'Seen'.
+     */
+    public static function GetRows(string $Saved, array $Seen, ?callable $Translate = null): array
+    {
+        $Translate ??= static fn (string $Text): string => $Text;
+        $Active = self::ParseSaved($Saved);
+        $Rows = [];
+        foreach (self::GetNames() as $Code => $Name) {
+            $Rows[] = [
+                'Name'   => $Translate($Name),
+                'Code'   => sprintf('%02X', $Code),
+                'Active' => $Active[$Code] ?? in_array($Code, self::DefaultActive, true),
+                'Seen'   => in_array($Code, $Seen, true) ? '✓' : '',
+            ];
+        }
+        return $Rows;
+    }
+
+    /**
+     * Codes der Modi, die laut Konfiguration angeboten werden.
+     *
+     * @param  string $Saved JSON der gespeicherten Auswahl.
+     * @return int[] Codes
+     */
+    public static function GetActiveCodes(string $Saved): array
+    {
+        $Active = self::ParseSaved($Saved);
+        $Codes = [];
+        foreach (array_keys(self::GetNames()) as $Code) {
+            if ($Active[$Code] ?? in_array($Code, self::DefaultActive, true)) {
+                $Codes[] = $Code;
+            }
+        }
+        return $Codes;
+    }
+
+    /**
+     * Auswahlliste der Darstellung: gewählte Modi, gemeldete Modi und der aktuelle Modus.
+     *
+     * @param  string $Saved JSON der gespeicherten Auswahl.
+     * @param  array $Seen Codes der Modi, die das Gerät schon gemeldet hat.
+     * @param  null|int $Current Aktuell aktiver Modus.
+     * @return array Liste von [Code, Name, '', -1], nach Code sortiert.
+     */
+    public static function GetAssociations(string $Saved, array $Seen, ?int $Current = null): array
+    {
+        $Codes = array_merge(self::GetActiveCodes($Saved), $Seen);
+        if ($Current !== null) {
+            $Codes[] = $Current;
+        }
+        $Names = self::GetNames();
+        $Codes = array_values(array_unique(array_filter($Codes, static fn ($Code): bool => array_key_exists((int) $Code, $Names))));
+        sort($Codes);
+        return array_map(static fn ($Code): array => [(int) $Code, $Names[(int) $Code], '', -1], $Codes);
+    }
+
+    /**
+     * Liest die gespeicherte Auswahl.
+     *
+     * @param  string $Saved JSON der gespeicherten Auswahl (Liste von Zeilen mit 'Code' und 'Active').
+     * @return array<int, bool> Code => angeboten. Leer, wenn keine gültige Liste gespeichert ist.
+     */
+    private static function ParseSaved(string $Saved): array
+    {
+        $Rows = json_decode($Saved, true);
+        $Active = [];
+        if (is_array($Rows)) {
+            foreach ($Rows as $Row) {
+                if (is_array($Row) && isset($Row['Code'])) {
+                    // Die Liste der Konfiguration zeigt den Code hexadezimal als Text (z.B. '0A')
+                    $Code = is_string($Row['Code']) ? (int) hexdec($Row['Code']) : (int) $Row['Code'];
+                    $Active[$Code] = !empty($Row['Active']);
+                }
+            }
+        }
+        return $Active;
+    }
+}
+
+/**
+ * Bestimmt in der Playlist den Eintrag, der gerade gespielt wird.
+ */
+class PlaylistIndex
+{
+    /**
+     * Sucht den Index des gespielten Titels in der Liste.
+     *
+     * Der Eintrag mit dem Index 0 ist '..' (eine Ebene zurück). Das Gerät meldet die Titelnummer (1 = erster Titel der Liste)
+     * und den Titel. Passt der Titel zur Titelnummer, ist der Eintrag sicher. Sonst wird der Titel in der Liste gesucht
+     * (nur bei genau einem Treffer), zuletzt gilt die Titelnummer, weil der Titel der Liste vom Titel im Stück abweichen kann.
+     *
+     * @param  array $Songs Titel aller Einträge der Liste, Index 0 ist '..'.
+     * @param  int $Track Titelnummer vom Gerät (ab 1).
+     * @param  string $Title Titel vom Gerät.
+     * @return null|int Index in der Liste, oder null wenn kein Eintrag bestimmt werden kann.
+     */
+    public static function Find(array $Songs, int $Track, string $Title): ?int
+    {
+        $Songs = array_values($Songs);
+        $TrackValid = ($Track >= 1) && ($Track < count($Songs));
+        if ($TrackValid && ($Songs[$Track] === $Title)) {
+            return $Track;
+        }
+        $Found = array_values(array_diff(array_keys($Songs, $Title, true), [0]));
+        if ((count($Found) == 1) && ($Title !== '')) {
+            return $Found[0];
+        }
+        return $TrackValid ? $Track : null;
+    }
+}
+
+/**
+ * Wandelt Bilder (Cover) des Gerätes in PNG um.
+ *
+ * Die Geräte liefern Cover als BMP oder JPEG, die Visualisierungen erwarten PNG.
+ */
+class CoverImage
+{
+    private const PngSignature = "\x89PNG\r\n\x1a\n";
+
+    /**
+     * Wandelt ein Bild (BMP, JPEG, GIF oder PNG) in PNG um.
+     *
+     * @param  string $Image Binärdaten des Bildes.
+     * @return string PNG-Binärdaten, oder ein leerer String wenn das Bild nicht umgewandelt werden kann.
+     */
+    public static function ToPng(string $Image): string
+    {
+        if ($Image === '') {
+            return '';
+        }
+        if (substr($Image, 0, 8) === self::PngSignature) {
+            return $Image;
+        }
+        if (!function_exists('imagecreatefromstring')) {
+            return '';
+        }
+        $Resource = @imagecreatefromstring($Image);
+        if ($Resource === false) {
+            return '';
+        }
+        ob_start();
+        $Result = imagepng($Resource);
+        $Png = (string) ob_get_clean();
+        return $Result ? $Png : '';
+    }
+}
+
+/**
+ * Fehlerbehandlung für Bedienaktionen aus dem Frontend (RequestAction).
+ *
+ * Meldungen aus trigger_error() werden per echo an den Aufrufer (Frontend) ausgegeben.
+ */
+trait ActionErrorHandler
+{
+    /**
+     * Führt eine Bedienaktion aus und zeigt dabei auftretende Fehler dem Nutzer an.
+     *
+     * @param  callable $Action Die auszuführende Aktion.
+     * @return void
+     */
+    protected function RunWithErrorOutput(callable $Action): void
+    {
+        set_error_handler([$this, 'ModulErrorHandler'], E_USER_NOTICE | E_USER_WARNING);
+        try {
+            $Action();
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
+     * Gibt die Fehlermeldung per echo aus.
+     *
+     * @param  int $errno
+     * @param  string $errstr
+     * @return bool
+     */
+    protected function ModulErrorHandler(int $errno, string $errstr): bool
+    {
+        $this->SendDebug('ERROR', $errstr, 0);
+        echo $errstr . PHP_EOL;
+        return true;
     }
 }

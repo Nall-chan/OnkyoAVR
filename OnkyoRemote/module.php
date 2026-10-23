@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 /**
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2020-2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       2.0
+ * @version       3.00
  */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
@@ -18,7 +18,6 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
  * @property int $Type
  * @property string $WebHookSecret
  * @method void SetValueString(string $Ident, string $value)
- * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void UnregisterProfile(string $Name)
  * @method bool RegisterHook(string $WebHook)
  * @method bool UnregisterHook(string $WebHook)
@@ -26,6 +25,7 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
  */
 class OnkyoRemote extends IPSModuleStrict
 {
+    use \OnkyoAVR\ActionErrorHandler;
     use \OnkyoRemote\DebugHelper;
     use \OnkyoRemote\BufferHelper;
     use \OnkyoRemote\VariableHelper;
@@ -266,25 +266,6 @@ class OnkyoRemote extends IPSModuleStrict
     }
 
     /**
-     * Destroy
-     *
-     * @return void
-     */
-    public function Destroy(): void
-    {
-        if (IPS_GetKernelRunlevel() != KR_READY) {
-            parent::Destroy();
-            return;
-        }
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('Onkyo.Navigation');
-            $this->UnregisterProfile('Onkyo.Control');
-        }
-
-        parent::Destroy();
-    }
-
-    /**
      * ApplyChanges
      *
      * @return void
@@ -298,7 +279,16 @@ class OnkyoRemote extends IPSModuleStrict
             }
             $NewSecret = base64_encode(openssl_random_pseudo_bytes(12));
             $this->WebHookSecret = $Secret = base64_encode(sha1($NewSecret . '0' . (string) $this->InstanceID, true));
-            $this->RegisterVariableString('Remote', $this->Translate('Remote'), '~HTMLBox', 1);
+            $this->RegisterVariableString(
+                'Remote',
+                $this->Translate('Remote'),
+                [
+                    'PRESENTATION' => VARIABLE_PRESENTATION_WEB_CONTENT,
+                    'HTML_TYPE'    => 0,
+                    'PADDING'      => true
+                ],
+                1
+            );
             /** @var string $remote  */
             include 'generateRemote' . ($this->ReadPropertyInteger('RemoteId')) . '.php';
             $this->SetValueString('Remote', $remote);
@@ -308,35 +298,127 @@ class OnkyoRemote extends IPSModuleStrict
         }
 
         if ($this->ReadPropertyBoolean('showNavigationButtons')) {
-            $this->RegisterProfileIntegerEx('Onkyo.Navigation', '', '', '', [
-                [1, '<', '', -1],
-                [2, '>', '', -1],
-                [3, '^', '', -1],
-                [4, 'v', '', -1],
-                [5, 'Enter', '', -1],
-                [6, 'Exit', '', -1],
-                [7, $this->Translate('Menu'), '', -1],
-            ]);
-            $this->RegisterVariableInteger('navremote', $this->Translate('Navigation'), 'Onkyo.Navigation', 2);
+            $this->RegisterVariableInteger(
+                'navremote',
+                $this->Translate('Navigation'),
+                [
+                    'ICON'         => '',
+                    'PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION,
+                    'OPTIONS'      => json_encode(
+                        [
+                            [
+                                'Value'      => 1,
+                                'Caption'    => '<',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 2,
+                                'Caption'    => '>',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 3,
+                                'Caption'    => '^',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 4,
+                                'Caption'    => 'v',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 5,
+                                'Caption'    => 'Enter',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 6,
+                                'Caption'    => 'Exit',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 7,
+                                'Caption'    => $this->Translate('Menu'),
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ]
+                        ]
+                    )
+                ],
+                2
+            );
             $this->EnableAction('navremote');
         } else {
             $this->UnregisterVariable('navremote');
         }
-
         if ($this->ReadPropertyBoolean('showControlButtons')) {
-            $this->RegisterProfileIntegerEx('Onkyo.Control', '', '', '', [
-                [1, '<<', '', -1],
-                [2, 'Play', '', -1],
-                [3, 'Pause', '', -1],
-                [4, 'Stop', '', -1],
-                [5, '>>', '', -1],
-            ]);
-            $this->RegisterVariableInteger('ctrlremote', $this->Translate('Control'), 'Onkyo.Control', 3);
+            $this->RegisterVariableInteger(
+                'ctrlremote',
+                $this->Translate('Control'),
+                [
+                    'ICON'         => '',
+                    'PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION,
+                    'OPTIONS'      => json_encode(
+                        [
+                            [
+                                'Value'      => 1,
+                                'Caption'    => '<<',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 2,
+                                'Caption'    => 'Play',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 3,
+                                'Caption'    => 'Pause',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 4,
+                                'Caption'    => 'Stop',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ],
+                            [
+                                'Value'      => 5,
+                                'Caption'    => '>>',
+                                'IconActive' => false,
+                                'IconValue'  => '',
+                                'Color'      => -1,
+                            ]
+                        ]
+                    )
+                ],
+                3
+            );
             $this->EnableAction('ctrlremote');
         } else {
             $this->UnregisterVariable('ctrlremote');
         }
-
+        $this->UnregisterProfile('Onkyo.Navigation');
+        $this->UnregisterProfile('Onkyo.Control');
         parent::ApplyChanges();
     }
 
@@ -349,67 +431,10 @@ class OnkyoRemote extends IPSModuleStrict
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
-        if (parent::RequestAction($Ident, $Value)) {
-            return;
-        }
-        switch ($Ident) {
-            case 'navremote':
-                switch ($Value) {
-                    case 1:
-                        $ret = $this->Left();
-                        break;
-                    case 2:
-                        $ret = $this->Right();
-                        break;
-                    case 3:
-                        $ret = $this->Up();
-                        break;
-                    case 4:
-                        $ret = $this->Down();
-                        break;
-                    case 5:
-                        $ret = $this->Enter();
-                        break;
-                    case 6:
-                        $ret = $this->Exit();
-                        break;
-                    case 7:
-                        $ret = $this->Menu();
-                        break;
-                    default:
-                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
-                        return;
-                }
-                break;
-            case 'ctrlremote':
-                switch ($Value) {
-                    case 1:
-                        $ret = $this->Send('REW');
-                        break;
-                    case 2:
-                        $ret = $this->Send('PLAY');
-                        break;
-                    case 3:
-                        $ret = $this->Send('PAUSE');
-                        break;
-                    case 4:
-                        $ret = $this->Send('STOP');
-                        break;
-                    case 5:
-                        $ret = $this->Send('FF');
-                        break;
-                    default:
-                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
-                        return;
-                }
-                break;
-            default:
-                trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-                return;
-        }
-        if (!$ret) {
-            trigger_error($this->Translate('Error on execute action.'), E_USER_NOTICE);
-        }
+        $this->RunWithErrorOutput(function () use ($Ident, $Value): void
+        {
+            $this->ProcessRequestAction($Ident, $Value);
+        });
     }
 
     /**
@@ -733,7 +758,8 @@ class OnkyoRemote extends IPSModuleStrict
             echo $this->Translate('Bad Request');
             return;
         }
-        if ($this->WebHookSecret != rawurldecode($_GET['Secret'])) {
+        // Zeitkonstanter Vergleich; ein leeres Secret (noch nicht erzeugt) lässt keinen Zugriff zu.
+        if (($this->WebHookSecret === '') || (!hash_equals($this->WebHookSecret, rawurldecode((string) $_GET['Secret'])))) {
             echo $this->Translate('Access denied');
             return;
         }
@@ -762,6 +788,80 @@ class OnkyoRemote extends IPSModuleStrict
         }
         if ($this->Send($Command) === true) {
             echo 'OK';
+        }
+    }
+
+    /**
+     * ProcessRequestAction
+     *
+     * Führt die eigentliche Bedienaktion aus. Fehler meldet RequestAction an das Frontend.
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
+    private function ProcessRequestAction(string $Ident, mixed $Value): void
+    {
+        if (parent::RequestAction($Ident, $Value)) {
+            return;
+        }
+        switch ($Ident) {
+            case 'navremote':
+                switch ($Value) {
+                    case 1:
+                        $ret = $this->Left();
+                        break;
+                    case 2:
+                        $ret = $this->Right();
+                        break;
+                    case 3:
+                        $ret = $this->Up();
+                        break;
+                    case 4:
+                        $ret = $this->Down();
+                        break;
+                    case 5:
+                        $ret = $this->Enter();
+                        break;
+                    case 6:
+                        $ret = $this->Exit();
+                        break;
+                    case 7:
+                        $ret = $this->Menu();
+                        break;
+                    default:
+                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        return;
+                }
+                break;
+            case 'ctrlremote':
+                switch ($Value) {
+                    case 1:
+                        $ret = $this->Send('REW');
+                        break;
+                    case 2:
+                        $ret = $this->Send('PLAY');
+                        break;
+                    case 3:
+                        $ret = $this->Send('PAUSE');
+                        break;
+                    case 4:
+                        $ret = $this->Send('STOP');
+                        break;
+                    case 5:
+                        $ret = $this->Send('FF');
+                        break;
+                    default:
+                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        return;
+                }
+                break;
+            default:
+                trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+                return;
+        }
+        if (!$ret) {
+            trigger_error($this->Translate('Error on execute action.'), E_USER_NOTICE);
         }
     }
 

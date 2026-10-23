@@ -1,0 +1,67 @@
+{
+    "id": "{6F477326-1683-A2FD-D2E7-477F366ECB62}",
+    "caption": "Value Input",
+    "form": [        
+        "$form = [",
+        "  [",
+        "    'type' => 'ValidationTextBox',",
+        "    'name' => 'PREFIX',",
+        "    'caption' => 'Prefix'",
+        "  ],",
+        "  [",
+        "    'type' => 'ValidationTextBox',",
+        "    'name' => 'SUFFIX',",
+        "    'caption' => 'Suffix'",
+        "  ]",
+        "];",
+        "if ($_IPS['VARIABLE_TYPE'] === VARIABLETYPE_STRING) {",
+        "  $form[] = [",
+        "    'type' => 'CheckBox',",
+        "    'name' => 'MULTILINE',",
+        "    'caption' => 'Multiline Input'",
+        "  ];",
+        "}",
+        "return $form;"
+    ],
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            1, 2, 3
+        ],
+        "requestAction": true
+    },
+    "locale": {
+        "de": {
+            "Value Input": "Werteingabe",
+            "Prefix": "Präfix",
+            "Suffix": "Suffix",
+            "Multiline Input": "Mehrzeilige Eingabe"
+        }
+    },
+    "presentationValue": [
+        "switch ($_IPS['VARIABLE_TYPE']) {",
+        "  case VARIABLETYPE_INTEGER:",
+        "  case VARIABLETYPE_FLOAT:",
+        "    return 25;",
+        "  case VARIABLETYPE_STRING:",
+        "    return '25';",
+        "}"
+    ],
+    "presentationParameters": {
+        "PREFIX": {
+            "type": 3,
+            "default": ""
+        },
+        "SUFFIX": {
+            "type": 3,
+            "default": ""
+        },
+        "MULTILINE": {
+            "type": 0,
+            "default": false
+        }
+    },
+    "format": "{PREFIX}{VALUE}{SUFFIX}"
+}

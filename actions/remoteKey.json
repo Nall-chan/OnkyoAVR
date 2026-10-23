@@ -1,0 +1,176 @@
+{
+    "id": "{EFB1BA97-E47E-CBB0-262F-7BA172044719}",
+    "caption": "Press remote key",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Key",
+            "value": "Enter",
+            "options": [
+                {
+                    "caption": "Up",
+                    "value": "Up"
+                },
+                {
+                    "caption": "Down",
+                    "value": "Down"
+                },
+                {
+                    "caption": "Left",
+                    "value": "Left"
+                },
+                {
+                    "caption": "Right",
+                    "value": "Right"
+                },
+                {
+                    "caption": "Enter",
+                    "value": "Enter"
+                },
+                {
+                    "caption": "Back",
+                    "value": "Back"
+                },
+                {
+                    "caption": "Exit",
+                    "value": "Exit"
+                },
+                {
+                    "caption": "Return",
+                    "value": "Return"
+                },
+                {
+                    "caption": "Home",
+                    "value": "Home"
+                },
+                {
+                    "caption": "Menu",
+                    "value": "Menu"
+                },
+                {
+                    "caption": "Setup",
+                    "value": "Setup"
+                },
+                {
+                    "caption": "Quick",
+                    "value": "Quick"
+                },
+                {
+                    "caption": "Input",
+                    "value": "Input"
+                },
+                {
+                    "caption": "Play",
+                    "value": "Play"
+                },
+                {
+                    "caption": "Pause",
+                    "value": "Pause"
+                },
+                {
+                    "caption": "Stop",
+                    "value": "Stop"
+                },
+                {
+                    "caption": "Next",
+                    "value": "Next"
+                },
+                {
+                    "caption": "Channel up",
+                    "value": "ChannelUp"
+                },
+                {
+                    "caption": "Channel down",
+                    "value": "ChannelDown"
+                },
+                {
+                    "caption": "Volume up",
+                    "value": "VolumeUp"
+                },
+                {
+                    "caption": "Volume down",
+                    "value": "VolumeDown"
+                },
+                {
+                    "caption": "Mute",
+                    "value": "Mute"
+                }
+            ]
+        }
+    ],
+    "action": [
+        "$Keys = [",
+        "    'Up',",
+        "    'Down',",
+        "    'Left',",
+        "    'Right',",
+        "    'Enter',",
+        "    'Back',",
+        "    'Exit',",
+        "    'Return',",
+        "    'Home',",
+        "    'Menu',",
+        "    'Setup',",
+        "    'Quick',",
+        "    'Input',",
+        "    'Play',",
+        "    'Pause',",
+        "    'Stop',",
+        "    'Next',",
+        "    'ChannelUp',",
+        "    'ChannelDown',",
+        "    'VolumeUp',",
+        "    'VolumeDown',",
+        "    'Mute'",
+        "];",
+        "if (in_array($_IPS['VALUE'], $Keys)) {",
+        "    call_user_func('OAVR_' . $_IPS['VALUE'], $_IPS['TARGET']);",
+        "}"
+    ],
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{C7EA583D-2BAC-41B7-A85A-AD0DF648E514}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Press key {VALUE} on {TARGET, object}",
+    "description": "Sends a key of the remote control. Not every key is supported by every remote control type.",
+    "locale": {
+        "de": {
+            "Press remote key": "Fernbedienungstaste drücken",
+            "Key": "Taste",
+            "Sends a key of the remote control. Not every key is supported by every remote control type.": "Sendet eine Taste der Fernbedienung. Nicht jede Taste wird von jedem Fernbedienungstyp unterstützt.",
+            "Press key {VALUE} on {TARGET, object}": "Taste {VALUE} an {TARGET, object} drücken",
+            "Up": "Hoch",
+            "Down": "Runter",
+            "Left": "Links",
+            "Right": "Rechts",
+            "Enter": "Bestätigen",
+            "Back": "Zurück",
+            "Exit": "Beenden",
+            "Return": "Return",
+            "Home": "Home",
+            "Menu": "Menü",
+            "Setup": "Setup",
+            "Quick": "Quick",
+            "Input": "Eingang",
+            "Play": "Wiedergabe",
+            "Pause": "Pause",
+            "Stop": "Stopp",
+            "Next": "Weiter",
+            "Channel up": "Kanal hoch",
+            "Channel down": "Kanal runter",
+            "Volume up": "Lauter",
+            "Volume down": "Leiser",
+            "Mute": "Stumm"
+        }
+    }
+}

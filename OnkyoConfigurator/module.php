@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 /**
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2020-2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       2.0
+ * @version       3.00
  */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
@@ -27,7 +27,19 @@ class OnkyoConfigurator extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
+        $this->Zones = [];
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
+    }
+
+    /**
+     * ApplyChanges
+     *
+     * @return void
+     */
+    public function ApplyChanges(): void
+    {
+        $this->Zones = [];
+        parent::ApplyChanges();
     }
 
     /**

@@ -1,0 +1,58 @@
+{
+    "id": "{92C47153-2FC2-9EFB-86CD-A8AEF1A42E65}",
+    "caption": "Set display mode",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Display mode",
+            "value": 0,
+            "options": [
+                {
+                    "caption": "Input & Volume",
+                    "value": 0
+                },
+                {
+                    "caption": "Input & Listening Mode",
+                    "value": 1
+                },
+                {
+                    "caption": "Digital Format",
+                    "value": 2
+                },
+                {
+                    "caption": "Video Format",
+                    "value": 3
+                }
+            ]
+        }
+    ],
+    "action": "OAVR_SetDisplayMode($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Set display mode {VALUE} on {TARGET, object}",
+    "description": "Sets the information shown on the display of the device.",
+    "locale": {
+        "de": {
+            "Set display mode": "Anzeigemodus setzen",
+            "Display mode": "Anzeigemodus",
+            "Sets the information shown on the display of the device.": "Setzt die Information, welche auf dem Display des Gerätes angezeigt wird.",
+            "Set display mode {VALUE} on {TARGET, object}": "Anzeigemodus {VALUE} an {TARGET, object} setzen",
+            "Input & Volume": "Eingang & Lautstärke",
+            "Input & Listening Mode": "Eingang & Hörmodus",
+            "Digital Format": "Digitales Format",
+            "Video Format": "Videoformat"
+        }
+    }
+}

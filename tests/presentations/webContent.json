@@ -1,0 +1,67 @@
+{
+    "id": "{9DE1D610-5106-97FB-714D-1AADEDF8377A}",
+    "caption": "Web Content",
+    "form": [
+        "return [",
+        "  [",
+        "    'type' => 'Select',",
+        "    'name' => 'HTML_TYPE',",
+        "    'caption' => 'Display Type',",
+        "    'options' => [",
+        "       [",
+        "           'value' => 0,",
+        "           'caption' => 'HTML Content',",
+        "       ],",
+        "       [",
+        "           'value' => 1,",
+        "           'caption' => 'Website',",
+        "       ]",
+        "     ],",
+        "    'onChange' => 'IPS_UpdateFormField(\\'Hint\\', \\'visible\\', $HTML_TYPE == 1, $id);',",
+        "  ],",
+        "  [",
+        "    'type' => 'Label',",
+        "    'name' => 'Hint',",
+        "    'caption' => 'Some websites block being embedded into other sites and therefore may not work.',",
+        "    'visible' => (isset($_IPS['HTML_TYPE']) && $_IPS['HTML_TYPE'] == 1),",
+        "  ],",
+        "  [",
+        "    'type' => 'CheckBox',",
+        "    'name' => 'PADDING',",
+        "    'caption' => 'Disable Padding',",
+        "  ]",
+        "];"
+    ],
+    "format": "{VALUE}",
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            3
+        ],
+        "requestAction": false
+    },
+    "locale": {
+        "de": {
+            "Web Content": "Webinhalt",
+            "Display Type": "Anzeigetyp",
+            "Website": "Webseite",
+            "HTML Content": "HTML Inhalt",
+            "Some websites block being embedded into other sites and therefore may not work.": "Einige Webseiten blockieren die Einbettung in andere Seiten und funktionieren daher möglicherweise nicht.",
+            "Disable Padding": "Ränder entfernen"
+        }
+    },
+    "presentationParameters": {
+        "HTML_TYPE": {
+            "type": 1,
+            "default": 0,
+            "values": [0, 1]
+        },
+        "PADDING": {
+            "type": 0,
+            "default": false
+        }
+    },
+    "presentationValue": "<h2>Hello World</h2>"
+}

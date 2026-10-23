@@ -1,0 +1,20 @@
+{
+    "id": "{56696857-92B2-1780-16B8-EB6F09D4AEF7}",
+    "caption": "Text Box",
+    "form": [],
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            3
+        ],
+        "requestAction": true
+    },
+    "locale": {
+        "de": {
+            "Text Box": "Text Box"
+        }
+    },
+    "presentationValue": "Symcon"
+}

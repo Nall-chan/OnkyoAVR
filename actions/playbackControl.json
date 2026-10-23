@@ -1,0 +1,105 @@
+{
+    "id": "{39E0A8AE-0160-F813-8C21-C1748EEFC39B}",
+    "caption": "Playback control",
+    "form": [
+        {
+            "type": "Select",
+            "name": "VALUE",
+            "caption": "Command",
+            "value": "Play",
+            "options": [
+                {
+                    "caption": "Play",
+                    "value": "Play"
+                },
+                {
+                    "caption": "Pause",
+                    "value": "Pause"
+                },
+                {
+                    "caption": "Stop",
+                    "value": "Stop"
+                },
+                {
+                    "caption": "Next track",
+                    "value": "NextTrack"
+                },
+                {
+                    "caption": "Previous track",
+                    "value": "PreviousTrack"
+                },
+                {
+                    "caption": "Shuffle",
+                    "value": "Shuffle"
+                },
+                {
+                    "caption": "Repeat",
+                    "value": "Repeat"
+                },
+                {
+                    "caption": "Menu",
+                    "value": "Menu"
+                }
+            ]
+        }
+    ],
+    "action": [
+        "switch ($_IPS['VALUE']) {",
+        "    case 'Play':",
+        "        OAVR_Play($_IPS['TARGET']);",
+        "        break;",
+        "    case 'Pause':",
+        "        OAVR_Pause($_IPS['TARGET']);",
+        "        break;",
+        "    case 'Stop':",
+        "        OAVR_Stop($_IPS['TARGET']);",
+        "        break;",
+        "    case 'NextTrack':",
+        "        OAVR_NextTrack($_IPS['TARGET']);",
+        "        break;",
+        "    case 'PreviousTrack':",
+        "        OAVR_PreviousTrack($_IPS['TARGET']);",
+        "        break;",
+        "    case 'Shuffle':",
+        "        OAVR_Shuffle($_IPS['TARGET']);",
+        "        break;",
+        "    case 'Repeat':",
+        "        OAVR_Repeat($_IPS['TARGET']);",
+        "        break;",
+        "    case 'Menu':",
+        "        OAVR_Menu($_IPS['TARGET']);",
+        "        break;",
+        "}"
+    ],
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Playback control of {TARGET, object}: {VALUE, select, Play {play} Pause {pause} Stop {stop} NextTrack {next track} PreviousTrack {previous track} Shuffle {switch shuffle} Repeat {switch repeat} other {menu}}",
+    "description": "Controls the playback of the network player. Shuffle and repeat are switched to the next mode of the device.",
+    "locale": {
+        "de": {
+            "Playback control": "Wiedergabe steuern",
+            "Command": "Befehl",
+            "Controls the playback of the network player. Shuffle and repeat are switched to the next mode of the device.": "Steuert die Wiedergabe des Netzwerk-Players. Zufällige Wiedergabe und Wiederholung werden auf den nächsten Modus des Gerätes geschaltet.",
+            "Playback control of {TARGET, object}: {VALUE, select, Play {play} Pause {pause} Stop {stop} NextTrack {next track} PreviousTrack {previous track} Shuffle {switch shuffle} Repeat {switch repeat} other {menu}}": "Wiedergabe von {TARGET, object} steuern: {VALUE, select, Play {Wiedergabe} Pause {Pause} Stop {Stopp} NextTrack {nächster Titel} PreviousTrack {vorheriger Titel} Shuffle {Zufall durchschalten} Repeat {Wiederholung durchschalten} other {Menü}}",
+            "Play": "Wiedergabe",
+            "Pause": "Pause",
+            "Stop": "Stopp",
+            "Next track": "Nächster Titel",
+            "Previous track": "Vorheriger Titel",
+            "Shuffle": "Zufällige Wiedergabe durchschalten",
+            "Repeat": "Wiederholung durchschalten",
+            "Menu": "Menü"
+        }
+    }
+}

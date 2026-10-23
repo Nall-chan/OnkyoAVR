@@ -1,0 +1,38 @@
+{
+    "id": "{F7279915-3AD2-B609-D958-C93DEA6E0750}",
+    "caption": "Call internet radio favorite",
+    "form": [
+        {
+            "type": "NumberSpinner",
+            "name": "VALUE",
+            "caption": "Favorite",
+            "minimum": 1,
+            "maximum": 40,
+            "value": 1
+        }
+    ],
+    "action": "OAVR_CallPreset($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Call favorite {VALUE} on {TARGET, object}",
+    "description": "Calls the favorite of the internet radio with the given number (1 to 40).",
+    "locale": {
+        "de": {
+            "Call internet radio favorite": "Internet-Radio-Favorit aufrufen",
+            "Favorite": "Favorit",
+            "Calls the favorite of the internet radio with the given number (1 to 40).": "Ruft den Favoriten des Internet-Radios mit der angegebenen Nummer auf (1 bis 40).",
+            "Call favorite {VALUE} on {TARGET, object}": "Favorit {VALUE} an {TARGET, object} aufrufen"
+        }
+    }
+}

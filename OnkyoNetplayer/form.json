@@ -28,9 +28,19 @@
             ]
         },
         {
-            "name": "ShowNavigation",
+            "name": "showCover",
+            "type": "CheckBox",
+            "caption": "Show cover as media object"
+        },
+        {
+            "name": "showNavigation",
             "type": "CheckBox",
             "caption": "Show navigation as HTML-Box"
+        },
+        {
+            "name": "showPlaylist",
+            "type": "CheckBox",
+            "caption": "Show navigation as playlist (media player)"
         },
         {
             "type": "ExpansionPanel",

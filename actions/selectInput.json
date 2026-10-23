@@ -1,0 +1,49 @@
+{
+    "id": "{8B385765-49B2-FBBD-8E23-D68A4AF84492}",
+    "caption": "Select input",
+    "form": [
+        "$Options = [];",
+        "foreach (['SLI', 'SLZ', 'SL3', 'SL4'] as $Ident) {",
+        "    $VariableID = @IPS_GetObjectIDByIdent($Ident, $_IPS['TARGET']);",
+        "    if ($VariableID) {",
+        "        $Presentation = IPS_GetVariablePresentation($VariableID);",
+        "        foreach (json_decode($Presentation['OPTIONS'] ?? '[]', true) as $Option) {",
+        "            $Options[] = ['caption' => $Option['Caption'], 'value' => $Option['Value']];",
+        "        }",
+        "        break;",
+        "    }",
+        "}",
+        "if (count($Options) == 0) {",
+        "    return [",
+        "        ['type' => 'Label', 'caption' => 'The inputs are not available yet, the value can be entered as a number.'],",
+        "        ['type' => 'NumberSpinner', 'name' => 'VALUE', 'caption' => 'Input', 'minimum' => 0, 'maximum' => 255]",
+        "    ];",
+        "}",
+        "return [['type' => 'Select', 'name' => 'VALUE', 'caption' => 'Input', 'options' => $Options]];"
+    ],
+    "action": "OAVR_SelectInput($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{DEDC12F1-4CF7-4DD1-AE21-B03D7A7FADD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Select input {VALUE} on {TARGET, object}",
+    "description": "Selects the input of the zone. The list is read from the status variable of the zone.",
+    "locale": {
+        "de": {
+            "Select input": "Eingang wählen",
+            "Input": "Eingang",
+            "Selects the input of the zone. The list is read from the status variable of the zone.": "Wählt den Eingang der Zone. Die Liste wird aus der Statusvariable der Zone gelesen.",
+            "Select input {VALUE} on {TARGET, object}": "Eingang {VALUE} an {TARGET, object} wählen",
+            "The inputs are not available yet, the value can be entered as a number.": "Die Eingänge sind noch nicht verfügbar, der Wert kann als Zahl eingegeben werden."
+        }
+    }
+}

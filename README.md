@@ -1,7 +1,7 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v81-v90-q1-2026/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#6-lizenz)
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#3-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#3-spenden)
 
@@ -61,7 +61,7 @@ Dient der Integration der Tuner in Symcon.
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2
+- Symcon ab Version 9.0
 - kompatibler AV-Receiver mit LAN oder RS232-Anschluss(*)
 
 (*) RS232-Geräte/Anbindung bieten eventuell nicht den vollen Funktionsumfang.  
@@ -94,11 +94,37 @@ Soll ein Receiver per RS232 angebunden werden, so ist zuerst ein ([OnkyoConfigur
 
 ### 2. Changelog
 
-**Version 3.00:**  
+**Version 3.00:**
 
-- Umstellung von Profilen auf Darstellungen  
-- Refactoring  
-- Dokumentation überarbeitet  
+> [!IMPORTANT]
+>
+> - Die Library benötigt IP-Symcon ab Version 9.0.
+> - Die Variablenprofile `Onkyo.*` werden nicht mehr verwendet und beim Update automatisch entfernt. Die Statusvariablen werden dabei auf Darstellungen umgestellt. Eigene Scripte oder Variablen, welche diese Profile nutzen, müssen angepasst werden.
+> - Netplayer: Die Statusvariable `Aktueller Track` hat keine Aktion mehr. Für Vor und Zurück wird die Statusvariable `Status` verwendet.
+
+**Neue Funktionen und Aktionen**
+
+- Aktionen für Zone, Netplayer, Tuner und Remote Instanzen, z.B. für Ablaufpläne und Ereignisse. Eingänge und Netzwerkdienste werden dabei aus den Statusvariablen des Gerätes gelesen.
+- Netplayer: Darstellung als Mediaplayer in der Kachel Visualisierung (Wiedergabe, Fortschritt, Titel, Interpret, Cover).
+- Netplayer: Optionale Statusvariable `Playlist`, welche die Navigationsliste des Gerätes in der Mediaplayer-Kachel anzeigt und die Auswahl eines Eintrages ermöglicht. Der aktuell gespielte Titel wird markiert.
+
+**Geändertes Verhalten**
+
+- Netplayer: Das Cover wird immer in das Format PNG umgewandelt (das Gerät liefert BMP oder JPEG).
+- Netplayer: Große Listen des Gerätes (z.B. alle Alben) werden seitenweise geladen. Die Playlist zeigt die ersten Einträge sofort und den Fortschritt als Eintrag `Bitte warten...`.
+- Zone: Die Auswahl der Hörmodi ist in der Konfiguration einstellbar und ergänzt sich automatisch um die Modi, die das Gerät meldet (bisher immer alle 36 Modi aller Modelle).
+- Alle Statusvariablen nutzen die Darstellungen von Symcon. Wertebereiche und Auswahllisten vom Gerät werden direkt in der Darstellung der Statusvariable gesetzt.
+- Die Webhooks von Remote und Netplayer sind besser gegen unberechtigten Zugriff geschützt.
+
+**Behobene falsche Werte in Statusvariablen**
+
+- Die Lautstärke hatte bei einigen Geräten einen falschen Wertebereich, weil die Werte aus den Geräteinformationen nicht gelesen wurden.
+
+**Fehlerbehebungen**
+
+- Zone: Ausschalten des Einschlaf-Timers und Ausschalten des Receivers meldeten einen Fehler, obwohl das Gerät den Befehl ausgeführt hat.
+- Zone: Eine Lautstärke außerhalb des Bereiches der Zone wird abgelehnt, bevor sie an das Gerät gesendet wird.
+- Tuner: Nicht mehr benötigte Profile wurden beim Entfernen der Instanz nicht gelöscht.
 
 **Version 2.01:**  
 
@@ -142,4 +168,4 @@ Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als U
 ## 6. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](LICENSE)  

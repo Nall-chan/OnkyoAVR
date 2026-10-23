@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 /**
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2020-2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       2.0
+ * @version       3.00
  */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/AttributeArrayHelper.php') . '}');
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
@@ -20,7 +21,8 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  * @property int $ParentID Die InstanzID des IO-Parent
  * @property \OnkyoAVR\ONKYO_Zone $OnkyoZone
  * @property bool $PhaseMatchingBass
- * @property array $ToneProfile
+ * @property array $ToneProfile Profil-Schlüssel => [Minimum, Maximum, Schrittweite(, Suffix)] (Standard- oder Gerätewerte)
+ * @property array $AssociationProfile Profil-Schlüssel => Auswahlliste vom Gerät (Eingänge, Hörmodi)
  * @property array $MyConfig
  * @property array $LMDList
  * @method bool lock(string $ident)
@@ -41,6 +43,8 @@ eval('namespace OnkyoAVR {?>' . file_get_contents(__DIR__ . '/../libs/helper/Var
  */
 class OnkyoAVR extends IPSModuleStrict
 {
+    use \OnkyoAVR\ActionErrorHandler;
+    use \OnkyoAVR\AttributeArrayHelper;
     use \OnkyoAVR\DebugHelper,
         \OnkyoAVR\BufferHelper,
         \OnkyoAVR\InstanceStatus,
@@ -49,6 +53,15 @@ class OnkyoAVR extends IPSModuleStrict
             \OnkyoAVR\InstanceStatus::MessageSink as IOMessageSink;
             \OnkyoAVR\InstanceStatus::RequestAction as IORequestAction;
         }
+    /**
+     * Name des Attributs mit der Auswahl der angebotenen Hörmodi (Liste mit 'Code' und 'Active')
+     */
+    private const AttributeListeningModes = 'ListeningModes';
+
+    /**
+     * Name des Attributs mit den Hörmodi, die das Gerät schon gemeldet hat
+     */
+    private const AttributeSeenListeningModes = 'SeenListeningModes';
 
     /**
      * Create
@@ -82,6 +95,9 @@ class OnkyoAVR extends IPSModuleStrict
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::SWL, true);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD, true);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::LMD2, true);
+        // Auswahl der angebotenen Hörmodi (leer = Standard) und vom Gerät gemeldete (gelernte) Modi
+        $this->RegisterAttributeArray(self::AttributeListeningModes, []);
+        $this->RegisterAttributeArray(self::AttributeSeenListeningModes, []);
 
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFW, false);
         $this->RegisterPropertyBoolean(\OnkyoAVR\ISCP_API_Commands::TFH, false);
@@ -113,6 +129,8 @@ class OnkyoAVR extends IPSModuleStrict
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone();
         $this->PhaseMatchingBass = true;
         $this->ToneProfile = [];
+        $this->AssociationProfile = [];
+        $this->MyConfig = [];
         $this->LMDList = [];
         $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
         $this->SendDebug('FILTER', 'NOTHING', 0);
@@ -136,40 +154,6 @@ class OnkyoAVR extends IPSModuleStrict
     }
 
     /**
-     * Destroy
-     *
-     * @return void
-     */
-    public function Destroy(): void
-    {
-        if (IPS_GetKernelRunlevel() != KR_READY) {
-            parent::Destroy();
-            return;
-        }
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            foreach (array_keys(\OnkyoAVR\IPSProfiles::$ProfilAssociations) as $Profile) {
-                if (strpos($Profile, '%d')) {
-                    $Profile = sprintf($Profile, $this->InstanceID);
-                }
-                $this->UnregisterProfile($Profile);
-            }
-            foreach (array_keys(\OnkyoAVR\IPSProfiles::$ProfilInteger) as $Profile) {
-                if (strpos($Profile, '%d')) {
-                    $Profile = sprintf($Profile, $this->InstanceID);
-                }
-                $this->UnregisterProfile($Profile);
-            }
-            foreach (array_keys(\OnkyoAVR\IPSProfiles::$ProfilFloat) as $Profile) {
-                if (strpos($Profile, '%d')) {
-                    $Profile = sprintf($Profile, $this->InstanceID);
-                }
-                $this->UnregisterProfile($Profile);
-            }
-        }
-        parent::Destroy();
-    }
-
-    /**
      * ApplyChanges
      *
      * @return void
@@ -183,27 +167,7 @@ class OnkyoAVR extends IPSModuleStrict
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         $this->LMDList = [];
         parent::ApplyChanges();
-        foreach (\OnkyoAVR\IPSProfiles::$ProfilAssociations as $Profile => $Association) {
-            if (strpos($Profile, '%d')) {
-                $Profile = sprintf($Profile, $this->InstanceID);
-            }
-            foreach ($Association as &$AssociationItem) {
-                $AssociationItem[1] = $this->Translate($AssociationItem[1]);
-            }
-            $this->RegisterProfileIntegerEx($Profile, '', '', '', $Association);
-        }
-        foreach (\OnkyoAVR\IPSProfiles::$ProfilInteger as $Profile => $Size) {
-            if (strpos($Profile, '%d')) {
-                $Profile = sprintf($Profile, $this->InstanceID);
-            }
-            $this->RegisterProfileInteger($Profile, '', '', $Size[3], $Size[0], $Size[1], $Size[2]);
-        }
-        foreach (\OnkyoAVR\IPSProfiles::$ProfilFloat as $Profile => $Size) {
-            if (strpos($Profile, '%d')) {
-                $Profile = sprintf($Profile, $this->InstanceID);
-            }
-            $this->RegisterProfileFloat($Profile, '', '', '', $Size[0], $Size[1], $Size[2], ($Size[2] < 1 ? 1 : 0));
-        }
+        // Standardwerte der Darstellungen (Tonwerte, Lautstärke); gerätespezifische Werte folgen in RequestProfile
         $ProfileData = [];
         foreach (\OnkyoAVR\IPSProfiles::$ProfileListIndexToProfile as $ProfileName) {
             if (array_key_exists($ProfileName, \OnkyoAVR\IPSProfiles::$ProfilInteger)) {
@@ -213,16 +177,13 @@ class OnkyoAVR extends IPSModuleStrict
                 $ProfileData[$ProfileName] = \OnkyoAVR\IPSProfiles::$ProfilFloat[$ProfileName];
             }
         }
+        $ProfileData[\OnkyoAVR\IPSProfiles::ptVolume] = \OnkyoAVR\IPSProfiles::$ProfilInteger[\OnkyoAVR\IPSProfiles::ptVolume];
         $this->SendDebug('Default Profile', $ProfileData, 0);
         $this->ToneProfile = $ProfileData;
+        $this->AssociationProfile = [];
         $OldZone = $this->OnkyoZone->thisZone;
         $NewZone = $this->ReadPropertyInteger('Zone');
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone($NewZone);
-
-        if ($this->FindIDForIdent('ReplyAPIData') > 0) {
-            $this->PerformModulUpdate();
-            return;
-        }
 
         // Power, Mute, Volume, Input überführen in neuen Ident
         if ((($OldZone != 0) && ($NewZone != 0)) && ($OldZone != $NewZone)) {
@@ -231,11 +192,13 @@ class OnkyoAVR extends IPSModuleStrict
             for ($index = 0; $index < 4; $index++) {
                 $VarId = $this->FindIDForIdent($OldZoneIdents[$index]);
                 if ($VarId > 0) {
+                    // Ident einer eigenen Variable bei Zonenwechsel übernehmen (Wert bleibt erhalten); keine IPSModule-Methode vorhanden.
                     IPS_SetIdent($VarId, $NewZoneIdents[$index]);
                 }
             }
         }
 
+        // Alle Properties auf einmal lesen (Schleife über dynamische Befehlsliste), daher IPS_GetConfiguration statt ReadProperty*.
         $MyProperties = json_decode(IPS_GetConfiguration($this->InstanceID), true);
         $this->PhaseMatchingBass = true;
         $this->SetSummary($this->OnkyoZone->GetName());
@@ -275,6 +238,9 @@ class OnkyoAVR extends IPSModuleStrict
             }
         }
         $this->MyConfig = $MyProperties;
+        // Vorhandene Variablen auf die Darstellung umstellen, erst danach die alten Profile entfernen
+        $this->RefreshVariablePresentations();
+        $this->RemoveLegacyProfiles();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -314,7 +280,17 @@ class OnkyoAVR extends IPSModuleStrict
      */
     public function GetConfigurationForm(): string
     {
-        return file_get_contents(__DIR__ . '/form_' . $this->OnkyoZone->thisZone . '.json');
+        $Form = json_decode(file_get_contents(__DIR__ . '/form_' . $this->OnkyoZone->thisZone . '.json'), true);
+        $Rows = \OnkyoAVR\ListeningModes::GetRows(
+            $this->GetSavedListeningModes(),
+            $this->GetSeenListeningModes(),
+            function (string $Text): string
+            {
+                return $this->Translate($Text);
+            }
+        );
+        $this->SetListValues($Form['actions'], self::AttributeListeningModes, $Rows);
+        return json_encode($Form);
     }
 
     /**
@@ -326,19 +302,10 @@ class OnkyoAVR extends IPSModuleStrict
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return;
-        }
-        if (!$this->CheckZone()) {
-            return;
-        }
-        if ($Ident == 'LMD2') {
-            $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::LMD, $this->LMDList[$Value]['Code'], false);
-            $this->Send($APIData);
-            return;
-        }
-        $APIData = new \OnkyoAVR\ISCP_API_Data($Ident, $Value);
-        $this->SendAPIData($APIData);
+        $this->RunWithErrorOutput(function () use ($Ident, $Value): void
+        {
+            $this->ProcessRequestAction($Ident, $Value);
+        });
     }
 
     /**
@@ -416,6 +383,12 @@ class OnkyoAVR extends IPSModuleStrict
     public function SetVolume(int $Value): bool
     {
         if (!$this->CheckZone()) {
+            return false;
+        }
+        // Bereich der Zone (vom Gerät gelesen, sonst Standardwerte)
+        $Range = $this->ToneProfile[\OnkyoAVR\IPSProfiles::ptVolume] ?? \OnkyoAVR\IPSProfiles::$ProfilInteger[\OnkyoAVR\IPSProfiles::ptVolume];
+        if (($Value < $Range[0]) || ($Value > $Range[1])) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
         switch ($this->OnkyoZone->thisZone) {
@@ -691,7 +664,6 @@ class OnkyoAVR extends IPSModuleStrict
                 break;
             default:
                 trigger_error($this->Translate('Command not available at this zone.'), E_USER_NOTICE);
-
                 return false;
         }
         $ret = $this->Send($APIData);
@@ -730,24 +702,6 @@ class OnkyoAVR extends IPSModuleStrict
         $this->SendDebug('ReceiveData', $APIData, 0);
         $this->UpdateVariable($APIData);
         return '';
-    }
-
-    /**
-     * ModulUpdateErrorHandler
-     *
-     * @param  int $errno
-     * @param  string $errstr
-     * @return bool
-     */
-    protected function ModulUpdateErrorHandler(int $errno, string $errstr): bool
-    {
-        if (!(error_reporting() & $errno)) {
-            // Dieser Fehlercode ist nicht in error_reporting enthalten
-            return true;
-        }
-        $this->SendDebug('ERROR', $errstr . PHP_EOL, 0);
-        echo $errstr;
-        return false;
     }
 
     /**
@@ -796,133 +750,33 @@ class OnkyoAVR extends IPSModuleStrict
     }
 
     /**
-     * PerformModulUpdate
+     * ProcessRequestAction
      *
-     * @todo Anpassungen für 7.0 mit neuen Profilen
+     * Führt die eigentliche Bedienaktion aus. Fehler meldet RequestAction an das Frontend.
      *
+     * @param  string $Ident
+     * @param  mixed $Value
      * @return void
      */
-    private function PerformModulUpdate(): void
+    private function ProcessRequestAction(string $Ident, mixed $Value): void
     {
-        set_error_handler([$this, 'ModulUpdateErrorHandler']);
-        $this->UnregisterVariable('ReplyAPIData');
-        // Update machen !!!
-        $Zone = $this->OnkyoZone;
-        $OldProfileList = [
-            'NetRadioPreset.Onkyo',
-            'SpeakerLayout.Onkyo',
-            'ToneOffset.Onkyo',
-            'Sleep.Onkyo',
-            'DisplayMode.Onkyo',
-            'DisplayDimmer.Onkyo',
-            'SelectInput.Onkyo',
-            'SelectInputAudio.Onkyo',
-            'HDMIOutput.Onkyo',
-            'HDMIAudioOutput.Onkyo',
-            'VideoResolution.Onkyo',
-            'VideoWideMode.Onkyo',
-            'VideoPictureMode.Onkyo',
-            'LMD.Onkyo',
-            'LateNight.Onkyo',
-            'Audyssey.Onkyo',
-            'AudysseyDynamic.Onkyo',
-            'DolbyVolume.Onkyo',
-            'RadioPreset.Onkyo',
-        ];
-        $OldVariableNames = [
-            'Subwoofer Bass'       => 'Subwoofer Level',
-            'Sleep Set'            => 'Sleep timer',
-            'Audio Input Selector' => 'Audio Input',
-            'Video Wide Mode'      => 'Video Mode',
-            'Input Selector'       => 'Input',
-        ];
-        $OldVariables = [
-            \OnkyoAVR\ISCP_API_Commands::TUN,
-            \OnkyoAVR\ISCP_API_Commands::PRS,
-            \OnkyoAVR\ISCP_API_Commands::LMZ,
-            'LTZ',
-            'RAZ',
-            \OnkyoAVR\ISCP_API_Commands::TUZ,
-            \OnkyoAVR\ISCP_API_Commands::PRZ,
-            \OnkyoAVR\ISCP_API_Commands::TU3,
-            \OnkyoAVR\ISCP_API_Commands::PR3,
-            \OnkyoAVR\ISCP_API_Commands::TU4,
-            \OnkyoAVR\ISCP_API_Commands::PR4,
-            \OnkyoAVR\ISCP_API_Commands::NTC,
-            \OnkyoAVR\ISCP_API_Commands::NTZ,
-            \OnkyoAVR\ISCP_API_Commands::NT3,
-            \OnkyoAVR\ISCP_API_Commands::NT4,
-            \OnkyoAVR\ISCP_API_Commands::NPR,
-            \OnkyoAVR\ISCP_API_Commands::NPZ,
-            \OnkyoAVR\ISCP_API_Commands::NP3,
-            \OnkyoAVR\ISCP_API_Commands::NP4,
-        ];
-        foreach ($OldVariables as $OldVariable) {
-            @$this->UnregisterVariable($OldVariable);
+        if ($this->IORequestAction($Ident, $Value)) {
+            return;
         }
-
-        $MyProperties = json_decode(IPS_GetConfiguration($this->InstanceID), true);
-        foreach (IPS_GetChildrenIDs($this->InstanceID) as $ObjectID) {
-            $Object = IPS_GetObject($ObjectID);
-
-            if ($Object['ObjectType'] != OBJECTTYPE_VARIABLE) {
-                continue;
-            }
-            $Variable = IPS_GetVariable($ObjectID);
-
-            $ApiCmd = substr($Object['ObjectIdent'], 0, 3);
-            if (!$Zone->CmdAvailable($ApiCmd)) {
-                $this->SendDebug('Wrong Zone UnregisterVariable', $ApiCmd, 0);
-                $this->UnregisterVariable($ApiCmd);
-            }
-            $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd);
-            if ($Mapping != null) { //Variable bekannt
-                if (array_key_exists($ApiCmd, $MyProperties)) {
-                    // WerksSettings sagt false
-                    if ($MyProperties[$ApiCmd] === false) {
-                        //Aber alte Variable vorhanden => settings updaten
-                        $this->SendDebug('Update Property', $ApiCmd, 0);
-                        IPS_SetProperty($this->InstanceID, $ApiCmd, true);
-                    }
-                }
-                $Profile = $Mapping->Profile;
-                if (strpos($Profile, '%d')) {
-                    $Profile = sprintf($Profile, $this->InstanceID);
-                }
-                if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
-                    $Mapping->VarType = \OnkyoAVR\IPSVarType::vtInteger;
-                    $ISCP_ValuePrefix = array_flip($Mapping->ValuePrefix)[$Object['ObjectIdent'][3]];
-                    $Mapping->VarName = $Mapping->VarName[$ISCP_ValuePrefix];
-                }
-                //Profile neu setzen
-                $this->SendDebug('Update Profile', $Object, 0);
-                $this->MaintainVariable($Object['ObjectIdent'], $Object['ObjectName'], $Mapping->VarType, $Profile, $Object['ObjectPosition'], true);
-                // Hat sich der Variablentyp verändert?
-                if ($Variable['VariableType'] != $Mapping->VarType) {
-                    $ObjectID = $this->FindIDForIdent($Object['ObjectIdent']); //neue VariableID
-                }
-                //Name ist unverändert
-                if ($Object['ObjectName'] == $Mapping->VarName) {
-                    $this->SendDebug('Update Translated Name', $Object['ObjectName'], 0);
-                    IPS_SetName($ObjectID, $this->Translate($Object['ObjectName']));
-                    continue;
-                }
-                if (array_key_exists($Object['ObjectName'], $OldVariableNames)) {
-                    $this->SendDebug('Update Old Name', $Object['ObjectName'], 0);
-                    IPS_SetName($ObjectID, $this->Translate($Mapping->VarName));
-                }
-            } else {
-                $this->SendDebug('Skip Variable', $ApiCmd, 0);
-            }
+        if (!$this->CheckZone()) {
+            return;
         }
-        foreach ($OldProfileList as $OldProfile) {
-            $this->UnregisterProfile($OldProfile);
+        if ($Ident == self::AttributeListeningModes) {
+            $this->SetListeningModeActive((string) $Value);
+            return;
         }
-
-        if (IPS_HasChanges($this->InstanceID)) {
-            IPS_RunScriptText('IPS_ApplyChanges(' . $this->InstanceID . ');');
+        if ($Ident == 'LMD2') {
+            $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::LMD, $this->LMDList[$Value]['Code'], false);
+            $this->Send($APIData);
+            return;
         }
-        restore_error_handler();
+        $APIData = new \OnkyoAVR\ISCP_API_Data($Ident, $Value);
+        $this->SendAPIData($APIData);
     }
 
     /**
@@ -979,11 +833,7 @@ class OnkyoAVR extends IPSModuleStrict
         if (!$Mapping->IsVariable) {
             return;
         }
-        if (strpos($Mapping->Profile, '%d')) {
-            $Profile = sprintf($Mapping->Profile, $this->InstanceID);
-        } else {
-            $Profile = $Mapping->Profile;
-        }
+        $Profile = $this->GetPresentation($Mapping->Profile);
         if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
             $Prefix = substr($APIData->Data, 0, 1);
             $this->MaintainVariable($APIData->APICommand . $Mapping->ValuePrefix[$Prefix], $this->Translate($Mapping->VarName[$Prefix]), \OnkyoAVR\IPSVarType::vtInteger, $Profile, 0, true);
@@ -1054,6 +904,9 @@ class OnkyoAVR extends IPSModuleStrict
                     $Value = hexdec($APIData->Data);
                 }
                 $this->SetValueInteger($APIData->APICommand, $Value);
+                if ($Mapping->Profile === \OnkyoAVR\IPSProfiles::ptListeningMode) {
+                    $this->LearnListeningMode($Value);
+                }
                 break;
             case \OnkyoAVR\IPSVarType::vtString:
                 $Value = $APIData->Data;
@@ -1107,11 +960,15 @@ class OnkyoAVR extends IPSModuleStrict
     /**
      * RequestProfile
      *
+     * Liest die gerätespezifischen Wertebereiche und Auswahllisten (Eingänge, Lautstärke, Tonwerte, Hörmodi)
+     * und stellt die Darstellungen der vorhandenen Variablen darauf um.
+     *
      * @return void
      */
     private function RequestProfile(): void
     {
         $zone = $this->OnkyoZone->thisZone;
+        $Associations = [];
         // SLI // SLZ // SL3 // SL4
         $APIDataSelectorList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::SelectorList);
         $ResultDataSelectorList = $this->Send($APIDataSelectorList);
@@ -1125,24 +982,26 @@ class OnkyoAVR extends IPSModuleStrict
         } else {
             $Association = \OnkyoAVR\IPSProfiles::$ProfilAssociations[\OnkyoAVR\IPSProfiles::ptSelectInput];
         }
-        foreach ($Association as &$AssociationItem) {
-            $AssociationItem[1] = $this->Translate($AssociationItem[1]);
-        }
-        $ptSelectInputProfile = sprintf(\OnkyoAVR\IPSProfiles::ptSelectInput, $this->InstanceID);
-        $this->RegisterProfileIntegerEx($ptSelectInputProfile, '', '', '', $Association);
+        $Associations[\OnkyoAVR\IPSProfiles::ptSelectInput] = $Association;
 
         // MVL // ZVL // VL3 // VL4
         $APIDataZoneList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ZoneList);
         $ResultDataZoneList = $this->Send($APIDataZoneList);
+        $VolMax = 0;
+        $VolStep = 0;
         if (array_key_exists($zone, $ResultDataZoneList)) {
             $VolMax = (int) $ResultDataZoneList[$zone]['VolMax'];
             $VolStep = (float) $ResultDataZoneList[$zone]['VolStep'];
-        } else {
+        }
+        // Liefert das Gerät keinen gültigen Bereich (0), gelten die Standardwerte
+        if ($VolMax < 1) {
             $VolMax = 80;
+        }
+        if ($VolStep < 1) {
             $VolStep = 1;
         }
-        $ptVolumeProfile = sprintf(\OnkyoAVR\IPSProfiles::ptVolume, $this->InstanceID);
-        $this->RegisterProfileInteger($ptVolumeProfile, 'Speaker', '', ' %', 0, $VolMax, $VolStep);
+        $ProfileData = $this->ToneProfile;
+        $ProfileData[\OnkyoAVR\IPSProfiles::ptVolume] = [0, $VolMax, $VolStep, ' %'];
 
         // PMB
         if ($zone == \OnkyoAVR\ONKYO_Zone::ZoneMain) {
@@ -1154,7 +1013,6 @@ class OnkyoAVR extends IPSModuleStrict
         // Tone
         $APIDataProfileList = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::ProfileList);
         $ResultDataProfileList = $this->Send($APIDataProfileList);
-        $ProfileData = [];
         foreach ($ResultDataProfileList as $Name => $Values) {
             if (((int) $Values['Zone'] & $zone) != $zone) {
                 continue;
@@ -1163,17 +1021,6 @@ class OnkyoAVR extends IPSModuleStrict
                 $ProfileName = \OnkyoAVR\IPSProfiles::$ProfileListIndexToProfile[$Name];
                 unset($Values['Zone']);
                 $ProfileData[$ProfileName] = $Values;
-                if (strpos($ProfileName, '%d')) {
-                    $Profile = sprintf($ProfileName, $this->InstanceID);
-                } else {
-                    $Profile = $ProfileName;
-                }
-                if (array_key_exists($ProfileName, \OnkyoAVR\IPSProfiles::$ProfilInteger)) {
-                    $this->RegisterProfileInteger($Profile, '', '', '', $Values[0], $Values[1], $Values[2]);
-                }
-                if (array_key_exists($ProfileName, \OnkyoAVR\IPSProfiles::$ProfilFloat)) {
-                    $this->RegisterProfileFloat($Profile, '', '', '', $Values[0], $Values[1], $Values[2], ($Values[2] < 1 ? 1 : 0));
-                }
             }
         }
         $this->ToneProfile = $ProfileData;
@@ -1192,19 +1039,239 @@ class OnkyoAVR extends IPSModuleStrict
                 } else {
                     $Association = \OnkyoAVR\IPSProfiles::$ProfilAssociations[\OnkyoAVR\IPSProfiles::ptSelectLMD];
                 }
-                foreach ($Association as &$AssociationItem) {
-                    $AssociationItem[1] = $this->Translate($AssociationItem[1]);
-                }
-                $ptSelectLMDProfile = sprintf(\OnkyoAVR\IPSProfiles::ptSelectLMD, $this->InstanceID);
-                $this->RegisterProfileIntegerEx($ptSelectLMDProfile, '', '', '', $Association);
-                $this->RegisterVariableInteger('LMD2', $this->Translate('Listening Mode'), $ptSelectLMDProfile, 0);
+                $Associations[\OnkyoAVR\IPSProfiles::ptSelectLMD] = $Association;
+                $this->AssociationProfile = $Associations;
+                $this->RegisterVariableInteger('LMD2', $this->Translate('Listening Mode'), $this->GetPresentation(\OnkyoAVR\IPSProfiles::ptSelectLMD), 0);
                 $this->EnableAction('LMD2');
                 $this->LMDList = $ResultDataLMDList;
             } else {
                 $this->UnregisterVariable('LMD2');
-                $ptSelectLMDProfile = sprintf(\OnkyoAVR\IPSProfiles::ptSelectLMD, $this->InstanceID);
-                $this->UnregisterProfile($ptSelectLMDProfile);
             }
+        }
+        $this->AssociationProfile = $Associations;
+        $this->RefreshVariablePresentations();
+    }
+
+    /**
+     * SetListValues
+     *
+     * Setzt die Werte einer Liste im Konfigurationsformular (sucht die Liste rekursiv).
+     *
+     * @param  array &$Elements Elemente des Formulars.
+     * @param  string $Name Name der Liste.
+     * @param  array $Values Zeilen der Liste.
+     * @return void
+     */
+    private function SetListValues(array &$Elements, string $Name, array $Values): void
+    {
+        foreach ($Elements as &$Element) {
+            if (isset($Element['name']) && ($Element['name'] == $Name)) {
+                $Element['values'] = $Values;
+            }
+            if (isset($Element['items'])) {
+                $this->SetListValues($Element['items'], $Name, $Values);
+            }
+        }
+    }
+
+    /**
+     * GetSavedListeningModes
+     *
+     * @return string JSON der gespeicherten Auswahl der Hörmodi (leere Liste = Standard).
+     */
+    private function GetSavedListeningModes(): string
+    {
+        $Saved = $this->ReadAttributeArray(self::AttributeListeningModes);
+        return json_encode(is_array($Saved) ? $Saved : []);
+    }
+
+    /**
+     * SetListeningModeActive
+     *
+     * Wird von der Liste im Aktionsbereich des Konfigurationsformulars aufgerufen (onEdit).
+     * Schaltet einen Hörmodus in der Auswahl der angebotenen Modi an oder aus und stellt die Darstellung um.
+     *
+     * @param  string $Value JSON mit 'Code' (hexadezimal) und 'Active'.
+     * @return void
+     */
+    private function SetListeningModeActive(string $Value): void
+    {
+        $Row = json_decode($Value, true);
+        $Names = \OnkyoAVR\ListeningModes::GetNames();
+        if ((!is_array($Row)) || (!isset($Row['Code'])) || (!array_key_exists((int) hexdec((string) $Row['Code']), $Names))) {
+            trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+            return;
+        }
+        $Code = (int) hexdec((string) $Row['Code']);
+        // Auswahl vollständig aufbauen (Standard für Modi, die noch nicht gespeichert sind) und den einen Modus ändern
+        $Active = array_flip(\OnkyoAVR\ListeningModes::GetActiveCodes($this->GetSavedListeningModes()));
+        if (!empty($Row['Active'])) {
+            $Active[$Code] = true;
+        } else {
+            unset($Active[$Code]);
+        }
+        $Saved = [];
+        foreach (array_keys($Names) as $Mode) {
+            $Saved[] = ['Code' => sprintf('%02X', $Mode), 'Active' => array_key_exists($Mode, $Active)];
+        }
+        $this->WriteAttributeArray(self::AttributeListeningModes, $Saved);
+        $this->SendDebug('Listening mode', sprintf('%02X', $Code) . ' ' . (array_key_exists($Code, $Active) ? 'offered' : 'hidden'), 0);
+        $this->RefreshVariablePresentations();
+    }
+
+    /**
+     * GetSeenListeningModes
+     *
+     * @return int[] Codes der Hörmodi, die das Gerät schon gemeldet hat.
+     */
+    private function GetSeenListeningModes(): array
+    {
+        $Seen = $this->ReadAttributeArray(self::AttributeSeenListeningModes);
+        return is_array($Seen) ? array_map('intval', $Seen) : [];
+    }
+
+    /**
+     * LearnListeningMode
+     *
+     * Merkt sich einen Hörmodus, den das Gerät gemeldet hat. Er wird danach in der Darstellung angeboten.
+     *
+     * @param  int $Code Code des Hörmodus.
+     * @return void
+     */
+    private function LearnListeningMode(int $Code): void
+    {
+        if (!array_key_exists($Code, \OnkyoAVR\ListeningModes::GetNames())) {
+            return;
+        }
+        $Seen = $this->GetSeenListeningModes();
+        if (in_array($Code, $Seen, true)) {
+            return;
+        }
+        $Seen[] = $Code;
+        sort($Seen);
+        $this->WriteAttributeArray(self::AttributeSeenListeningModes, $Seen);
+        $this->SendDebug('Listening mode learned', sprintf('%02X', $Code), 0);
+        if (!in_array($Code, \OnkyoAVR\ListeningModes::GetActiveCodes($this->GetSavedListeningModes()), true)) {
+            $this->RefreshVariablePresentations(); // neuer Modus in der Auswahl
+        }
+    }
+    /**
+     * GetPresentation
+     *
+     * Liefert die Parameter der Darstellung für einen Profil-Schlüssel aus dem Mapping,
+     * mit den vom Gerät gelesenen Wertebereichen und Auswahllisten.
+     *
+     * @param  string $Profile Profil-Schlüssel aus \OnkyoAVR\IPSProfiles.
+     * @return array Parameter der Darstellung.
+     */
+    private function GetPresentation(string $Profile): array
+    {
+        $Associations = $this->AssociationProfile;
+        if ($Profile === \OnkyoAVR\IPSProfiles::ptListeningMode) {
+            $Current = null;
+            foreach ([\OnkyoAVR\ISCP_API_Commands::LMD, \OnkyoAVR\ISCP_API_Commands::LMZ] as $Ident) {
+                if ($this->FindIDForIdent($Ident)) {
+                    $Current = $this->GetValue($Ident);
+                }
+            }
+            $Associations[$Profile] = \OnkyoAVR\ListeningModes::GetAssociations($this->GetSavedListeningModes(), $this->GetSeenListeningModes(), $Current);
+        }
+        return \OnkyoAVR\IPSProfiles::GetPresentation(
+            $Profile,
+            $this->ToneProfile,
+            $Associations,
+            function (string $Text): string
+            {
+                return $this->Translate($Text);
+            }
+        );
+    }
+
+    /**
+     * RefreshVariablePresentations
+     *
+     * Setzt die Darstellung aller vorhandenen Statusvariablen dieser Zone neu.
+     * Nötig nach einem Update (Umstellung von Profilen) und wenn sich gerätespezifische Wertebereiche ändern.
+     *
+     * @return void
+     */
+    private function RefreshVariablePresentations(): void
+    {
+        foreach (\OnkyoAVR\ONKYO_Zone::$ZoneCMDs[$this->OnkyoZone->thisZone] as $ApiCmd) {
+            $Mapping = \OnkyoAVR\ISCP_API_Data_Mapping::GetMapping($ApiCmd);
+            if (($Mapping === null) || (!$Mapping->IsVariable)) {
+                continue;
+            }
+            $Presentation = $this->GetPresentation($Mapping->Profile);
+            if ($Mapping->VarType == \OnkyoAVR\IPSVarType::vtDualInteger) {
+                $Variables = [];
+                foreach ($Mapping->ValuePrefix as $Prefix => $Index) {
+                    $Variables[$ApiCmd . $Index] = [$Mapping->VarName[$Prefix], \OnkyoAVR\IPSVarType::vtInteger];
+                }
+            } else {
+                $Variables = [$ApiCmd => [$Mapping->VarName, $Mapping->VarType]];
+            }
+            foreach ($Variables as $Ident => [$Name, $Type]) {
+                if (!$this->FindIDForIdent((string) $Ident)) {
+                    continue;
+                }
+                $this->MaintainVariable((string) $Ident, $this->Translate($Name), $Type, $Presentation, 0, true);
+                if ($Mapping->EnableAction) {
+                    $this->EnableAction((string) $Ident);
+                }
+            }
+        }
+        if ($this->FindIDForIdent('LMD2')) {
+            $this->RegisterVariableInteger('LMD2', $this->Translate('Listening Mode'), $this->GetPresentation(\OnkyoAVR\IPSProfiles::ptSelectLMD), 0);
+            $this->EnableAction('LMD2');
+        }
+    }
+
+    /**
+     * RemoveLegacyProfiles
+     *
+     * Entfernt die Variablenprofile 'Onkyo.*' früherer Versionen, nachdem alle Variablen auf Darstellungen umgestellt wurden.
+     * Fremde Profile (z.B. '~Switch') werden nie angefasst.
+     *
+     * @return void
+     */
+    private function RemoveLegacyProfiles(): void
+    {
+        $Profiles = array_merge(
+            array_keys(\OnkyoAVR\IPSProfiles::$ProfilAssociations),
+            array_keys(\OnkyoAVR\IPSProfiles::$ProfilInteger),
+            array_keys(\OnkyoAVR\IPSProfiles::$ProfilFloat),
+            [
+                'NetRadioPreset.Onkyo',
+                'SpeakerLayout.Onkyo',
+                'ToneOffset.Onkyo',
+                'Sleep.Onkyo',
+                'DisplayMode.Onkyo',
+                'DisplayDimmer.Onkyo',
+                'SelectInput.Onkyo',
+                'SelectInputAudio.Onkyo',
+                'HDMIOutput.Onkyo',
+                'HDMIAudioOutput.Onkyo',
+                'VideoResolution.Onkyo',
+                'VideoWideMode.Onkyo',
+                'VideoPictureMode.Onkyo',
+                'LMD.Onkyo',
+                'LateNight.Onkyo',
+                'Audyssey.Onkyo',
+                'AudysseyDynamic.Onkyo',
+                'DolbyVolume.Onkyo',
+                'RadioPreset.Onkyo',
+            ]
+        );
+        foreach ($Profiles as $Profile) {
+            if (strpos($Profile, '%d')) {
+                $Profile = sprintf($Profile, $this->InstanceID);
+            }
+            // Nur eigene Profile entfernen
+            if ((strpos($Profile, 'Onkyo.') !== 0) && (substr($Profile, -6) !== '.Onkyo')) {
+                continue;
+            }
+            $this->UnregisterProfile($Profile);
         }
     }
 
@@ -1239,7 +1306,8 @@ class OnkyoAVR extends IPSModuleStrict
                         if (is_array($VarName)) {
                             $VarName = implode(' & ', array_values($VarName));
                         }
-                        echo sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName)) . "\r\n";
+                        // Optionale Abfrage, nicht jedes Gerät unterstützt jeden Befehl: nur Debug, kein Fehler.
+                        $this->SendDebug('Request', sprintf($this->Translate('Error on read %s. Maybe your Device not support %s.'), $ApiCmd, $this->Translate($VarName)), 0);
                         continue;
                     }
                     $APIData->Data = $ResultData;
@@ -1339,7 +1407,17 @@ class OnkyoAVR extends IPSModuleStrict
                 case \OnkyoAVR\IPSVarType::vtBoolean:
                 case \OnkyoAVR\IPSVarType::vtInteger:
                 case \OnkyoAVR\IPSVarType::vtFloat:
-                    if ($ResultData != $APIData->Data) {
+                    // Das Gerät bestätigt mit dem gesendeten Wert, oder bei Textwerten wie 'OFF' mit dem Zahlenwert (z.B. '00')
+                    $Expected = [$APIData->Data];
+                    if (is_array($Mapping->ValueMapping) && array_key_exists($APIData->Data, $Mapping->ValueMapping)) {
+                        $Expected[] = sprintf('%02X', $Mapping->ValueMapping[$APIData->Data]);
+                    }
+                    if (!in_array($ResultData, $Expected)) {
+                        if (in_array($APIData->APICommand, [\OnkyoAVR\ISCP_API_Commands::PWR, \OnkyoAVR\ISCP_API_Commands::ZPW, \OnkyoAVR\ISCP_API_Commands::PW3, \OnkyoAVR\ISCP_API_Commands::PW4])) {
+                            // Beim Ausschalten antwortet das Gerät zuerst noch mit dem alten Zustand, der neue Zustand wird danach gemeldet
+                            $this->SendDebug('Power', 'New state is reported by the device later', 0);
+                            return true;
+                        }
                         throw new Exception('Value not available.', E_USER_NOTICE);
                     }
                     break;

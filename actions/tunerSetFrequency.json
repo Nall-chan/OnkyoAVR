@@ -1,0 +1,38 @@
+{
+    "id": "{B15556C8-286A-FF22-38B9-49B320823C5E}",
+    "caption": "Set tuner frequency",
+    "form": [
+        {
+            "type": "NumberSpinner",
+            "name": "VALUE",
+            "caption": "Frequency",
+            "digits": 2,
+            "minimum": 0,
+            "value": 100
+        }
+    ],
+    "action": "OAVR_SetFrequency($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{47D1BFF5-B6A6-4C3A-A11F-CDA656E3D85F}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Set frequency of {TARGET, object} to {VALUE}",
+    "description": "Sets the tuner to the given frequency. The value has no unit: 100.2 is 100.2 MHz FM, 702 is 702 kHz AM.",
+    "locale": {
+        "de": {
+            "Set tuner frequency": "Tuner-Frequenz setzen",
+            "Frequency": "Frequenz",
+            "Sets the tuner to the given frequency. The value has no unit: 100.2 is 100.2 MHz FM, 702 is 702 kHz AM.": "Setzt den Tuner auf die angegebene Frequenz. Der Wert hat keine Einheit: 100,2 sind 100,2 MHz FM, 702 sind 702 kHz AM.",
+            "Set frequency of {TARGET, object} to {VALUE}": "Frequenz von {TARGET, object} auf {VALUE} setzen"
+        }
+    }
+}

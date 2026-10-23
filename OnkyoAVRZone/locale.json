@@ -120,6 +120,11 @@
             "Medium": "Mittel",
             "Heavy": "Stark",
             "Error on read %s. Maybe your Device not support %s.": "Fehler beim lesen von %s. Eventuell unterstützt ihr Gerät kein %s.",
+            "Listening modes": "Hörmodi",
+            "Only the checked listening modes are offered. Modes reported by the device are added automatically. A change takes effect immediately.": "Es werden nur die angehakten Hörmodi angeboten. Vom Gerät gemeldete Modi werden automatisch ergänzt. Eine Änderung wirkt sofort.",
+            "Listening mode": "Hörmodus",
+            "Offered": "Angeboten",
+            "Reported by the device": "Vom Gerät gemeldet",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

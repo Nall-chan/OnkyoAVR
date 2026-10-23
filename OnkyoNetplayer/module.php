@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 /**
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2020-2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       2.0
+ * @version       3.00
  */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
@@ -25,14 +25,16 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  * @property int $ServiceType
  * @property int $UiType
  * @property int $ListItems
- * @property int $ActiveIndex
  * @property string $FolderName
  * @property string $WebHookSecret
+ * @property array $PlaylistIds Index des Eintrags in der Playlist => ID des Eintrags in der Liste des Gerätes
+ * @property int $PlaylistCurrent Index des zuletzt gewählten Eintrags der Playlist
+ * @property int $PlaylistLayer Ebene des Gerätes, aus der die Playlist stammt (-1 = unbekannt)
+ * @property int $ListGeneration Zähler, der bei jeder neuen Liste des Gerätes (NLT) erhöht wird. Bricht das Laden einer veralteten Liste ab.
+ * @property bool $SeekSupported Das Gerät erlaubt das Springen in der Wiedergabe (Position setzen)
  * @method void SetValueInteger(string $Ident, int $value)
  * @method void SetValueString(string $Ident, string $value)
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
- * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, float $StepSize)
- * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void UnregisterProfile(string $Name)
  * @method bool RegisterHook(string $WebHook)
  * @method bool UnregisterHook(string $WebHook)
@@ -43,6 +45,7 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  */
 class OnkyoNetplayer extends IPSModuleStrict
 {
+    use \OnkyoAVR\ActionErrorHandler;
     use \OnkyoNetplayer\DebugHelper,
         \OnkyoNetplayer\BufferHelper,
         \OnkyoNetplayer\InstanceStatus,
@@ -51,6 +54,25 @@ class OnkyoNetplayer extends IPSModuleStrict
             \OnkyoNetplayer\InstanceStatus::MessageSink as IOMessageSink;
             \OnkyoNetplayer\InstanceStatus::RequestAction as IORequestAction;
         }
+    /**
+     * Ident der Playlist-Variable (Liste des Gerätes für die Mediaplayer-Kachel)
+     */
+    private const PlaylistIdent = 'Playlist';
+
+    /**
+     * Verzögerung in ms, nach der bei andauerndem Stop Cover, Titel und Position zurückgesetzt werden
+     */
+    private const ClearOnStopDelay = 3000;
+
+    /**
+     * Anzahl der Einträge, die pro Anfrage von der Liste des Gerätes gelesen werden. Das Gerät braucht für große Listen sehr lange (Alben: 1892 Einträge ca. 34 s)
+     */
+    private const ListPageSize = 100;
+
+    /**
+     * ID des Eintrags 'Bitte warten' in der Playlist (keine Auswahl am Gerät)
+     */
+    private const PlaylistWaitId = -2;
 
     /**
      * Create
@@ -63,6 +85,8 @@ class OnkyoNetplayer extends IPSModuleStrict
         $this->RegisterPropertyInteger('Zone', \OnkyoAVR\ONKYO_Zone_NetPlayer::ZoneMain);
         $this->RegisterPropertyBoolean('showCover', true);
         $this->RegisterPropertyBoolean('showNavigation', true);
+        $this->RegisterPropertyBoolean('showPlaylist', false);
+        $this->RegisterTimer('ClearOnStop', 0, 'IPS_RequestAction($_IPS[\'TARGET\'], \'ClearOnStop\', 0);');
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Icons', json_encode($Style['Icons']));
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
@@ -77,6 +101,11 @@ class OnkyoNetplayer extends IPSModuleStrict
         $this->UiType = 0;
         $this->ListItems = 0;
         $this->WebHookSecret = '';
+        $this->PlaylistIds = [];
+        $this->PlaylistCurrent = 0;
+        $this->PlaylistLayer = -1;
+        $this->SeekSupported = false;
+        $this->ListGeneration = 0;
     }
 
     /**
@@ -97,35 +126,6 @@ class OnkyoNetplayer extends IPSModuleStrict
     }
 
     /**
-     * Destroy
-     *
-     * @return void
-     */
-    public function Destroy(): void
-    {
-        if (IPS_GetKernelRunlevel() != KR_READY) {
-            parent::Destroy();
-            return;
-        }
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('Onkyo.NetTunerPreset');
-            $this->UnregisterProfile('Onkyo.Status');
-            $this->UnregisterProfile('Onkyo.Shuffle.' . $this->InstanceID);
-            $this->UnregisterProfile('Onkyo.Repeat.' . $this->InstanceID);
-            $this->UnregisterProfile('Onkyo.Tracks');
-            $this->UnregisterProfile('Onkyo.Network');
-            $this->UnregisterProfile('Onkyo.USB');
-            $this->UnregisterProfile('Onkyo.SelectNetworkService.' . $this->InstanceID);
-            $CoverID = $this->FindIDForIdent('Cover');
-            if ($CoverID > 0) {
-                @IPS_DeleteMedia($CoverID, true);
-            }
-        }
-
-        parent::Destroy();
-    }
-
-    /**
      * ApplyChanges
      *
      * @return void
@@ -142,6 +142,13 @@ class OnkyoNetplayer extends IPSModuleStrict
         $this->UiType = 0;
         $this->ListItems = 0;
         $this->FolderName = '';
+        $this->WebHookSecret = '';
+        $this->PlaylistIds = [];
+        $this->PlaylistCurrent = 0;
+        $this->PlaylistLayer = -1;
+        $this->SeekSupported = false;
+        $this->ListGeneration = 0;
+        $this->SetTimerInterval('ClearOnStop', 0);
         parent::ApplyChanges();
         $this->OnkyoZone = new \OnkyoAVR\ONKYO_Zone_NetPlayer($this->ReadPropertyInteger('Zone'));
         $this->SetSummary($this->OnkyoZone->GetName());
@@ -159,62 +166,99 @@ class OnkyoNetplayer extends IPSModuleStrict
             $this->SetReceiveDataFilter('.*"APICommand":"NOTING".*');
             $this->SendDebug('FILTER', 'NOTHING', 0);
         }
-
-        $this->RegisterProfileInteger('Onkyo.NetTunerPreset', '', '', '', 1, 40, 1);
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NPR, $this->Translate('Internet Radio Presets'), 'Onkyo.NetTunerPreset', 0);
+        $this->RegisterVariableInteger(
+            \OnkyoAVR\ISCP_API_Commands::NPR,
+            $this->Translate('Internet Radio Presets'),
+            [
+                'MIN'              => 1,
+                'MAX'              => 40,
+                'DIGITS'           => 0,
+                'CUSTOM_GRADIENT'  => '[]',
+                'GRADIENT_TYPE'    => 0,
+                'ICON'             => '',
+                'PRESENTATION'     => VARIABLE_PRESENTATION_SLIDER,
+                'INTERVALS'        => '[]',
+                'INTERVALS_ACTIVE' => false,
+                'PERCENTAGE'       => false,
+                'PREFIX'           => '',
+                'STEP_SIZE'        => 1,
+                'SUFFIX'           => '',
+                'USAGE_TYPE'       => 5
+            ],
+            0
+        );
         $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NPR);
-        $this->RegisterProfileIntegerEx('Onkyo.Status', 'Information', '', '', [
-            [0, 'Stop', '', -1],
-            [1, 'Play', '', -1],
-            [2, 'Pause', '', -1],
-        ]);
-        $this->RegisterProfileIntegerEx('Onkyo.Shuffle.' . $this->InstanceID, 'Shuffle', '', '', [
-            [0, $this->Translate('off'), '', -1],
-        ]);
-        $this->RegisterProfileIntegerEx('Onkyo.Repeat.' . $this->InstanceID, 'Repeat', '', '', [
-            [0, $this->Translate('off'), '', -1],
-        ]);
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NST . '2', $this->Translate('Shuffle'), 'Onkyo.Shuffle.' . $this->InstanceID, 0);
+        // Shuffle und Repeat sind nur durchschaltbar (kein absolutes Setzen): ein Eintrag, dessen Beschriftung den Zustand zeigt.
+        $this->RegisterSingleOptionEnumeration(\OnkyoAVR\ISCP_API_Commands::NST . '2', 'Shuffle', 'Shuffle', 'off');
         $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NST . '2');
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NST . '1', $this->Translate('Repeat'), 'Onkyo.Repeat.' . $this->InstanceID, 0);
+        $this->RegisterSingleOptionEnumeration(\OnkyoAVR\ISCP_API_Commands::NST . '1', 'Repeat', 'Repeat', 'off');
         $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NST . '1');
+        // Die Mediaplayer-Kachel benötigt für die Wiedergabe zwingend ein Playback-Profil (keine Darstellung möglich).
         $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NST . '0', $this->Translate('State'), '~PlaybackPreviousNext', 0);
         $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NST . '0');
 
-        $this->RegisterProfileIntegerEx('Onkyo.Tracks', '', '', '', [
-            [-999, '<<', '', -1],
-            [0, '%d', '', -1],
-            [999, '>>', '', -1],
-        ]);
-        $this->RegisterProfileIntegerEx('Onkyo.Network', '', '', '', [
-            [0, $this->Translate('no connection'), '', -1],
-            [1, $this->Translate('Ethernet'), '', -1],
-            [2, $this->Translate('Wireless'), '', -1],
-        ]);
-        $this->RegisterProfileIntegerEx('Onkyo.USB', '', '', '', [
-            [0, $this->Translate('disable'), '', -1],
-            [1, $this->Translate('no device'), '', -1],
-            [2, $this->Translate('iPod/iPhone'), '', -1],
-            [3, $this->Translate('Memory'), '', -1],
-            [4, $this->Translate('Wireless Adaptor'), '', -1],
-            [5, $this->Translate('Bluetooth Adaptor'), '', -1],
-        ]);
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NTR . '0', $this->Translate('Current Track'), 'Onkyo.Tracks', 0);
+        $this->RegisterVariableInteger(
+            \OnkyoAVR\ISCP_API_Commands::NTR . '0',
+            $this->Translate('Current Track'),
+            [
+                'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION
+            ],
+            0
+        );
+        $this->DisableAction(\OnkyoAVR\ISCP_API_Commands::NTR . '0');
         $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NTR . '1', $this->Translate('Number of Tracks'), '', 0);
-        $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NTR . '0');
         $this->RegisterVariableString(\OnkyoAVR\ISCP_API_Commands::NTM . '0', $this->Translate('Position'), '', 0);
         $this->RegisterVariableString(\OnkyoAVR\ISCP_API_Commands::NTM . '1', $this->Translate('Duration'), '', 0);
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NTM, $this->Translate('Position'), '~Intensity.100', 0);
+        // Fortschritt für die Mediaplayer-Kachel: Slider mit Verwendung 'Fortschritt' (USAGE_TYPE 4)
+        $this->RegisterVariableInteger(
+            \OnkyoAVR\ISCP_API_Commands::NTM,
+            $this->Translate('Position'),
+            [
+                'PRESENTATION'     => VARIABLE_PRESENTATION_SLIDER,
+                'MIN'              => 0,
+                'MAX'              => 100,
+                'STEP_SIZE'        => 1,
+                'DIGITS'           => 0,
+                'CUSTOM_GRADIENT'  => '[]',
+                'GRADIENT_TYPE'    => 0,
+                'ICON'             => '',
+                'INTERVALS'        => '[]',
+                'INTERVALS_ACTIVE' => false,
+                'PERCENTAGE'       => false,
+                'PREFIX'           => '',
+                'SUFFIX'           => ' %',
+                'USAGE_TYPE'       => 4
+            ],
+            0
+        );
+        $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NTM);
         $this->RegisterVariableString(\OnkyoAVR\ISCP_API_Commands::NAL, $this->Translate('Album'), '', 0);
+        // Für Titel und Interpret gibt es (noch) keine Darstellung, die Mediaplayer-Kachel erwartet die Profile ~Song und ~Artist.
         $this->RegisterVariableString(\OnkyoAVR\ISCP_API_Commands::NTI, $this->Translate('Title'), '~Song', 0);
         $this->RegisterVariableString(\OnkyoAVR\ISCP_API_Commands::NAT, $this->Translate('Artist'), '~Artist', 0);
 
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NDS . '0', $this->Translate('Network'), 'Onkyo.Network', 0);
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NDS . '1', $this->Translate('Front USB'), 'Onkyo.USB', 0);
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NDS . '2', $this->Translate('Rear USB'), 'Onkyo.USB', 0);
+        $this->RegisterVariableInteger(
+            \OnkyoAVR\ISCP_API_Commands::NDS . '0',
+            $this->Translate('Network'),
+            $this->GetValueOptionsPresentation([
+                0 => $this->Translate('no connection'),
+                1 => $this->Translate('Ethernet'),
+                2 => $this->Translate('Wireless'),
+            ]),
+            0
+        );
+        $UsbOptions = [
+            0 => $this->Translate('disable'),
+            1 => $this->Translate('no device'),
+            2 => $this->Translate('iPod/iPhone'),
+            3 => $this->Translate('Memory'),
+            4 => $this->Translate('Wireless Adaptor'),
+            5 => $this->Translate('Bluetooth Adaptor'),
+        ];
+        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NDS . '1', $this->Translate('Front USB'), $this->GetValueOptionsPresentation($UsbOptions), 0);
+        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NDS . '2', $this->Translate('Rear USB'), $this->GetValueOptionsPresentation($UsbOptions), 0);
 
-        $this->RegisterProfileInteger('Onkyo.SelectNetworkService.' . $this->InstanceID, '', '', '', 0, 0, 0);
-        $this->RegisterVariableInteger(\OnkyoAVR\ISCP_API_Commands::NSV, $this->Translate('Network Service'), 'Onkyo.SelectNetworkService.' . $this->InstanceID, 0);
+        $this->RegisterNetworkServiceVariable([]);
         $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NSV);
 
         if ($this->ReadPropertyBoolean('showCover')) {
@@ -223,13 +267,34 @@ class OnkyoNetplayer extends IPSModuleStrict
             unset($APICommands[array_search(\OnkyoAVR\ISCP_API_Commands::NJA, $APICommands)]);
             $CoverID = $this->FindIDForIdent('Cover');
             if ($CoverID > 0) {
+                // Eigenes Cover-Medienobjekt dieser Instanz (vom Modul angelegt); es gibt keine Methode zum Löschen (kein MaintainMedia).
                 @IPS_DeleteMedia($CoverID, true);
             }
         }
         if ($this->ReadPropertyBoolean('showNavigation')) {
-            $this->RegisterVariableString(\OnkyoAVR\ISCP_API_Commands::NLA, 'Navigation', '~HTMLBox', 20);
+            $this->RegisterVariableString(
+                \OnkyoAVR\ISCP_API_Commands::NLA,
+                'Navigation',
+                [
+                    'PRESENTATION' => VARIABLE_PRESENTATION_WEB_CONTENT,
+                    'HTML_TYPE'    => 0,
+                    'PADDING'      => false
+                ],
+                20
+            );
         } else {
             $this->UnregisterVariable(\OnkyoAVR\ISCP_API_Commands::NLA);
+        }
+        if ($this->ReadPropertyBoolean('showPlaylist')) {
+            // Die Mediaplayer-Kachel erwartet für die Playlist das Profil ~Playlist (keine Darstellung vorhanden).
+            $this->RegisterVariableString(self::PlaylistIdent, $this->Translate('Playlist'), '~Playlist', 21);
+            $this->EnableAction(self::PlaylistIdent);
+            // Gültiger Startwert passend zu den zurückgesetzten Puffern (PlaylistIds), die Kachel kann eine leere Variable nicht darstellen
+            // Startzustand: Der Eintrag '..' (eine Ebene zurück, ID -1) ist immer vorhanden. Die Liste füllt sich bei der nächsten Navigation.
+            $this->PlaylistIds = [-1];
+            $this->SetValueString(self::PlaylistIdent, json_encode(['entries' => [['song' => '..']], 'current' => 0]));
+        } else {
+            $this->UnregisterVariable(self::PlaylistIdent);
         }
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -243,6 +308,15 @@ class OnkyoNetplayer extends IPSModuleStrict
         if ($this->HasActiveParent()) {
             $this->IOChangeState(IS_ACTIVE);
         }
+        $this->UnregisterProfile('Onkyo.NetTunerPreset');
+        $this->UnregisterProfile('Onkyo.Status');
+        $this->UnregisterProfile('Onkyo.Shuffle.' . $this->InstanceID);
+        $this->UnregisterProfile('Onkyo.Repeat.' . $this->InstanceID);
+        $this->UnregisterProfile('Onkyo.Tracks');
+        $this->UnregisterProfile('Onkyo.Network');
+        $this->UnregisterProfile('Onkyo.USB');
+        $this->UnregisterProfile('Onkyo.SelectNetworkService.' . $this->InstanceID);
+        $this->UnregisterProfile('Onkyo.SelectNetworkInput.' . $this->InstanceID);
     }
 
     /**
@@ -326,26 +400,7 @@ class OnkyoNetplayer extends IPSModuleStrict
      */
     public function SelectInfoListItem(int $Index): bool
     {
-        if ($this->ServiceType == 0xf3) {
-            return $this->SelectNetworkService($Index);
-        }
-        if ($Index == -1) {
-            return $this->SendKey('RETURN');
-        }
-        $Sequence = $this->Sequence;
-        if ($Sequence == 0xffff) {
-            $this->Sequence = 1;
-        } else {
-            $this->Sequence = $Sequence + 1;
-        }
-
-        $Data = 'I' . sprintf('%02X', $this->Layer) . sprintf('%04X', $Index) . '----';
-        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NLA, $Data, false);
-        $ret = $this->Send($APIData);
-        if ($ret == null) {
-            return false;
-        }
-        return true;
+        return $this->SelectListItem($Index, $this->Layer);
     }
 
     /**
@@ -355,110 +410,8 @@ class OnkyoNetplayer extends IPSModuleStrict
      */
     public function RequestInfoListData(): array
     {
-        $Title = $this->Translate('empty');
-        $List[] = [
-            'ID'    => -1,
-            'Type'  => -1,
-            'Title' => '..',
-        ];
-        switch ($this->ServiceType) {
-            case 0xff:
-                break;
-            case 0xf3:
-                if ($this->UiType == 0) {
-                    $List = [];
-                    $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetServiceList);
-                    $ret = $this->Send($APIData);
-                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $ret, 0);
-                    foreach ($ret as $Key => $Item) {
-                        $List[] = [
-                            'ID'    => (int) $Key,
-                            'Type'  => 0x2F,
-                            'Title' => $Item,
-                        ];
-                    }
-                    $Title = $this->FolderName;
-                    break;
-                }
-                // No break ist Absicht. Warum, habe ich vergessen :D
-                // No break. Add additional comment above this line if intentional
-            default:
-                if ($this->UiType == 3) { // Menü screen
-                    $Title = $this->FolderName;
-                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
-                    break;
-                }
-                if ($this->UiType == 2) { // playing screen
-                    $Title = '';
-                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
-                    break;
-                }
-                if ($this->UiType == 1) { // Menü screen
-                    $Title = $this->FolderName;
-                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
-                    break;
-                }
-                if ($this->ListItems == 0) {
-                    break;
-                }
-                $Sequence = $this->Sequence;
-                if ($Sequence == 0xffff) {
-                    $this->Sequence = 1;
-                } else {
-                    $this->Sequence = $Sequence + 1;
-                }
-                $Data = 'L' . sprintf('%04X', $Sequence) . sprintf('%02X', $this->Layer) . '0000' . sprintf('%04X', $this->ListItems);
-                $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NLA, $Data);
-                $ret = $this->Send($APIData);
-                if ($ret == null) {
-                    $this->SendDebug('ERROR', 'NLA Data Timeout', 0);
-                    $Title = $this->Translate('Timeout');
-                    break;
-                }
-                if ($ret[0] != 'X') {
-                    $this->SendDebug('ERROR', 'NLA Data invalid', 0);
-                    $this->LogMessage('NLA Data invalid', KL_ERROR);
-                    $Title = $this->Translate('Data invalid');
-                    break;
-                }
-                if (hexdec(substr($ret, 1, 4)) != $Sequence) {
-                    $this->SendDebug('ERROR', 'NLA Data wrong sequence', 0);
-                    $this->LogMessage('NLA ' . $this->Translate('Data has wrong sequence number'), KL_ERROR);
-                    $Title = $this->Translate('Data has wrong sequence number');
-                    break;
-                }
-
-                try {
-                    $xml = new SimpleXMLElement(substr($ret, 9), LIBXML_NOBLANKS + LIBXML_NONET + LIBXML_NOERROR);
-                } catch (Exception $ex) {
-                    $this->SendDebug('ERROR', 'NLA Data is invalid XML', 0);
-                    $this->LogMessage('NLA ' . $this->Translate('Data is invalid XML'), KL_ERROR);
-                    $Title = $this->Translate('Data is invalid XML');
-                    break;
-                }
-                if ($ret[5] == 'E') {
-                    $error = $xml->xpath('//error');
-                    if (count($error) == 1) {
-                        $this->SendDebug('ERROR ' . (string) $error[0]['code'], (string) $error[0]['message'], 0);
-                        trigger_error((string) $error[0]['message'], E_USER_NOTICE);
-                        $Title = (string) $error[0]['message'];
-                        break;
-                    }
-                }
-                foreach ($xml->xpath('//item') as $Key => $Item) {
-                    $List[] = [
-                        'ID'    => (int) $Key,
-                        'Type'  => hexdec((string) $Item['iconid']),
-                        'Title' => (string) $Item['title'],
-                    ];
-                }
-                $Title = $this->FolderName;
-                $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
-                break;
-        }
-        return ['Title' => $Title, 'List' => $List];
+        return $this->ReadInfoListData(null);
     }
-
     /**
      * SendKey
      *
@@ -484,80 +437,10 @@ class OnkyoNetplayer extends IPSModuleStrict
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return;
-        }
-        switch ($Ident) {
-            /* case 'SLI':
-              return $this->SelectInput($Value); */
-            case \OnkyoAVR\ISCP_API_Commands::NPR:
-                $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NPR, $Value);
-                $this->CallPreset($Value);
-                break;
-            case \OnkyoAVR\ISCP_API_Commands::NTM:
-                $Total = $this->StringToSeconds($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTM . '1'));
-                $Time = ($Total / 100) * (int) $Value;
-                $this->SetPosition(intval($Time));
-                break;
-            case \OnkyoAVR\ISCP_API_Commands::NTC:
-                $this->SendKey($Value);
-                break;
-            case \OnkyoAVR\ISCP_API_Commands::NLA:
-                $this->SendDebug('RequestAction', \OnkyoAVR\ISCP_API_Commands::NLA, 0);
-                if ($this->ReadPropertyBoolean('showNavigation')) {
-                    $Result = $this->RequestInfoListData();
-                    $this->RefreshNavigationTable($Result);
-                }
-                break;
-            case \OnkyoAVR\ISCP_API_Commands::NST . '0':
-                switch ($Value) {
-                    case 0:
-                        $this->PreviousTrack();
-                        break;
-                    case 1:
-                        $this->Stop();
-                        break;
-                    case 2:
-                        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 2) {
-                            break;
-                        }
-                        $this->Pause();
-                        break;
-                    case 3:
-                        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 3) {
-                            break;
-                        }
-                        $this->Pause();
-                        break;
-                    case 4:
-                        $this->NextTrack();
-                        break;
-                }
-                echo 'Invalid Value';
-                break;
-            case \OnkyoAVR\ISCP_API_Commands::NST . '1':
-                $this->Repeat();
-                break;
-            case \OnkyoAVR\ISCP_API_Commands::NST . '2':
-                $this->Shuffle();
-                break;
-            case \OnkyoAVR\ISCP_API_Commands::NTR . '0':
-                switch ($Value) {
-                    case -999:
-                        $this->PreviousTrack();
-                        break;
-                    case 999:
-                        $this->NextTrack();
-                        break;
-                }
-                return;
-            case \OnkyoAVR\ISCP_API_Commands::NSV:
-                $this->SelectNetworkService($Value);
-                break;
-            default:
-                echo $this->Translate('Invalid Ident');
-                break;
-        }
+        $this->RunWithErrorOutput(function () use ($Ident, $Value): void
+        {
+            $this->ProcessRequestAction($Ident, $Value);
+        });
     }
 
     /**
@@ -744,6 +627,7 @@ class OnkyoNetplayer extends IPSModuleStrict
         }
 
         if ($this->ReadPropertyBoolean('showNavigation')) {
+            // Lesen einer fremden Instanz (Util Control) erlaubt: wird für UC_GetIconList (Symbolauswahl) benötigt.
             $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
             $Icons[] = [
                 'caption' => $this->Translate('none'),
@@ -809,8 +693,9 @@ class OnkyoNetplayer extends IPSModuleStrict
             echo $this->Translate('Bad Request');
             return;
         }
-        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
-        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) ($_GET['ID'] ?? ''), true));
+        // Zeitkonstanter Vergleich; ein leeres Secret (noch nicht erzeugt) lässt keinen Zugriff zu.
+        if (($this->WebHookSecret === '') || (!hash_equals($CalcSecret, rawurldecode((string) $_GET['Secret'])))) {
             echo $this->Translate('Access denied');
             return;
         }
@@ -1001,6 +886,455 @@ sleep(10).then(() => {
     }
 
     /**
+     * ReadInfoListData
+     *
+     * Liest die Liste des Gerätes (seitenweise, siehe ListPageSize).
+     *
+     * @param  null|callable $Progress Wird nach jeder Seite mit (Einträge bisher, geladen, gesamt) aufgerufen.
+     * @return array ['Title' => string, 'List' => array], bei veralteter Liste zusätzlich 'Aborted' => true.
+     */
+    private function ReadInfoListData(?callable $Progress): array
+    {
+        $Title = $this->Translate('empty');
+        $List[] = [
+            'ID'    => -1,
+            'Type'  => -1,
+            'Title' => '..',
+        ];
+        switch ($this->ServiceType) {
+            case 0xff:
+                break;
+            case 0xf3:
+                if ($this->UiType == 0) {
+                    $List = [];
+                    $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::GetBuffer, \OnkyoAVR\ISCP_API_Commands::NetServiceList);
+                    $ret = $this->Send($APIData);
+                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $ret, 0);
+                    foreach ($ret as $Key => $Item) {
+                        $List[] = [
+                            'ID'    => (int) $Key,
+                            'Type'  => 0x2F,
+                            'Title' => $Item,
+                        ];
+                    }
+                    $Title = $this->FolderName;
+                    break;
+                }
+                // No break ist Absicht. Warum, habe ich vergessen :D
+                // No break. Add additional comment above this line if intentional
+            default:
+                if ($this->UiType == 3) { // Menü screen
+                    $Title = $this->FolderName;
+                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
+                    break;
+                }
+                if ($this->UiType == 2) { // playing screen
+                    $Title = '';
+                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
+                    break;
+                }
+                if ($this->UiType == 1) { // Menü screen
+                    $Title = $this->FolderName;
+                    $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA, $List, 0);
+                    break;
+                }
+                if ($this->ListItems == 0) {
+                    break;
+                }
+                $Pages = $this->ReadListPages($Progress);
+                if (isset($Pages['Aborted'])) {
+                    return ['Title' => '', 'List' => $List, 'Aborted' => true];
+                }
+                $Title = $Pages['Title'];
+                $List = array_merge($List, $Pages['Items']);
+                $this->SendDebug(\OnkyoAVR\ISCP_API_Commands::NLA . ' (Einträge)', count($List), 0);
+                break;
+        }
+        return ['Title' => $Title, 'List' => $List];
+    }
+
+    /**
+     * ReadListPages
+     *
+     * Liest alle Einträge der aktuellen Liste des Gerätes in Seiten. Wechselt die Liste während des Ladens, wird abgebrochen.
+     *
+     * @param  null|callable $Progress Wird nach jeder Seite aufgerufen (Einträge bisher, geladen, gesamt).
+     * @return array ['Title' => string, 'Items' => array], bei veralteter Liste ['Aborted' => true].
+     */
+    private function ReadListPages(?callable $Progress): array
+    {
+        $Items = [];
+        $Start = 0;
+        $Total = $this->ListItems;
+        $Generation = $this->ListGeneration;
+        while ($Start < $Total) {
+            $Count = min(self::ListPageSize, $Total - $Start);
+            $Page = $this->ReadListPage($Start, $Count);
+            if ($this->ListGeneration != $Generation) {
+                $this->SendDebug('List', 'Changed while loading, aborted at ' . $Start . ' of ' . $Total, 0);
+                return ['Aborted' => true];
+            }
+            if (isset($Page['Error'])) {
+                return ['Title' => $Page['Error'], 'Items' => $Items];
+            }
+            if (count($Page['Items']) == 0) {
+                break; // Das Gerät liefert nichts mehr
+            }
+            $Items = array_merge($Items, $Page['Items']);
+            $Start += $Count;
+            if (($Progress !== null) && ($Start < $Total)) {
+                $Progress($Items, $Start, $Total);
+            }
+        }
+        return ['Title' => $this->FolderName, 'Items' => $Items];
+    }
+
+    /**
+     * ReadListPage
+     *
+     * Liest einen Ausschnitt der aktuellen Liste des Gerätes.
+     *
+     * @param  int $Start Index des ersten Eintrags.
+     * @param  int $Count Anzahl der Einträge.
+     * @return array ['Items' => array] mit 'ID' (Index in der Liste des Gerätes), 'Type' und 'Title', oder ['Error' => string].
+     */
+    private function ReadListPage(int $Start, int $Count): array
+    {
+        $Sequence = $this->Sequence;
+        if ($Sequence == 0xffff) {
+            $this->Sequence = 1;
+        } else {
+            $this->Sequence = $Sequence + 1;
+        }
+        $Data = 'L' . sprintf('%04X', $Sequence) . sprintf('%02X', max(0, $this->Layer)) . sprintf('%04X', $Start) . sprintf('%04X', $Count);
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NLA, $Data);
+        $ret = $this->Send($APIData);
+        if ($ret == null) {
+            $this->SendDebug('ERROR', 'NLA Data Timeout', 0);
+            return ['Error' => $this->Translate('Timeout')];
+        }
+        if ($ret[0] != 'X') {
+            $this->SendDebug('ERROR', 'NLA Data invalid', 0);
+            $this->LogMessage('NLA Data invalid', KL_ERROR);
+            return ['Error' => $this->Translate('Data invalid')];
+        }
+        if (hexdec(substr($ret, 1, 4)) != $Sequence) {
+            $this->SendDebug('ERROR', 'NLA Data wrong sequence', 0);
+            $this->LogMessage('NLA ' . $this->Translate('Data has wrong sequence number'), KL_ERROR);
+            return ['Error' => $this->Translate('Data has wrong sequence number')];
+        }
+        try {
+            $xml = new SimpleXMLElement(substr($ret, 9), LIBXML_NOBLANKS + LIBXML_NONET + LIBXML_NOERROR);
+        } catch (Exception $ex) {
+            $this->SendDebug('ERROR', 'NLA Data is invalid XML', 0);
+            $this->LogMessage('NLA ' . $this->Translate('Data is invalid XML'), KL_ERROR);
+            return ['Error' => $this->Translate('Data is invalid XML')];
+        }
+        if ($ret[5] == 'E') {
+            $error = $xml->xpath('//error');
+            if (count($error) == 1) {
+                $this->SendDebug('ERROR ' . (string) $error[0]['code'], (string) $error[0]['message'], 0);
+                trigger_error((string) $error[0]['message'], E_USER_NOTICE);
+                return ['Error' => (string) $error[0]['message']];
+            }
+        }
+        $Items = [];
+        foreach ($xml->xpath('//item') as $Key => $Item) {
+            $Items[] = [
+                'ID'    => $Start + (int) $Key,
+                'Type'  => hexdec((string) $Item['iconid']),
+                'Title' => (string) $Item['title'],
+            ];
+        }
+        return ['Items' => $Items];
+    }
+
+    /**
+     * SelectListItem
+     *
+     * Wählt einen Eintrag der Liste des Gerätes. Das Gerät erwartet die Ebene der Liste, in der der Eintrag steht.
+     *
+     * @param  int $Index Index des Eintrags in der Liste des Gerätes, -1 = eine Ebene zurück.
+     * @param  int $Layer Ebene der Liste.
+     * @return bool
+     */
+    private function SelectListItem(int $Index, int $Layer): bool
+    {
+        if ($this->ServiceType == 0xf3) {
+            return $this->SelectNetworkService($Index);
+        }
+        if ($Index == -1) {
+            return $this->SendKey('RETURN');
+        }
+        $Sequence = $this->Sequence;
+        if ($Sequence == 0xffff) {
+            $this->Sequence = 1;
+        } else {
+            $this->Sequence = $Sequence + 1;
+        }
+
+        $Data = 'I' . sprintf('%02X', max(0, $Layer)) . sprintf('%04X', $Index) . '----';
+        $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NLA, $Data, false);
+        $ret = $this->Send($APIData);
+        if ($ret == null) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * RegisterSingleOptionEnumeration
+     *
+     * Legt eine Variable mit Darstellung 'Aufzählung' und genau einem Eintrag (Wert 0) an.
+     * Wird für Wiedergabe-Modi genutzt, die das Gerät nur durchschaltet: Die Beschriftung zeigt den aktuellen Zustand.
+     *
+     * @param  string $Ident Ident der Variable.
+     * @param  string $Name Name der Variable (wird übersetzt, nur beim Anlegen verwendet).
+     * @param  string $Icon Symbol der Variable.
+     * @param  string $Caption Beschriftung des einzigen Eintrags (wird übersetzt).
+     * @return void
+     */
+    private function RegisterSingleOptionEnumeration(string $Ident, string $Name, string $Icon, string $Caption): void
+    {
+        $this->RegisterVariableInteger(
+            $Ident,
+            $this->Translate($Name),
+            [
+                'PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION,
+                'ICON'         => $Icon,
+                'OPTIONS'      => json_encode([[
+                    'Value'      => 0,
+                    'Caption'    => $this->Translate($Caption),
+                    'IconActive' => false,
+                    'IconValue'  => '',
+                    'Color'      => -1
+                ]])
+            ],
+            0
+        );
+    }
+
+    /**
+     * RegisterNetworkServiceVariable
+     *
+     * Legt die Variable 'Network Service' mit Darstellung 'Aufzählung' an.
+     *
+     * @param  array $Services Wert => Name der wählbaren Netzwerkdienste.
+     * @return void
+     */
+    private function RegisterNetworkServiceVariable(array $Services): void
+    {
+        $Options = [];
+        foreach ($Services as $Value => $Name) {
+            $Options[] = [
+                'Value'      => (int) $Value,
+                'Caption'    => (string) $Name,
+                'IconActive' => false,
+                'IconValue'  => '',
+                'Color'      => -1
+            ];
+        }
+        $this->RegisterVariableInteger(
+            \OnkyoAVR\ISCP_API_Commands::NSV,
+            $this->Translate('Network Service'),
+            [
+                'PRESENTATION' => VARIABLE_PRESENTATION_ENUMERATION,
+                'ICON'         => '',
+                'OPTIONS'      => json_encode($Options)
+            ],
+            0
+        );
+    }
+
+    /**
+     * GetValueOptionsPresentation
+     *
+     * Erzeugt die Parameter der Darstellung 'Wertanzeige' für eine reine Anzeige (ohne Aktion),
+     * bei der ganzzahlige Werte als Text angezeigt werden (über Intervalle mit Konstante).
+     *
+     * @param  array $Options Wert => Beschriftung.
+     * @return array Parameter für RegisterVariableInteger.
+     */
+    private function GetValueOptionsPresentation(array $Options): array
+    {
+        $Intervals = [];
+        foreach ($Options as $Value => $Caption) {
+            $Intervals[] = [
+                'IntervalMinValue' => (int) $Value,
+                'IntervalMaxValue' => (int) $Value,
+                'ConstantActive'   => true,
+                'ConstantValue'    => (string) $Caption,
+                'ConversionFactor' => 1,
+                'DigitsActive'     => false,
+                'DigitsValue'      => 0,
+                'IconActive'       => false,
+                'IconValue'        => '',
+                'PrefixActive'     => false,
+                'PrefixValue'      => '',
+                'SuffixActive'     => false,
+                'SuffixValue'      => ''
+            ];
+        }
+        return [
+            'PRESENTATION'     => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+            'INTERVALS_ACTIVE' => true,
+            'INTERVALS'        => json_encode($Intervals)
+        ];
+    }
+
+    /**
+     * ProcessRequestAction
+     *
+     * Führt die eigentliche Bedienaktion aus. Fehler meldet RequestAction an das Frontend.
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
+    private function ProcessRequestAction(string $Ident, mixed $Value): void
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return;
+        }
+        switch ($Ident) {
+            /* case 'SLI':
+              return $this->SelectInput($Value); */
+            case \OnkyoAVR\ISCP_API_Commands::NPR:
+                $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NPR, $Value);
+                $this->CallPreset($Value);
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NTM:
+                if (!$this->SeekSupported) {
+                    trigger_error($this->Translate('Command not available.'), E_USER_NOTICE);
+                    break;
+                }
+                $Total = $this->StringToSeconds($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTM . '1'));
+                $Time = ($Total / 100) * (int) $Value;
+                $this->SetPosition(intval($Time));
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NTC:
+                $this->SendKey($Value);
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NLA:
+                $this->SendDebug('RequestAction', \OnkyoAVR\ISCP_API_Commands::NLA, 0);
+                if ($this->ReadPropertyBoolean('showNavigation') || $this->ReadPropertyBoolean('showPlaylist')) {
+                    $Progress = null;
+                    // Große Listen brauchen am Gerät lange: In der Playlist den Warte-Eintrag mit dem Fortschritt zeigen.
+                    // Im Wiedergabe-Bildschirm bleibt die zuletzt gezeigte Liste erhalten.
+                    if ($this->ReadPropertyBoolean('showPlaylist') && ($this->UiType != 2) && ($this->ListItems > self::ListPageSize)) {
+                        $this->WritePlaylistWait([], 0, $this->ListItems);
+                        $Progress = function (array $Items, int $Loaded, int $Total): void
+                        {
+                            $this->WritePlaylistWait($Items, $Loaded, $Total);
+                        };
+                    }
+                    $Result = $this->ReadInfoListData($Progress);
+                    if (!empty($Result['Aborted'])) {
+                        break; // Das Gerät hat die Liste gewechselt, die neue Liste lädt selbst
+                    }
+                    $this->RefreshNavigationTable($Result);
+                }
+                break;
+            case 'ClearOnStop':
+                // Timer: Der Stop dauert an, Anzeige zurücksetzen
+                $this->SetTimerInterval('ClearOnStop', 0);
+                if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 1) {
+                    $this->Multi_Cover = '';
+                    $this->SetCover();
+                    $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NAL, '');
+                    $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NTI, '');
+                    $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NAT, '');
+                    $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NTM . '0', '--:--');
+                    $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NTM . '1', '--:--');
+                    $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NTM, 0);
+                }
+                break;
+            case self::PlaylistIdent:
+                // Die Kachel sendet ein JSON, 'current' ist der Index des gewählten Eintrags in der Playlist.
+                $this->SendDebug('Playlist RequestAction', $Value, 0);
+                $Data = json_decode((string) $Value, true);
+                $Index = is_array($Data) ? ($Data['current'] ?? null) : null;
+                $PlaylistIds = $this->PlaylistIds;
+                if ((!is_int($Index)) || (!array_key_exists($Index, $PlaylistIds))) {
+                    trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                    break;
+                }
+                if ($PlaylistIds[$Index] == self::PlaylistWaitId) {
+                    break; // Der Eintrag 'Bitte warten' ist keine Auswahl
+                }
+                if ($this->UiType == 2) {
+                    // Im Wiedergabe-Bildschirm nimmt das Gerät keine Auswahl aus der Liste an: erst zur Liste zurück, bis das Gerät sie meldet.
+                    $this->SendDebug('Playlist select', 'Playing screen, back to the list first', 0);
+                    if (!$this->SendKey('RETURN')) {
+                        break;
+                    }
+                    for ($Wait = 0; ($Wait < 30) && ($this->UiType == 2); $Wait++) {
+                        usleep(100000);
+                    }
+                    if ($this->UiType == 2) {
+                        trigger_error($this->Translate('Timeout'), E_USER_NOTICE);
+                        break;
+                    }
+                }
+                $this->PlaylistCurrent = $Index;
+                $Layer = ($this->PlaylistLayer >= 0) ? $this->PlaylistLayer : $this->Layer;
+                $this->SendDebug('Playlist select', ['Index' => $Index, 'Id' => $PlaylistIds[$Index], 'Layer' => $Layer, 'Layer last NLT' => $this->Layer], 0);
+                $this->SelectListItem($PlaylistIds[$Index], $Layer);
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NST . '0':
+                switch ($Value) {
+                    case 0:
+                        $this->PreviousTrack();
+                        break;
+                    case 1:
+                        $this->Stop();
+                        break;
+                    case 2: // Play
+                        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 2) {
+                            break;
+                        }
+                        $this->Play();
+                        break;
+                    case 3: // Pause
+                        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 3) {
+                            break;
+                        }
+                        $this->Pause();
+                        break;
+                    case 4:
+                        $this->NextTrack();
+                        break;
+                    default:
+                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        break;
+                }
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NST . '1':
+                $this->Repeat();
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NST . '2':
+                $this->Shuffle();
+                break;
+            case \OnkyoAVR\ISCP_API_Commands::NTR . '0':
+                switch ($Value) {
+                    case -999:
+                        $this->PreviousTrack();
+                        break;
+                    case 999:
+                        $this->NextTrack();
+                        break;
+                }
+                return;
+            case \OnkyoAVR\ISCP_API_Commands::NSV:
+                $this->SelectNetworkService($Value);
+                break;
+            default:
+                trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+                break;
+        }
+    }
+
+    /**
      * SetCover
      *
      * @return void
@@ -1009,25 +1343,31 @@ sleep(10).then(() => {
     {
         $this->SendDebug('Refresh Cover', '', 0);
         $CoverID = $this->FindIDForIdent('Cover');
-        if ($CoverID === false) {
+        if (!$CoverID) {
+            // Für Medienobjekte gibt es keine IPSModule-Methoden (kein MaintainMedia), daher direkt IPS_*.
             $CoverID = IPS_CreateMedia(1);
             IPS_SetParent($CoverID, $this->InstanceID);
             IPS_SetIdent($CoverID, 'Cover');
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
             IPS_SetMediaCached($CoverID, true);
-            $filename = 'media' . DIRECTORY_SEPARATOR . 'Cover_' . $this->InstanceID . '.onkyo';
+            $filename = 'media' . DIRECTORY_SEPARATOR . 'Cover_' . $this->InstanceID . '.onkyo.png';
             IPS_SetMediaFile($CoverID, $filename, false);
             $this->SendDebug('Create Media', $filename, 0);
         }
         $CoverRAW = $this->Multi_Cover;
+        $this->SendDebug('Cover data', strlen($CoverRAW) . ' bytes, state ' . $this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0'), 0);
 
-        if ($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0') == 1) {
-            $CoverRAW = '';
+        // Cover kommen als BMP oder JPEG, die Visualisierungen benötigen PNG
+        $CoverPng = \OnkyoAVR\CoverImage::ToPng($CoverRAW);
+        if (($CoverPng === '') && ($CoverRAW !== '')) {
+            $this->SendDebug('Cover', 'Image cannot be converted to PNG', 0);
         }
+        $CoverRAW = $CoverPng;
         if ($CoverRAW === '') {
             $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'nocover.png');
         }
+        // Inhalt des eigenen Cover-Medienobjekts setzen, keine IPSModule-Methode vorhanden.
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
     }
 
@@ -1039,8 +1379,123 @@ sleep(10).then(() => {
      */
     private function RefreshNavigationTable(array $List): void
     {
-        $HTML = $this->GetTable($List, 'OnkyoNetPlayer', 'Index', 'ID');
-        $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NLA, $HTML);
+        if ($this->ReadPropertyBoolean('showNavigation')) {
+            $HTML = $this->GetTable($List, 'OnkyoNetPlayer', 'Index', 'ID');
+            $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NLA, $HTML);
+        }
+        if ($this->ReadPropertyBoolean('showPlaylist')) {
+            $this->RefreshPlaylist($List['List']);
+        }
+    }
+
+    /**
+     * UpdatePlaylistCurrent
+     *
+     * Markiert in der Playlist den Titel, der gerade gespielt wird ('current').
+     * Das Gerät meldet bei jedem Titelwechsel die Titelnummer (NTR) und den Titel (NTI). Die Nummer entspricht der Position in der
+     * gezeigten Liste, weil der Eintrag '..' den Index 0 belegt. Der Titel wird zur Absicherung mit dem Eintrag verglichen.
+     *
+     * @return void
+     */
+    private function UpdatePlaylistCurrent(): void
+    {
+        if (!$this->ReadPropertyBoolean('showPlaylist')) {
+            return;
+        }
+        $Playlist = json_decode($this->GetValue(self::PlaylistIdent), true);
+        if ((!is_array($Playlist)) || (!isset($Playlist['entries'])) || (count($Playlist['entries']) < 2)) {
+            return;
+        }
+        $Songs = array_column($Playlist['entries'], 'song');
+        $Track = $this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTR . '0');
+        $Title = $this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTI);
+        $Index = \OnkyoAVR\PlaylistIndex::Find($Songs, $Track, $Title);
+        $this->SendDebug('Playlist current', ['Track' => $Track, 'Title' => $Title, 'Index' => $Index], 0);
+        if ($Index === null) {
+            return;
+        }
+        // Die Liste des Gerätes enthält nur Titel. Interpret und Dauer (Sekunden) sind nur für den gespielten Titel bekannt.
+        $Entries = $Playlist['entries'];
+        foreach ($Entries as &$Entry) {
+            unset($Entry['artist'], $Entry['duration']);
+        }
+        unset($Entry);
+        $Artist = $this->GetValue(\OnkyoAVR\ISCP_API_Commands::NAT);
+        if ($Artist != '') {
+            $Entries[$Index]['artist'] = $Artist;
+        }
+        $Duration = $this->StringToSeconds($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTM . '1'));
+        if ($Duration > 0) {
+            $Entries[$Index]['duration'] = $Duration;
+        }
+        $NewPlaylist = ['entries' => $Entries, 'current' => $Index];
+        if ($NewPlaylist === $Playlist) {
+            return;
+        }
+        $this->PlaylistCurrent = $Index;
+        $this->SetValueString(self::PlaylistIdent, json_encode($NewPlaylist));
+    }
+
+    /**
+     * WritePlaylistWait
+     *
+     * Schreibt die bisher geladenen Einträge und den Eintrag 'Bitte warten' mit dem Fortschritt in die Playlist-Variable,
+     * solange eine große Liste des Gerätes noch geladen wird.
+     *
+     * @param  array $Items Bisher geladene Einträge ('ID', 'Type', 'Title'), ohne den Eintrag '..'.
+     * @param  int $Loaded Anzahl der geladenen Einträge.
+     * @param  int $Total Anzahl der Einträge der Liste.
+     * @return void
+     */
+    private function WritePlaylistWait(array $Items, int $Loaded, int $Total): void
+    {
+        $Entries = [['song' => '..']];
+        $Ids = [-1];
+        foreach ($Items as $Item) {
+            $Entries[] = ['song' => (string) $Item['Title']];
+            $Ids[] = (int) $Item['ID'];
+        }
+        $Wait = ($Loaded == 0) ? $this->Translate('Please wait...') : sprintf($this->Translate('Please wait... (%d of %d)'), $Loaded, $Total);
+        $Entries[] = ['song' => $Wait];
+        $Ids[] = self::PlaylistWaitId;
+        $this->PlaylistIds = $Ids;
+        $this->PlaylistCurrent = 0;
+        $this->PlaylistLayer = $this->Layer;
+        $this->SetValueString(self::PlaylistIdent, json_encode(['entries' => $Entries, 'current' => 0]));
+    }
+    /**
+     * RefreshPlaylist
+     *
+     * Schreibt die Liste des Gerätes im Format der Mediaplayer-Kachel (~Playlist) in die Playlist-Variable.
+     * Die Einträge enthalten den Titel; der Index eines Eintrags wird in PlaylistIds auf die ID in der Liste des Gerätes abgebildet.
+     * Der Eintrag '..' (ID -1) bedeutet eine Ebene zurück.
+     *
+     * @param  array $Items Einträge mit den Schlüsseln 'ID', 'Type' und 'Title'.
+     * @return void
+     */
+    private function RefreshPlaylist(array $Items): void
+    {
+        if (($this->UiType == 2) && (count($this->PlaylistIds) > 1)) {
+            // Wiedergabe-Bildschirm: Das Gerät liefert keine Liste. Die zuletzt gezeigte Liste bleibt erhalten, der gewählte Titel wird markiert.
+            $Playlist = json_decode($this->GetValue(self::PlaylistIdent), true);
+            if (is_array($Playlist) && isset($Playlist['entries'])) {
+                $Playlist['current'] = $this->PlaylistCurrent;
+                $this->SetValueString(self::PlaylistIdent, json_encode($Playlist));
+                return;
+            }
+        }
+        $this->PlaylistCurrent = 0;
+        // Die Ebene gilt für die gezeigte Liste. Spätere Meldungen des Gerätes (z.B. vom Wiedergabe-Bildschirm) ändern sie nicht.
+        $this->PlaylistLayer = $this->Layer;
+        $Entries = [];
+        $Ids = [];
+        foreach ($Items as $Item) {
+            $Entries[] = ['song' => (string) $Item['Title']];
+            $Ids[] = (int) $Item['ID'];
+        }
+        $this->PlaylistIds = $Ids;
+        // Die Kachel benötigt das Feld 'current'. Eine Navigationsliste hat keinen aktuellen Eintrag, daher der erste.
+        $this->SetValueString(self::PlaylistIdent, json_encode(['entries' => $Entries, 'current' => 0]));
     }
 
     /**
@@ -1054,7 +1509,7 @@ sleep(10).then(() => {
         if ($NPUData[0] == 'L') { //list not supported
             return;
         }
-        if (!$this->ReadPropertyBoolean('showNavigation')) {
+        if ((!$this->ReadPropertyBoolean('showNavigation')) && (!$this->ReadPropertyBoolean('showPlaylist'))) {
             return;
         }
         $NPU = explode(chr(0), substr($NPUData, 1));
@@ -1100,6 +1555,7 @@ sleep(10).then(() => {
         if (($this->ServiceType == $ServiceType) && ($this->UiType == $UiType) && ($this->Layer == $Layer)) {
             return;
         }
+        $this->ListGeneration = $this->ListGeneration + 1; // veraltete Ladevorgänge der Liste abbrechen
         $this->ServiceType = $ServiceType;
 
         $this->UiType = $UiType;
@@ -1112,6 +1568,7 @@ sleep(10).then(() => {
             $this->FolderName = $FolderName;
         }
         $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NSV, $ServiceType);
+        // Navigation in eigenem Thread neu laden, damit die Verarbeitung der Geräteantwort (ReceiveData) nicht blockiert.
         IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'NLA\',0);');
     }
 
@@ -1126,11 +1583,8 @@ sleep(10).then(() => {
         switch ($APIData->APICommand) {
             case \OnkyoAVR\ISCP_API_Commands::NMS:
 
-                if ($APIData->Data[5] == 'S') {
-                    $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NTM);
-                } else {
-                    $this->DisableAction(\OnkyoAVR\ISCP_API_Commands::NTM);
-                }
+                // Die Aktion von NTM bleibt immer aktiv: der Schieberegler 'Fortschritt' der Mediaplayer-Kachel benötigt sie.
+                $this->SeekSupported = ($APIData->Data[5] == 'S');
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NDS:
                 switch ((string) $APIData->Data[0]) {
@@ -1201,27 +1655,23 @@ sleep(10).then(() => {
                 $Data = explode('/', (string) $APIData->Data);
                 $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NTR . '0', (int) $Data[0]);
                 $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NTR . '1', (int) $Data[1]);
+                $this->UpdatePlaylistCurrent();
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NST:
                 switch ((string) $APIData->Data[0]) {
                     case 'S':
                     case 'E':
-                        $StatusValue = 0;
-                        $this->Multi_Cover = '';
-                        $this->SetCover();
-                        $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NAL, '');
-                        $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NTI, '');
-                        $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NAT, '');
-                        $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NTM . '0', '--:--');
-                        $this->SetValueString(\OnkyoAVR\ISCP_API_Commands::NTM . '1', '--:--');
-                        $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NTM, 0);
-                        $this->DisableAction(\OnkyoAVR\ISCP_API_Commands::NTM);
+                        $StatusValue = 1; // Stop
+                        // Bei einem Titelwechsel meldet das Gerät kurz Stop. Cover und Titel werden daher erst zurückgesetzt, wenn der Stop andauert.
+                        $this->SetTimerInterval('ClearOnStop', self::ClearOnStopDelay);
                         break;
                     case 'P':
-                        $StatusValue = 1;
+                        $StatusValue = 2; // Play
+                        $this->SetTimerInterval('ClearOnStop', 0);
                         break;
                     case 'p':
-                        $StatusValue = 2;
+                        $StatusValue = 3; // Pause
+                        $this->SetTimerInterval('ClearOnStop', 0);
                         break;
                     default:
                         $StatusValue = $this->GetValue(\OnkyoAVR\ISCP_API_Commands::NST . '0');
@@ -1251,9 +1701,7 @@ sleep(10).then(() => {
                         break;
                 }
 
-                $this->RegisterProfileIntegerEx('Onkyo.Repeat.' . $this->InstanceID, 'Repeat', '', '', [
-                    [0, $this->Translate($RepeatValue), '', -1],
-                ]);
+                $this->RegisterSingleOptionEnumeration(\OnkyoAVR\ISCP_API_Commands::NST . '1', 'Repeat', 'Repeat', $RepeatValue);
 
                 switch ((string) $APIData->Data[2]) {
                     case 'x':
@@ -1277,9 +1725,7 @@ sleep(10).then(() => {
                         $this->EnableAction(\OnkyoAVR\ISCP_API_Commands::NST . '2');
                         break;
                 }
-                $this->RegisterProfileIntegerEx('Onkyo.Shuffle.' . $this->InstanceID, 'Shuffle', '', '', [
-                    [0, $this->Translate($ShuffleValue), '', -1],
-                ]);
+                $this->RegisterSingleOptionEnumeration(\OnkyoAVR\ISCP_API_Commands::NST . '2', 'Shuffle', 'Shuffle', $ShuffleValue);
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NJA:
                 if (!$this->ReadPropertyBoolean('showCover')) {
@@ -1289,10 +1735,12 @@ sleep(10).then(() => {
                     case '0':
                     case '1':
                         if ($APIData->Data[1] == '0') {
+                            $this->SendDebug('Cover', 'Start, type ' . ($APIData->Data[0] == '0' ? 'BMP' : 'JPEG'), 0);
                             $this->Multi_Cover = '';
                         }
                         $this->Multi_Cover .= hex2bin(substr($APIData->Data, 2));
                         if ($APIData->Data[1] == '2') {
+                            $this->SendDebug('Cover', 'End, size ' . strlen($this->Multi_Cover) . ' bytes', 0);
                             $this->SetCover();
                         }
                         break;
@@ -1310,13 +1758,17 @@ sleep(10).then(() => {
                     $NTM0 = $this->StringToSeconds($Data[0]);
                     $NTM1 = $this->StringToSeconds($Data[1]);
                     $Total = (100 / ($NTM1 ? $NTM1 : 100)) * $NTM0;
-                    $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NTM, $Total);
+                    // Prozentwert 0..100 für den Schieberegler 'Fortschritt' (Ganzzahl)
+                    $this->SetValueInteger(\OnkyoAVR\ISCP_API_Commands::NTM, (int) min(100, max(0, round($Total))));
                 }
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NAL:
             case \OnkyoAVR\ISCP_API_Commands::NTI:
             case \OnkyoAVR\ISCP_API_Commands::NAT:
                 $this->SetValueString((string) $APIData->APICommand, (string) $APIData->Data);
+                if ($APIData->APICommand != \OnkyoAVR\ISCP_API_Commands::NAL) {
+                    $this->UpdatePlaylistCurrent();
+                }
                 break;
         }
     }
@@ -1413,7 +1865,11 @@ sleep(10).then(() => {
                       [0xF4, 'Bluetooth', '', -1] */
             ];
         }
-        $this->RegisterProfileIntegerEx('Onkyo.SelectNetworkService.' . $this->InstanceID, '', '', '', $AssociationNSV);
+        $Services = [];
+        foreach ($AssociationNSV as $Association) {
+            $Services[$Association[0]] = $Association[1];
+        }
+        $this->RegisterNetworkServiceVariable($Services);
     }
 
     /**

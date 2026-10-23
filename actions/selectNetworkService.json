@@ -1,0 +1,46 @@
+{
+    "id": "{8C3BFA29-3AB1-489A-9123-59BFA9C5D3D6}",
+    "caption": "Select network service",
+    "form": [
+        "$Options = [];",
+        "$VariableID = @IPS_GetObjectIDByIdent('NSV', $_IPS['TARGET']);",
+        "if ($VariableID) {",
+        "    $Presentation = IPS_GetVariablePresentation($VariableID);",
+        "    foreach (json_decode($Presentation['OPTIONS'] ?? '[]', true) as $Option) {",
+        "        $Options[] = ['caption' => $Option['Caption'], 'value' => $Option['Value']];",
+        "    }",
+        "}",
+        "if (count($Options) == 0) {",
+        "    return [",
+        "        ['type' => 'Label', 'caption' => 'The network services are not available yet, the value can be entered as a number.'],",
+        "        ['type' => 'NumberSpinner', 'name' => 'VALUE', 'caption' => 'Network service', 'minimum' => 0, 'maximum' => 255]",
+        "    ];",
+        "}",
+        "return [['type' => 'Select', 'name' => 'VALUE', 'caption' => 'Network service', 'options' => $Options]];"
+    ],
+    "action": "OAVR_SelectNetworkService($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{3E71DC11-1A93-46B1-9EA0-F0EC0C1B3476}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "format": "Select network service {VALUE} on {TARGET, object}",
+    "description": "Selects a network service of the network player. The list is read from the status variable of the instance.",
+    "locale": {
+        "de": {
+            "Select network service": "Netzwerkdienst wählen",
+            "Network service": "Netzwerkdienst",
+            "Selects a network service of the network player. The list is read from the status variable of the instance.": "Wählt einen Netzwerkdienst des Netzwerk-Players. Die Liste wird aus der Statusvariable der Instanz gelesen.",
+            "Select network service {VALUE} on {TARGET, object}": "Netzwerkdienst {VALUE} an {TARGET, object} wählen",
+            "The network services are not available yet, the value can be entered as a number.": "Die Netzwerkdienste sind noch nicht verfügbar, der Wert kann als Zahl eingegeben werden."
+        }
+    }
+}

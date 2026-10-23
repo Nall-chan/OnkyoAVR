@@ -1,0 +1,310 @@
+{
+    "id": "{6B9CAEEC-5958-C223-30F7-BD36569FC57A}",
+    "caption": "Slider",
+    "form": "return include(IPS_GetKernelDirEx().'/presentations/sliderForm.php');",
+    "conversions": [
+        {
+            "variableType": 1,
+            "converts": [
+                {
+                    "parameter": "STEP_SIZE",
+                    "type": "round"
+                },
+                {
+                    "parameter": "DIGITS",
+                    "type": "constant",
+                    "value": 0
+                },
+                {
+                    "parameter": "INTERVALS",
+                    "field": "IntervalMinValue",
+                    "type": "ceil"
+                },
+                {
+                    "parameter": "INTERVALS",
+                    "field": "IntervalMaxValue",
+                    "type": "floor"
+                },
+                {
+                    "parameter": "INTERVALS",
+                    "type": "listRemoveWhere",
+                    "condition": {
+                        "type": "dynamic",
+                        "parameter1": "IntervalMinValue",
+                        "parameter2": "IntervalMaxValue",
+                        "comparison": 2
+                    }
+                }
+            ]
+        }
+    ],
+    "restrictions": {
+        "objectType": [
+            2
+        ],
+        "variableType": [
+            1,
+            2
+        ],
+        "requestAction": true
+    },
+    "condition": {
+        "type": "multi",
+        "operation": 0,
+        "conditions": [
+            {
+                "type": "dynamic",
+                "parameter1": "MIN",
+                "parameter2": "MAX",
+                "comparison": 4,
+                "caption": "Maximum Value must be higher than Minimum Value"
+            },
+            {
+                "type": "constant",
+                "parameter": "STEP_SIZE",
+                "value": 0,
+                "comparison": 3,
+                "caption": "Stepsize must be positive"
+            },
+            {
+                "type": "list",
+                "parameter": "INTERVALS",
+                "operation": 0,
+                "condition": {
+                    "type": "dynamic",
+                    "parameter1": "IntervalMinValue",
+                    "parameter2": "IntervalMaxValue",
+                    "comparison": 5
+                },
+                "caption": "Interval End must be higher or equal to Interval Start"
+            }
+        ]
+    },
+    "locale": {
+        "de": {
+            "Slider": "Schieberegler",
+            "Display Type": "Anzeigetyp",
+            "Absolute": "Absolut",
+            "Percentage": "Prozentual",
+            "Digits": "Nachkommastellen",
+            "Interval": "Intervall",
+            "Loading...": "Lade...",
+            "Constant": "Konstante",
+            "Conversion Factor": "Umrechnungsfaktor",
+            "Icon": "Icon",
+            "Prefix": "Präfix",
+            "Suffix": "Suffix",
+            "Minimum Value": "Minimaler Wert",
+            "Maximum Value": "Maximaler Wert",
+            "Step Size": "Schrittweite",
+            "Gradient": "Gradient",
+            "Default": "Standard",
+            "Temperature": "Temperatur",
+            "Color Temperature": "Farbtemperatur",
+            "Color Temperature (Kelvin)": "Farbtemperatur (Kelvin)",
+            "Color Temperature (Mired)": "Farbtemperatur (Mired)",
+            "Custom": "Benutzerdefiniert",
+            "Custom Gradient": "Benutzerdefinierter Gradient",
+            "Value": "Wert",
+            "Color": "Farbe",
+            "Variable Usage": "Verwendung der Variable",
+            "Intensity": "Intensität",
+            "Volume": "Lautstärke",
+            "Progress": "Fortschritt",
+            "None of these": "Keine hiervon",
+            "Value Presentation": "Darstellung des Werts",
+            "Use updated parameters for specific intervals": "Verwende aktualisierte Parameter für spezifische Intervalle",
+            "Use updated parameters for specific intervals (Intervals cannot be used for the display type percentage)": "Verwende aktualisierte Parameter für spezifische Intervalle (Intervalle können für den Darstellungstyp Prozentual nicht verwendet werden)",
+            "Interval Start": "Anfang des Intervalls",
+            "Interval End": "Ende des Intervalls",
+            "Display": "Anzeige",
+            "Formatted Value": "Formatierter Wert",
+            "Overwrite Icon": "Überschreibe Icon",
+            "Overwrite Prefix": "Überschreibe Präfix",
+            "Overwrite Suffix": "Überschreibe Suffix",
+            "Overwrite Digits": "Überschreibe Nachkommastellen",
+            "Thousands Separator": "Tausendertrennzeichen",
+            "None": "Keines",
+            "Default from Client": "Standard vom Nutzer",
+            "Dot (.)": "Punkt (.)",
+            "Comma (,)": "Komma (,)",
+            "Space ( )": "Leerzeichen ( )",
+            "Thin space ( )": "Schmales Leerzeichen ( )",
+            "Apostrophe (')": "Hochkomma (')",
+            "Decimal Separator": "Dezimaltrennzeichen",
+            "Maximum Value must be higher than Minimum Value": "Maximaler Wert muss größer als Minimaler Wert sein",
+            "Stepsize must be positive": "Schrittgröße muss positiv sein",
+            "Interval End must be higher or equal to Interval Start": "Ende des Intervalls muss größer oder gleich Anfang des Intervalls sein"
+        }
+    },
+    "presentationValue": [
+        "$value = (42 * ($_IPS['MAX'] - $_IPS['MIN']) / 100) + $_IPS['MIN'];",
+        "if ($_IPS['STEP_SIZE'] === 0) {",
+        "  return $value;",
+        "}",
+        "else {",
+        "  return $value - fmod($value - $_IPS['MIN'], $_IPS['STEP_SIZE']);",
+        "}"
+    ],
+    "presentationParameters": {
+        "MIN": {
+            "default": 0,
+            "type": "variableType"
+        },
+        "MAX": {
+            "default": 100,
+            "type": "variableType"
+        },
+        "GRADIENT_TYPE": {
+            "default": 0,
+            "type": 1,
+            "values": [
+                0, 1, 2, 3, 4
+            ]
+        },
+        "DIGITS": {
+            "default": 0,
+            "type": 1,
+            "min": 0
+        },
+        "DECIMAL_SEPARATOR": {
+            "default": "Client",
+            "type": 3
+        },
+        "CUSTOM_GRADIENT": {
+            "default": "[]",
+            "type": 3,
+            "parameters": {
+                "Color": {
+                    "type": 1,
+                    "default": 0,
+                    "max": 16777215,
+                    "min": 0
+                },
+                "Value": {
+                    "type": "variableType",
+                    "default": 0
+                }
+            }
+        },
+        "INTERVALS": {
+            "default": "[]",
+            "type": 3,
+            "parameters": {
+                "IntervalMinValue": {
+                    "type": "variableType",
+                    "default": 0
+                },
+                "IntervalMaxValue": {
+                    "type": "variableType",
+                    "default": 0
+                },
+                "ConstantActive": {
+                    "type": 0,
+                    "default": true
+                },
+                "ConstantValue": {
+                    "type": 3,
+                    "default": ""
+                },
+                "ConversionFactor": {
+                    "type": 2,
+                    "default": 1
+                },
+                "PrefixActive": {
+                    "type": 0,
+                    "default": false
+                },
+                "PrefixValue": {
+                    "type": 3,
+                    "default": ""
+                },
+                "IconActive": {
+                    "type": 0,
+                    "default": false
+                },
+                "IconValue": {
+                    "type": 3,
+                    "default": ""
+                },
+                "SuffixActive": {
+                    "type": 0,
+                    "default": false
+                },
+                "SuffixValue": {
+                    "type": 3,
+                    "default": ""
+                },
+                "DigitsActive": {
+                    "type": 0,
+                    "default": false
+                },
+                "DigitsValue": {
+                    "type": 1,
+                    "default": 0,
+                    "min": 0
+                }
+            }
+        },
+        "INTERVALS_ACTIVE": {
+            "type": 0,
+            "default": false
+        },
+        "PERCENTAGE": {
+            "type": 0,
+            "default": false
+        },
+        "PREFIX": {
+            "type": 3,
+            "default": ""
+        },
+        "STEP_SIZE": {
+            "type": "variableType",
+            "default": 5
+        },
+        "SUFFIX": {
+            "type": 3,
+            "default": ""
+        },
+        "THOUSANDS_SEPARATOR": {
+            "type": 3,
+            "default": ""
+        },
+        "USAGE_TYPE": {
+            "type": 1,
+            "default": 5,
+            "values": [
+                0, 1, 2, 3, 4, 5, 6
+            ]
+        },
+        "ICON": {
+            "type": 3,
+            "default": ""
+        }
+    },
+    "format": [
+        "{INTERVALS_ACTIVE, select, true{",
+            "{VALUE, list, list INTERVALS minimum IntervalMinValue maximum IntervalMaxValue found {",
+                "{ConstantActive, select, true{{ConstantValue}} other{",
+                    "{PrefixActive, select, true{{PrefixValue}} other{{PREFIX}}}",
+                    "{VALUE, ipsnumber, digits {DigitsActive, select, true{{DigitsValue}} other {{DIGITS}}} factor {ConversionFactor} thousandsSeparator {{THOUSANDS_SEPARATOR}} decimalSeparator {{DECIMAL_SEPARATOR}}}",
+                    "{SuffixActive, select, true{{SuffixValue}} other{{SUFFIX}}}",
+                "}}",
+            "} other {",
+                "{PREFIX}",
+                "{VALUE, ipsnumber, percentage {PERCENTAGE} min {MIN} max {MAX} digits {DIGITS} thousandsSeparator {{THOUSANDS_SEPARATOR}} decimalSeparator {{DECIMAL_SEPARATOR}}}",
+                "{SUFFIX}",
+            "}}",
+        "} other{",
+            "{PREFIX}",
+            "{VALUE, ipsnumber, percentage {PERCENTAGE} min {MIN} max {MAX} digits {DIGITS} thousandsSeparator {{THOUSANDS_SEPARATOR}} decimalSeparator {{DECIMAL_SEPARATOR}}}",
+            "{SUFFIX}",
+        "}}"
+    ],
+    "chart": {
+        "min": "MIN",
+        "max": "MAX",
+        "step": "STEP_SIZE"
+    },
+    "customIcon": true
+}

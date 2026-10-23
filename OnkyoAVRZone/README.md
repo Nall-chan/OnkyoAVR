@@ -1,9 +1,9 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-onkyo-pioneer-avr/53213)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FOnkyoAVR%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v81-v90-q1-2026/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#10-lizenz)
 [![Check Style](https://github.com/Nall-chan/OnkyoAVR/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions) [![Run Tests](https://github.com/Nall-chan/OnkyoAVR/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/OnkyoAVR/actions)  
-[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden) [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
 # Onkyo & Pioneer AVR Zone (Onkyo AVR) <!-- omit in toc -->
 
@@ -15,7 +15,7 @@ Bildet eine der Zones eines Gerätes in IP-Symcon ab.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
@@ -32,7 +32,7 @@ Bildet eine der Zones eines Gerätes in IP-Symcon ab.
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2  
+- Symcon ab Version 9.0  
 - kompatibler AV-Receiver mit LAN-Anschluss oder RS232 (RS232 Geräte haben einen eingeschränkten Leistungsumfang)  
 
 ## 3. Software-Installation
@@ -57,15 +57,25 @@ Zone 2, 3 und 4 haben, je nach Gerät, ein deutlich kleineres Spektrum an verfü
 **Beispiel Konfiguration Zone 2:**  
 ![Konfiguration Zone 2](../imgs/conf_zone2.png)  
 
-## 5. Statusvariablen und Profile
+**Hörmodi:**  
+![Hörmodi im Aktionsbereich](../imgs/conf_zone1_hoermodi.png)  
+Der Receiver meldet nicht, welche Hörmodi er kann. Die Statusvariable `Hörmodus` (`LMD`, bei Zone 2 `LMZ`) bietet deshalb nur eine Auswahl an:  
 
-Jede Zone erstellt ihre Statusvariablen und einige Profile dynamisch, je nach Fähigkeiten der Geräte/Zonen und der Instanz-Konfiguration.  
+- die in der Liste `Hörmodi` des Aktionsbereichs der Instanz angehakten Modi (Standard: gängige Modi ohne THX),  
+- alle Modi, die der Receiver schon einmal gemeldet hat (automatisch gelernt, Spalte `Vom Gerät gemeldet`),  
+- und den aktuell aktiven Modus.  
+
+Fehlt ein Modus, den Ihr Gerät kann, wird er nach dem ersten Umschalten am Gerät oder per Fernbedienung automatisch ergänzt oder lässt sich in der Liste anhaken.  
+Die Liste befindet sich im Aktionsbereich (unterhalb der Einstellungen), ein Klick auf den Haken wirkt sofort, `Änderungen übernehmen` ist nicht nötig.  
+
+> [!NOTE]
+> Die Auswahl wird nicht als Eigenschaft der Instanz gespeichert, sondern intern. Sie ist deshalb nicht Teil von `IPS_GetConfiguration`.  
+
+## 5. Statusvariablen
+
+Jede Zone erstellt ihre Statusvariablen mit passenden Darstellungen, je nach Fähigkeiten der Geräte/Zonen und der Instanz-Konfiguration.  
 Es können in der Konfiguration bestimmte Statusvariablen ab/angewählt werden.  
 Diese werden jedoch nur erzeugt, wenn das Gerät auch eine (sinnvolle) Antwort liefert.  
-**Beispiel Main Zone, Werkseinstellungen:**  
-![Objektbaum Main Zone](../imgs/logbaum_zone1_default.png)  
-**Beispiel Main Zone bei TX-626 mit allen Funktionen in der Instanz aktiviert:**  
-![Objektbaum Main Zone](../imgs/logbaum_zone1_max.png)  
 
 Die Statusvariablen können in der Konfiguration der Instanz aktiviert / inaktiviert werden.  
 
@@ -147,37 +157,36 @@ Die Statusvariablen können in der Konfiguration der Instanz aktiviert / inaktiv
 | Mute    | boolean |  MT4  | Stummschaltung aktiv / inaktiv |
 | Eingang | integer |  SL4  | Audio/Video Eingangsquelle     |
 
-**Profile**:  
+**Darstellungen**:
 
-Alle Profile mit .* am Ende, enthalten immer die InstanzID und sind dynamische Profile.  
-Diese können sich während des Betriebes, oder beim ändern von Geräteeinstellungen dynamisch verändern.  
+Wertebereiche (z.B. der Lautstärke) und Auswahllisten (z.B. der Eingänge) liest die Instanz vom Gerät und setzt sie direkt in der Darstellung der jeweiligen Statusvariable.
+Sie können sich während des Betriebes, oder beim Ändern von Geräteeinstellungen verändern.
 
-| Name                    |   Typ   | verwendet von Statusvariablen  (Ident)      |
-| :---------------------- | :-----: | :------------------------------------------ |
-| Onkyo.Volume.*          | integer | MVL, ZVL, VL3, VL4                          |
-| Onkyo.ToneOffset.*      | integer | TRF, TFW, TFH, TCT, TSR, TSB, TSW, ZTN, TN3 |
-| Onkyo.CenterLevel.*     |  float  | CTL                                         |
-| Onkyo.SubwooferLevel.*  |  float  | SWL                                         |
-| Onkyo.Subwoofer2Level.* |  float  | SW2                                         |
-| Onkyo.SelectInput.*     | integer | SLI, SLZ, SL3, SL4                          |
-| Onkyo.LMD               | integer | LMD                                         |
-| Onkyo.SelectLMD.*       | integer | LMD2                                        |
-| Onkyo.SelectInputAudio  | integer | SLA                                         |
-| Onkyo.DisplayMode       | integer | DIF                                         |
-| Onkyo.DisplayDimmer     | integer | DIM                                         |
-| Onkyo.HDMIOutput        | integer | HDO                                         |
-| Onkyo.HDMIAudioOutput   | integer | HAO                                         |
-| Onkyo.VideoResolution   | integer | RES                                         |
-| Onkyo.VideoWideMode     | integer | VWM                                         |
-| Onkyo.VideoPictureMode  | integer | VPM                                         |
-| Onkyo.LateNight         | integer | LTN                                         |
-| Onkyo.Audyssey          | integer | ADY                                         |
-| Onkyo.AudysseyDynamic   | integer | ADV                                         |
-| Onkyo.Sleep             | integer | SLP                                         |
+| Darstellung                             | verwendet von Statusvariablen (Ident)                 |
+| :-------------------------------------- | :---------------------------------------------------- |
+| Schalter (An/Aus)                       | PWR, ZPW, PW3, PW4 und alle Schalter                  |
+| Schalter (Stumm schalten)               | AMT, ZMT, MT3, MT4                                    |
+| Schieberegler (Lautstärke)              | MVL, ZVL, VL3, VL4                                    |
+| Schieberegler (Höhen / Bass)            | TFR, TFW, TFH, TCT, TSR, TSB, TSW, ZTN, TN3           |
+| Schieberegler (Pegel)                   | CTL, SWL, SW2                                         |
+| Schieberegler (Einschlaftimer)          | SLP                                                   |
+| Aufzählung (Eingänge der Zone)          | SLI, SLZ, SL3, SL4                                    |
+| Aufzählung (Hörmodi)                    | LMD                                                   |
+| Aufzählung (Aktions-Tasten für Hörmodi) | LMD2                                                  |
+| Aufzählung (feste Auswahllisten)        | SLA, DIF, DIM, HDO, HAO, RES, VWM, VPM, LTN, ADY, ADV |
+| Werteingabe (mehrzeilig, nur Anzeige)   | IFA, IFV                                              |
+
+Die Variablenprofile `Onkyo.*` früherer Versionen werden beim Update automatisch entfernt, die vorhandenen Statusvariablen werden dabei auf die Darstellungen umgestellt.
 
 ## 6. Visualisierung
 
 Die direkte Darstellung ist möglich, es wird aber empfohlen mit Links zu arbeiten.  
+
+**Beispiel Kachel-Visualisierung, Main Zone:**  
+![Kachel Main Zone](../imgs/tile_zone.png)  
+
+**Beispiel Kachel-Visualisierung, Zone 2:**  
+![Kachel Zone 2](../imgs/tile_zone2.png)  
 
 **Beispiel WebFront, Main Zone (Werkseinstellungen):**  
 ![WebFront Beispiel](../imgs/webfront_mainzone_default.png)  
@@ -246,7 +255,7 @@ bool OAVR_SelectInput(int $InstanzID, int $Value);
 
 Eingangsquelle der Zone wählen.  
 Dabei kann `Value` je nach Gerät und Zone nur bestimmte Werte haben.  
-Gültige Werte sind im VariablenProfil `Onkyo.SelectInput.<InstanzId>` zu finden.  
+Gültige Werte sind in der Darstellung (Aufzählung) der Statusvariable `SLI` (bzw. `SLZ`, `SL3`, `SL4`) zu finden.  
 Beispielwerte aus der API sind:  
 
 | Wert  |     Eingang     |
@@ -278,7 +287,7 @@ bool OAVR_SelectAudioInput(int $InstanzID, int $Value);
 
 Audioquelle der Zone wählen.  
 Dabei kann `Value` je nach Gerät und Zone nur bestimmte Werte haben.  
-Beispielwerte sind im VariablenProfil `Onkyo.SelectInputAudio` zu finden.  
+Beispielwerte sind in der Darstellung (Aufzählung) der Statusvariable `SLA` zu finden.  
 Werte aus der API sind:  
 
 | Wert  |    Eingang    |
@@ -301,7 +310,7 @@ bool OAVR_SelectListingMode(int $InstanzID, int $Value);
 
 Hörmodus der Zone wählen.  
 Dabei kann `Value` je nach Gerät und Zone nur bestimmte Werte haben.  
-Beispielwerte sind im VariablenProfil `Onkyo.LMD` zu finden.  
+Beispielwerte sind in der Darstellung (Aufzählung) der Statusvariable `LMD` zu finden.  
 Werte aus der API sind, u.a.:  
 
 | Wert  |               Hörmodus                |
@@ -359,7 +368,7 @@ bool OAVR_SetSubwooferLevel(int $InstanzID, float $Level);
 
 Setzt den Level des Subwoofer auf den in `Level` übergeben Wert.  
 Je nach Gerät sind verschiedene min/max Werte zulässig.  
-Ein gültige Wertebereich ist im VariablenProfil `Onkyo.SubwooferLevel.<InstanzId>` zu finden.  
+Ein gültiger Wertebereich ist in der Darstellung (Schieberegler) der Statusvariable `SWL` zu finden.  
 
 ---  
 
@@ -444,7 +453,21 @@ Bei nicht bekannten Daten, ist der Wert leer.
 
 ## 8. Aktionen
 
-Die Instanz unterstützt (aktuell) keine Aktionen.  
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**  
+
+Zusätzlich stellt die Library für diese Instanz folgende Aktionen der Kategorie `Zielspezifisch` bereit (z.B. im Ablaufplan, in Ereignissen und im Dialog `Befehle testen`):  
+
+- Ein-/Ausschalten (einschalten, ausschalten, umschalten)  
+- Lautstärke setzen  
+- Stummschaltung schalten  
+- Eingang wählen (die Liste wird aus der Statusvariable der Zone gelesen)  
+- Audio-Eingang wählen  
+- Hörmodus wählen  
+- Einschlaf-Timer setzen  
+- Pegel setzen (Center, Subwoofer, Subwoofer 2)  
+- Anzeigemodus setzen  
+- Anzeigehelligkeit setzen  
+- Status abfragen  
 
 ## 9. Anhang
 
@@ -465,4 +488,4 @@ Wunschliste:
 ## 10. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](../LICENSE)  
