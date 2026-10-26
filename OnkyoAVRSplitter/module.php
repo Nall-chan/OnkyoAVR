@@ -136,6 +136,11 @@ class ISCPSplitter extends IPSModuleStrict
                 $this->UnregisterMessage(0, IPS_KERNELSTARTED);
                 $this->KernelReady();
                 break;
+            case IM_CHANGESETTINGS:
+                if (($SenderID == $this->ParentID) && ($SenderID > 0)) {
+                    $this->UpdateSummary();
+                }
+                break;
         }
     }
 
@@ -315,22 +320,46 @@ class ISCPSplitter extends IPSModuleStrict
      */
     protected function RegisterParent(): void
     {
+        $OldIOId = $this->ParentID;
         $IOId = $this->IORegisterParent();
+        if (($OldIOId > 0) && ($OldIOId != $IOId)) {
+            $this->UnregisterMessage($OldIOId, IM_CHANGESETTINGS);
+        }
         if ($IOId > 0) {
+            // Ändert sich die Konfiguration des Parent (Host, Port), muss die Zusammenfassung angepasst werden.
+            $this->RegisterMessage($IOId, IM_CHANGESETTINGS);
             $parentGUID = IPS_GetInstance($IOId)['ModuleInfo']['ModuleID'];
             if ($parentGUID == \OnkyoAVR\GUID::ClientSocket) {
-                // Lesender Zugriff auf die Properties des Parent (Client Socket / Serial Port) für die Zusammenfassung.
-                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
                 $this->Mode = \OnkyoAVR\ISCP_API_Mode::LAN;
-            } elseif ($parentGUID == \OnkyoAVR\GUID::SerialPort) {
-                $this->SetSummary(IPS_GetProperty($IOId, 'Port'));
-                $this->Mode = \OnkyoAVR\ISCP_API_Mode::COM;
             } else {
                 $this->Mode = \OnkyoAVR\ISCP_API_Mode::COM;
             }
-            return;
         }
-        $this->SetSummary(('none'));
+        $this->UpdateSummary();
+    }
+
+    /**
+     * UpdateSummary
+     *
+     * Zeigt Host:Port bzw. den seriellen Port des Parent als Zusammenfassung an, ohne Parent bleibt sie leer.
+     * Die Zusammenfassung ist nur eine Anzeige und keine Datenquelle.
+     *
+     * @return void
+     */
+    protected function UpdateSummary(): void
+    {
+        $Summary = '';
+        $IOId = $this->ParentID;
+        if ($IOId > 0) {
+            // Lesender Zugriff auf die Properties des Parent (Client Socket / Serial Port).
+            $parentGUID = IPS_GetInstance($IOId)['ModuleInfo']['ModuleID'];
+            if ($parentGUID == \OnkyoAVR\GUID::ClientSocket) {
+                $Summary = IPS_GetProperty($IOId, 'Host') . ':' . IPS_GetProperty($IOId, 'Port');
+            } elseif ($parentGUID == \OnkyoAVR\GUID::SerialPort) {
+                $Summary = IPS_GetProperty($IOId, 'Port');
+            }
+        }
+        $this->SetSummary($Summary);
     }
 
     /**
@@ -383,7 +412,7 @@ class ISCPSplitter extends IPSModuleStrict
             return $ReplyData;
         } catch (Exception $ex) {
             $this->SendDebug('Error', $ex->getMessage(), 0);
-            trigger_error($ex->getMessage(), $ex->getCode());
+            echo $ex->getMessage() . PHP_EOL;
         }
         return null;
     }

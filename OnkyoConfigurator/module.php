@@ -10,14 +10,18 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/../libs/OnkyoAVRClass.php';  // diverse Klassen
 eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('namespace OnkyoConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 
 /**
  * @property array $Zones
+ * @property int $SplitterID Die InstanzID des Splitter (Parent)
+ * @property int $IOID Die InstanzID des IO (Parent des Splitters)
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
 class OnkyoConfigurator extends IPSModuleStrict
 {
     use \OnkyoConfigurator\DebugHelper;
+    use \OnkyoConfigurator\BufferHelper;
 
     /**
      * Create
@@ -28,6 +32,8 @@ class OnkyoConfigurator extends IPSModuleStrict
     {
         parent::Create();
         $this->Zones = [];
+        $this->SplitterID = 0;
+        $this->IOID = 0;
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
     }
 
@@ -39,7 +45,51 @@ class OnkyoConfigurator extends IPSModuleStrict
     public function ApplyChanges(): void
     {
         $this->Zones = [];
+        $this->SplitterID = 0;
+        $this->IOID = 0;
+        $this->RegisterMessage($this->InstanceID, FM_CONNECT);
+        $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         parent::ApplyChanges();
+        if (IPS_GetKernelRunlevel() != KR_READY) {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
+            return;
+        }
+        $this->RegisterSummarySources();
+    }
+
+    /**
+     * MessageSink
+     *
+     * @param  int $TimeStamp
+     * @param  int $SenderID
+     * @param  int $Message
+     * @param  array $Data
+     * @return void
+     */
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
+    {
+        switch ($Message) {
+            case IPS_KERNELSTARTED:
+                $this->UnregisterMessage(0, IPS_KERNELSTARTED);
+                $this->RegisterSummarySources();
+                break;
+            case FM_CONNECT:
+            case FM_DISCONNECT:
+                $this->RegisterSummarySources();
+                break;
+            case IM_CONNECT:
+            case IM_DISCONNECT:
+                // Der Splitter hat einen IO bekommen, verloren oder gewechselt.
+                if (($SenderID == $this->SplitterID) && ($SenderID > 0)) {
+                    $this->RegisterSummarySources();
+                }
+                break;
+            case IM_CHANGESETTINGS:
+                if (($SenderID == $this->IOID) && ($SenderID > 0)) {
+                    $this->UpdateSummary();
+                }
+                break;
+        }
     }
 
     /**
@@ -125,6 +175,65 @@ class OnkyoConfigurator extends IPSModuleStrict
         $this->SendDebug('FORM', json_last_error_msg(), 0);
 
         return json_encode($Form);
+    }
+
+    /**
+     * RegisterSummarySources
+     *
+     * Ermittelt Splitter und IO (Parent-Kette), meldet sich für deren Änderungen an und aktualisiert die Zusammenfassung.
+     *
+     * @return void
+     */
+    protected function RegisterSummarySources(): void
+    {
+        $OldSplitterID = $this->SplitterID;
+        $OldIOID = $this->IOID;
+        $SplitterID = (int) (@IPS_GetInstance($this->InstanceID)['ConnectionID'] ?? 0);
+        $IOID = 0;
+        if ($SplitterID > 0) {
+            $IOID = (int) (@IPS_GetInstance($SplitterID)['ConnectionID'] ?? 0);
+        }
+        if (($OldSplitterID > 0) && ($OldSplitterID != $SplitterID)) {
+            $this->UnregisterMessage($OldSplitterID, IM_CONNECT);
+            $this->UnregisterMessage($OldSplitterID, IM_DISCONNECT);
+        }
+        if (($OldIOID > 0) && ($OldIOID != $IOID)) {
+            $this->UnregisterMessage($OldIOID, IM_CHANGESETTINGS);
+        }
+        if ($SplitterID > 0) {
+            $this->RegisterMessage($SplitterID, IM_CONNECT);
+            $this->RegisterMessage($SplitterID, IM_DISCONNECT);
+        }
+        if ($IOID > 0) {
+            $this->RegisterMessage($IOID, IM_CHANGESETTINGS);
+        }
+        $this->SplitterID = $SplitterID;
+        $this->IOID = $IOID;
+        $this->UpdateSummary();
+    }
+
+    /**
+     * UpdateSummary
+     *
+     * Zeigt Host:Port bzw. den seriellen Port des IO als Zusammenfassung an, ohne IO bleibt sie leer.
+     * Die Zusammenfassung ist nur eine Anzeige und keine Datenquelle.
+     *
+     * @return void
+     */
+    protected function UpdateSummary(): void
+    {
+        $Summary = '';
+        $IOID = $this->IOID;
+        if ($IOID > 0) {
+            // Lesender Zugriff auf die Properties des IO (Client Socket / Serial Port).
+            $GUID = IPS_GetInstance($IOID)['ModuleInfo']['ModuleID'];
+            if ($GUID == \OnkyoAVR\GUID::ClientSocket) {
+                $Summary = IPS_GetProperty($IOID, 'Host') . ':' . IPS_GetProperty($IOID, 'Port');
+            } elseif ($GUID == \OnkyoAVR\GUID::SerialPort) {
+                $Summary = IPS_GetProperty($IOID, 'Port');
+            }
+        }
+        $this->SetSummary($Summary);
     }
 
     /**

@@ -45,7 +45,6 @@ eval('namespace OnkyoNetplayer {?>' . file_get_contents(__DIR__ . '/../libs/help
  */
 class OnkyoNetplayer extends IPSModuleStrict
 {
-    use \OnkyoAVR\ActionErrorHandler;
     use \OnkyoNetplayer\DebugHelper,
         \OnkyoNetplayer\BufferHelper,
         \OnkyoNetplayer\InstanceStatus,
@@ -373,7 +372,7 @@ class OnkyoNetplayer extends IPSModuleStrict
                     $Input = 0x2E;
                     break;
                 default:
-                    trigger_error($this->Translate('Unknown NetworkService'), E_USER_NOTICE);
+                    echo $this->Translate('Unknown NetworkService') . PHP_EOL;
                     return false;
             }
             $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetZoneCommand(\OnkyoAVR\ISCP_API_Commands::SLI), sprintf('%02X', $Input));
@@ -437,10 +436,7 @@ class OnkyoNetplayer extends IPSModuleStrict
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
-        $this->RunWithErrorOutput(function () use ($Ident, $Value): void
-        {
-            $this->ProcessRequestAction($Ident, $Value);
-        });
+        $this->ProcessRequestAction($Ident, $Value);
     }
 
     /**
@@ -457,7 +453,7 @@ class OnkyoNetplayer extends IPSModuleStrict
         }
         $ApiCmd = substr($Ident, 0, 3);
         if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_NetPlayer::$ReadAPICommands)) {
-            trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
+            echo $this->Translate('Invalid ident') . PHP_EOL;
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data($ApiCmd, \OnkyoAVR\ISCP_API_Commands::Request);
@@ -554,7 +550,7 @@ class OnkyoNetplayer extends IPSModuleStrict
     public function SetPosition(int $Value): bool
     {
         if ($Value > $this->StringToSeconds($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTM . '1'))) {
-            trigger_error($this->Translate('Value greater as duration'), E_USER_NOTICE);
+            echo $this->Translate('Value greater as duration') . PHP_EOL;
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(\OnkyoAVR\ISCP_API_Commands::NTS, $this->SecondsToString($Value), false);
@@ -574,7 +570,7 @@ class OnkyoNetplayer extends IPSModuleStrict
     public function CallPreset(int $Value): bool
     {
         if (($Value < 1) || ($Value > 40)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            echo sprintf($this->Translate('%s out of range.'), 'Value') . PHP_EOL;
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(
@@ -1034,7 +1030,7 @@ sleep(10).then(() => {
             $error = $xml->xpath('//error');
             if (count($error) == 1) {
                 $this->SendDebug('ERROR ' . (string) $error[0]['code'], (string) $error[0]['message'], 0);
-                trigger_error((string) $error[0]['message'], E_USER_NOTICE);
+                echo (string) $error[0]['message'] . PHP_EOL;
                 return ['Error' => (string) $error[0]['message']];
             }
         }
@@ -1205,7 +1201,7 @@ sleep(10).then(() => {
                 break;
             case \OnkyoAVR\ISCP_API_Commands::NTM:
                 if (!$this->SeekSupported) {
-                    trigger_error($this->Translate('Command not available.'), E_USER_NOTICE);
+                    echo $this->Translate('Command not available.') . PHP_EOL;
                     break;
                 }
                 $Total = $this->StringToSeconds($this->GetValue(\OnkyoAVR\ISCP_API_Commands::NTM . '1'));
@@ -1256,7 +1252,7 @@ sleep(10).then(() => {
                 $Index = is_array($Data) ? ($Data['current'] ?? null) : null;
                 $PlaylistIds = $this->PlaylistIds;
                 if ((!is_int($Index)) || (!array_key_exists($Index, $PlaylistIds))) {
-                    trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                    echo $this->Translate('Invalid Value.') . PHP_EOL;
                     break;
                 }
                 if ($PlaylistIds[$Index] == self::PlaylistWaitId) {
@@ -1272,7 +1268,7 @@ sleep(10).then(() => {
                         usleep(100000);
                     }
                     if ($this->UiType == 2) {
-                        trigger_error($this->Translate('Timeout'), E_USER_NOTICE);
+                        echo $this->Translate('Timeout') . PHP_EOL;
                         break;
                     }
                 }
@@ -1305,7 +1301,7 @@ sleep(10).then(() => {
                         $this->NextTrack();
                         break;
                     default:
-                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        echo $this->Translate('Invalid Value.') . PHP_EOL;
                         break;
                 }
                 break;
@@ -1329,7 +1325,7 @@ sleep(10).then(() => {
                 $this->SelectNetworkService($Value);
                 break;
             default:
-                trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+                echo $this->Translate('Invalid Ident.') . PHP_EOL;
                 break;
         }
     }
@@ -1924,7 +1920,7 @@ sleep(10).then(() => {
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
-            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            echo $exc->getMessage() . PHP_EOL;
 
             return null;
         }

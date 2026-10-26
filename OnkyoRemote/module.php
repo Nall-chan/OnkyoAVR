@@ -25,7 +25,6 @@ eval('namespace OnkyoRemote {?>' . file_get_contents(__DIR__ . '/../libs/helper/
  */
 class OnkyoRemote extends IPSModuleStrict
 {
-    use \OnkyoAVR\ActionErrorHandler;
     use \OnkyoRemote\DebugHelper;
     use \OnkyoRemote\BufferHelper;
     use \OnkyoRemote\VariableHelper;
@@ -431,10 +430,7 @@ class OnkyoRemote extends IPSModuleStrict
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
-        $this->RunWithErrorOutput(function () use ($Ident, $Value): void
-        {
-            $this->ProcessRequestAction($Ident, $Value);
-        });
+        $this->ProcessRequestAction($Ident, $Value);
     }
 
     /**
@@ -830,7 +826,7 @@ class OnkyoRemote extends IPSModuleStrict
                         $ret = $this->Menu();
                         break;
                     default:
-                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        echo $this->Translate('Invalid Value.') . PHP_EOL;
                         return;
                 }
                 break;
@@ -852,16 +848,16 @@ class OnkyoRemote extends IPSModuleStrict
                         $ret = $this->Send('FF');
                         break;
                     default:
-                        trigger_error($this->Translate('Invalid Value.'), E_USER_NOTICE);
+                        echo $this->Translate('Invalid Value.') . PHP_EOL;
                         return;
                 }
                 break;
             default:
-                trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+                echo $this->Translate('Invalid Ident.') . PHP_EOL;
                 return;
         }
         if (!$ret) {
-            trigger_error($this->Translate('Error on execute action.'), E_USER_NOTICE);
+            echo $this->Translate('Error on execute action.') . PHP_EOL;
         }
     }
 
@@ -893,7 +889,7 @@ class OnkyoRemote extends IPSModuleStrict
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
-            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            echo $exc->getMessage() . PHP_EOL;
             return false;
         }
     }

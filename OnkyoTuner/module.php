@@ -31,7 +31,6 @@ eval('namespace OnkyoTuner {?>' . file_get_contents(__DIR__ . '/../libs/helper/V
  */
 class OnkyoTuner extends IPSModuleStrict
 {
-    use \OnkyoAVR\ActionErrorHandler;
     use \OnkyoTuner\DebugHelper,
         \OnkyoTuner\BufferHelper,
         \OnkyoTuner\InstanceStatus,
@@ -145,10 +144,7 @@ class OnkyoTuner extends IPSModuleStrict
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
-        $this->RunWithErrorOutput(function () use ($Ident, $Value): void
-        {
-            $this->ProcessRequestAction($Ident, $Value);
-        });
+        $this->ProcessRequestAction($Ident, $Value);
     }
 
     /**
@@ -165,7 +161,7 @@ class OnkyoTuner extends IPSModuleStrict
         }
         $ApiCmd = substr($Ident, 0, 3);
         if (!in_array($Ident, \OnkyoAVR\ONKYO_Zone_Tuner::$ZoneCMDs[$this->OnkyoZone->thisZone])) {
-            trigger_error($this->Translate('Invalid ident.'), E_USER_NOTICE);
+            echo $this->Translate('Invalid ident.') . PHP_EOL;
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data($this->OnkyoZone->GetReadAPICommands()[$ApiCmd], \OnkyoAVR\ISCP_API_Commands::Request);
@@ -189,7 +185,7 @@ class OnkyoTuner extends IPSModuleStrict
             }
         }
         if (!$ValueValid) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            echo sprintf($this->Translate('%s out of range.'), 'Value') . PHP_EOL;
             return false;
         }
         $result = true;
@@ -249,7 +245,7 @@ class OnkyoTuner extends IPSModuleStrict
     public function CallPreset(int $Value): bool
     {
         if (($Value < 1) || ($Value > $this->MaxPreset)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            echo sprintf($this->Translate('%s out of range.'), 'Value') . PHP_EOL;
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(
@@ -268,7 +264,7 @@ class OnkyoTuner extends IPSModuleStrict
     public function SetPreset(int $Value): bool
     {
         if (($Value < 1) || ($Value > $this->MaxPreset)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            echo sprintf($this->Translate('%s out of range.'), 'Value') . PHP_EOL;
             return false;
         }
         $APIData = new \OnkyoAVR\ISCP_API_Data(
@@ -553,7 +549,7 @@ class OnkyoTuner extends IPSModuleStrict
             return $result;
         } catch (Exception $exc) {
             $this->SendDebug('Error', $exc->getMessage(), 0);
-            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            echo $exc->getMessage() . PHP_EOL;
             return null;
         }
     }
